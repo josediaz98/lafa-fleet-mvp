@@ -55,37 +55,37 @@
         <!-- KPI Row -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <span class="text-xs text-gray-500 uppercase tracking-wider">SOH Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider">SOH Promedio</span>
             <p class="text-3xl font-bold mt-2" id="kpi-soh">0%</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <span class="text-xs text-gray-500 uppercase tracking-wider">Anomalías</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider">Anomalías</span>
             <p class="text-3xl font-bold mt-2 text-red-400" id="kpi-anomalies">0</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <span class="text-xs text-gray-500 uppercase tracking-wider">Temp Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider">Temp Promedio</span>
             <p class="text-3xl font-bold mt-2" id="kpi-temp">0°C</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <span class="text-xs text-gray-500 uppercase tracking-wider">Ciclos Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider">Ciclos Promedio</span>
             <p class="text-3xl font-bold mt-2" id="kpi-cycles">0</p>
           </div>
         </div>
 
         <!-- Heatmap Filters -->
         <div class="flex flex-wrap items-center gap-3">
-          <select id="heatmap-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+          <select id="heatmap-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="">Todos OEM</option>
             <option value="Geely">Geely</option>
             <option value="JAC">JAC</option>
             <option value="GAC">GAC</option>
           </select>
-          <select id="heatmap-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+          <select id="heatmap-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="">Todos Productos</option>
             <option value="DaE">DaE</option>
             <option value="LTO">LTO</option>
           </select>
-          <select id="heatmap-sort" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+          <select id="heatmap-sort" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="id">Ordenar por ID</option>
             <option value="soh">Ordenar por SOH</option>
             <option value="cycles">Ordenar por Ciclos</option>

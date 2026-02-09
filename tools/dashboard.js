@@ -166,7 +166,7 @@
     for (let i = 1; i <= totalPages; i++) {
       const btn = document.createElement('button');
       btn.textContent = i;
-      btn.className = `px-3 py-1 rounded text-xs transition-colors ${i === currentPage ? 'bg-[#FF5A00] text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`;
+      btn.className = `px-3 py-1 rounded text-xs transition-colors ${i === currentPage ? 'bg-lafa-orange text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`;
       btn.addEventListener('click', () => { currentPage = i; renderTable(); });
       pag.appendChild(btn);
     }
@@ -217,7 +217,7 @@
               <p class="text-sm text-gray-400">${d.vehicleId} — ${d.platform} — ${d.colonia}</p>
             </div>
           </div>
-          <button id="close-panel" class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+          <button id="close-panel" class="p-1.5 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors" aria-label="Cerrar">
             ${L.lucideIcon('x', 'w-5 h-5')}
           </button>
         </div>

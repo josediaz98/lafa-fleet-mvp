@@ -218,7 +218,7 @@
       const priorityColor = d.soh < 82 ? 'text-red-400 bg-red-500/10' : d.soh < 85 ? 'text-yellow-400 bg-yellow-500/10' : 'text-blue-400 bg-blue-500/10';
 
       return `
-        <tr class="hover:bg-white/[0.03] cursor-pointer" data-id="${d.id}">
+        <tr class="hover:bg-white/[0.03] cursor-pointer transition-colors" data-id="${d.id}">
           <td class="px-5 py-3">
             <span class="px-2 py-1 rounded text-xs font-medium ${priorityColor}">${priority}</span>
           </td>

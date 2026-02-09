@@ -590,7 +590,7 @@
 
     document.getElementById('modal-timeline').innerHTML = steps.map((s) => `
       <div class="timeline-step text-center active">
-        <div class="w-8 h-8 rounded-full bg-[#FF5A00] flex items-center justify-center mx-auto text-xs font-bold text-white">
+        <div class="w-8 h-8 rounded-full bg-lafa-orange flex items-center justify-center mx-auto text-xs font-bold text-white">
           ${L.lucideIcon('check-circle', 'w-4 h-4')}
         </div>
         <p class="text-xs font-medium mt-2 text-white">${s.label}</p>

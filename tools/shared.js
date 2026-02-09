@@ -366,7 +366,7 @@ function initSidebar(currentPage) {
     <div class="flex flex-col h-full bg-[#16151E] border-r border-white/5 transition-all duration-300 sidebar-collapsed" id="sidebar-inner">
       <div class="flex items-center h-16 px-4 border-b border-white/5">
         <a href="../index.html" class="sidebar-logo hidden">${logoSVG}</a>
-        <button id="sidebar-toggle" class="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors ml-auto">
+        <button id="sidebar-toggle" class="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors ml-auto" aria-label="Toggle sidebar">
           ${lucideIcon('menu', 'w-5 h-5')}
         </button>
       </div>
@@ -414,7 +414,7 @@ function createPageHeader(title, subtitle) {
         ${subtitle ? `<p class="text-sm text-gray-400 mt-0.5">${subtitle}</p>` : ''}
       </div>
       <div class="flex items-center gap-3">
-        <button class="relative p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="notification-bell">
+        <button class="relative p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="notification-bell" aria-label="Notificaciones">
           ${lucideIcon('bell', 'w-5 h-5')}
           <span id="notif-badge" class="notif-badge">${NOTIFICATIONS.length}</span>
         </button>

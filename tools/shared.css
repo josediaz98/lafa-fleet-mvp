@@ -176,8 +176,8 @@ html { scroll-behavior: smooth; }
 .modal-backdrop.closing { opacity: 0; }
 
 .modal-content {
-  background: #1B1A23;
-  border: 1px solid rgba(255,255,255,0.08);
+  background: #1E1D28;
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 16px;
   width: 95vw; max-width: 720px;
   max-height: 90vh;
