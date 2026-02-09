@@ -57,19 +57,19 @@
         <!-- KPI Row -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-            <span class="text-xs text-gray-400 uppercase tracking-wider">SOH Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="battery.kpi.avgSoh">SOH Promedio</span>
             <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-soh">0%</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-            <span class="text-xs text-gray-400 uppercase tracking-wider">Anomalías</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="battery.kpi.anomalies">Anomalías</span>
             <p class="text-2xl sm:text-3xl font-bold mt-2 text-red-400" id="kpi-anomalies">0</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-            <span class="text-xs text-gray-400 uppercase tracking-wider">Temp Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="battery.kpi.avgTemp">Temp Promedio</span>
             <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-temp">0°C</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-            <span class="text-xs text-gray-400 uppercase tracking-wider">Ciclos Promedio</span>
+            <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="battery.kpi.avgCycles">Ciclos Promedio</span>
             <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-cycles">0</p>
           </div>
         </div>
@@ -77,20 +77,20 @@
         <!-- Heatmap Filters -->
         <div class="flex flex-wrap items-center gap-3">
           <select id="heatmap-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-            <option value="">Todos OEM</option>
+            <option value="" data-i18n="battery.filter.allOem">Todos OEM</option>
             <option value="Geely">Geely</option>
             <option value="JAC">JAC</option>
             <option value="GAC">GAC</option>
           </select>
           <select id="heatmap-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-            <option value="">Todos Productos</option>
+            <option value="" data-i18n="battery.filter.allProducts">Todos Productos</option>
             <option value="DaE">DaE</option>
             <option value="LTO">LTO</option>
           </select>
           <select id="heatmap-sort" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-            <option value="id">Ordenar por ID</option>
-            <option value="soh">Ordenar por SOH</option>
-            <option value="cycles">Ordenar por Ciclos</option>
+            <option value="id" data-i18n="battery.filter.sortId">Ordenar por ID</option>
+            <option value="soh" data-i18n="battery.filter.sortSoh">Ordenar por SOH</option>
+            <option value="cycles" data-i18n="battery.filter.sortCycles">Ordenar por Ciclos</option>
           </select>
           <div class="ml-0 sm:ml-auto w-full sm:w-auto flex items-center gap-2 text-xs text-gray-500">
             <span>SOH:</span>
@@ -103,7 +103,7 @@
 
         <!-- Fleet Heatmap -->
         <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-          <h3 class="text-sm font-semibold text-gray-300 mb-4">Mapa de Salud de Flota</h3>
+          <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="battery.heatmap.title">Mapa de Salud de Flota</h3>
           <div id="heatmap-grid" class="grid gap-1" style="grid-template-columns: repeat(25, 1fr);"></div>
         </div>
 
@@ -114,28 +114,28 @@
             <div class="lg:col-span-3 space-y-4">
               <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <div class="flex items-center justify-between mb-4">
-                  <h3 class="text-sm font-semibold text-gray-300">Curva de Degradación</h3>
+                  <h3 class="text-sm font-semibold text-gray-300" data-i18n="battery.detail.degradation">Curva de Degradación</h3>
                   <span class="text-xs text-gray-500" id="detail-vehicle-id"></span>
                 </div>
                 <div id="chart-degradation" class="h-64"></div>
               </div>
               <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-                <h3 class="text-sm font-semibold text-gray-300 mb-4">Patrón de Carga (30 días)</h3>
+                <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="battery.detail.chargePattern">Patrón de Carga (30 días)</h3>
                 <div id="chart-charge" class="h-48"></div>
               </div>
             </div>
             <!-- Info -->
             <div class="lg:col-span-2 space-y-4">
               <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-                <h4 class="text-sm font-semibold text-gray-300 mb-3">Información del Vehículo</h4>
+                <h4 class="text-sm font-semibold text-gray-300 mb-3" data-i18n="battery.detail.vehicleInfo">Información del Vehículo</h4>
                 <div class="space-y-3" id="detail-info"></div>
               </div>
               <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-                <h4 class="text-sm font-semibold text-gray-300 mb-3">Proyecciones AI</h4>
+                <h4 class="text-sm font-semibold text-gray-300 mb-3" data-i18n="battery.detail.projections">Proyecciones AI</h4>
                 <div class="space-y-3" id="detail-projections"></div>
               </div>
               <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
-                <h4 class="text-sm font-semibold text-gray-300 mb-3">Recomendaciones</h4>
+                <h4 class="text-sm font-semibold text-gray-300 mb-3" data-i18n="battery.detail.recommendations">Recomendaciones</h4>
                 <div class="space-y-2" id="detail-recs"></div>
               </div>
             </div>
@@ -145,19 +145,19 @@
         <!-- Anomaly Table -->
         <div class="bg-lafa-card rounded-xl border border-white/5">
           <div class="p-5 border-b border-white/5">
-            <h3 class="text-sm font-semibold text-gray-300">Alertas de Anomalías</h3>
+            <h3 class="text-sm font-semibold text-gray-300" data-i18n="battery.anomaly.title">Alertas de Anomalías</h3>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full">
               <thead>
                 <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
-                  <th class="px-5 py-3">Prioridad</th>
-                  <th class="px-5 py-3">Vehículo</th>
-                  <th class="px-5 py-3">Alerta</th>
-                  <th class="px-5 py-3 text-right">SOH</th>
-                  <th class="px-5 py-3 text-right">Esperado</th>
-                  <th class="px-5 py-3 text-right">Desviación</th>
-                  <th class="px-5 py-3">Acción</th>
+                  <th class="px-5 py-3" data-i18n="battery.anomaly.priority">Prioridad</th>
+                  <th class="px-5 py-3" data-i18n="battery.anomaly.vehicle">Vehículo</th>
+                  <th class="px-5 py-3" data-i18n="battery.anomaly.alert">Alerta</th>
+                  <th class="px-5 py-3 text-right" data-i18n="battery.anomaly.soh">SOH</th>
+                  <th class="px-5 py-3 text-right" data-i18n="battery.anomaly.expected">Esperado</th>
+                  <th class="px-5 py-3 text-right" data-i18n="battery.anomaly.deviation">Desviación</th>
+                  <th class="px-5 py-3" data-i18n="battery.anomaly.action">Acción</th>
                 </tr>
               </thead>
               <tbody id="anomaly-table" class="divide-y divide-white/5"></tbody>
@@ -171,6 +171,7 @@
   <!-- Tooltip -->
   <div id="heatmap-tooltip" class="heatmap-tooltip"></div>
 
+  <script src="../i18n.js"></script>
   <script src="shared.js"></script>
   <script src="battery.js"></script>
 </body>

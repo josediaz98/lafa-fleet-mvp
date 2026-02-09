@@ -27,28 +27,28 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-gray-400 uppercase tracking-wider">Vehículos Activos</span>
-              <span class="text-xs text-green-400 font-medium">+8 esta sem</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="dashboard.kpi.vehicles">Vehículos Activos</span>
+              <span class="text-xs text-green-400 font-medium" data-i18n="dashboard.kpi.vehiclesTrend">+8 esta sem</span>
             </div>
             <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-vehicles">0</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-gray-400 uppercase tracking-wider">Ingreso Semanal</span>
-              <span class="text-xs text-green-400 font-medium">+12.3%</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="dashboard.kpi.revenue">Ingreso Semanal</span>
+              <span class="text-xs text-green-400 font-medium" data-i18n="dashboard.kpi.revenueTrend">+12.3%</span>
             </div>
             <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-revenue">$0</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-gray-400 uppercase tracking-wider">Utilización Flota</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="dashboard.kpi.utilization">Utilización Flota</span>
               <span id="kpi-util-icon"></span>
             </div>
             <p class="text-2xl sm:text-3xl font-bold mt-2"><span id="kpi-utilization">0</span>%</p>
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <div class="flex items-center justify-between">
-              <span class="text-xs text-gray-400 uppercase tracking-wider">Pagos A Tiempo</span>
+              <span class="text-xs text-gray-400 uppercase tracking-wider" data-i18n="dashboard.kpi.payments">Pagos A Tiempo</span>
               <span id="kpi-pay-icon"></span>
             </div>
             <p class="text-2xl sm:text-3xl font-bold mt-2"><span id="kpi-payments">0</span>%</p>
@@ -58,24 +58,24 @@
         <!-- Charts Row -->
         <div class="grid lg:grid-cols-5 gap-4">
           <div class="lg:col-span-3 bg-lafa-card rounded-xl p-5 border border-white/5">
-            <h3 class="text-sm font-semibold text-gray-300 mb-4">Ingreso Semanal (12 semanas)</h3>
+            <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="dashboard.chart.revenue">Ingreso Semanal (12 semanas)</h3>
             <div id="chart-revenue" class="h-64"></div>
           </div>
           <div class="lg:col-span-2 bg-lafa-card rounded-xl p-5 border border-white/5">
-            <h3 class="text-sm font-semibold text-gray-300 mb-4">Estado de Flota</h3>
+            <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="dashboard.chart.fleetStatus">Estado de Flota</h3>
             <div id="chart-fleet-status" class="h-64"></div>
           </div>
         </div>
 
         <!-- OEM + Payments Charts Row -->
-        <div class="grid lg:grid-cols-2 gap-4">
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <h3 class="text-sm font-semibold text-gray-300 mb-4">Distribución por OEM</h3>
-            <div id="chart-oem" class="h-56"></div>
+        <div class="grid lg:grid-cols-5 gap-4">
+          <div class="lg:col-span-3 bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="dashboard.chart.payments">Estado de Pagos (12 semanas)</h3>
+            <div id="chart-payments" class="h-64"></div>
           </div>
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-            <h3 class="text-sm font-semibold text-gray-300 mb-4">Estado de Pagos (últimas 4 semanas)</h3>
-            <div id="chart-payments" class="h-56"></div>
+          <div class="lg:col-span-2 bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4" data-i18n="dashboard.chart.oem">Distribución por Fabricante</h3>
+            <div id="chart-oem" class="h-64"></div>
           </div>
         </div>
 
@@ -84,43 +84,43 @@
           <div class="p-5 border-b border-white/5 flex flex-wrap items-center gap-3">
             <div class="flex-1 min-w-0 w-full sm:min-w-[200px] sm:w-auto relative">
               <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" id="search-icon"></span>
-              <input type="text" id="table-search" placeholder="Buscar conductor o vehículo..." class="w-full bg-white/5 border border-white/5 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50">
+              <input type="text" id="table-search" data-i18n-placeholder="dashboard.search" placeholder="Buscar conductor o vehículo..." class="w-full bg-white/5 border border-white/5 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50">
             </div>
             <select id="filter-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-              <option value="">Todos OEM</option>
+              <option value="" data-i18n="dashboard.filter.allOem">Todos OEM</option>
               <option value="Geely">Geely</option>
               <option value="JAC">JAC</option>
               <option value="GAC">GAC</option>
             </select>
             <select id="filter-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-              <option value="">Todos Productos</option>
+              <option value="" data-i18n="dashboard.filter.allProducts">Todos Productos</option>
               <option value="DaE">DaE</option>
               <option value="LTO">LTO</option>
             </select>
             <select id="filter-status" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
-              <option value="">Todos Estados</option>
-              <option value="active">Activo</option>
-              <option value="maintenance">Mantenimiento</option>
-              <option value="charging">Cargando</option>
-              <option value="idle">Inactivo</option>
+              <option value="" data-i18n="dashboard.filter.allStatus">Todos Estados</option>
+              <option value="active" data-i18n="dashboard.filter.active">Activo</option>
+              <option value="maintenance" data-i18n="dashboard.filter.maintenance">Mantenimiento</option>
+              <option value="charging" data-i18n="dashboard.filter.charging">Cargando</option>
+              <option value="idle" data-i18n="dashboard.filter.idle">Inactivo</option>
             </select>
             <button id="btn-export" class="flex items-center gap-2 bg-white/5 border border-white/5 rounded-lg px-4 py-2.5 text-sm text-gray-300 hover:bg-white/10 transition-colors">
               <span id="download-icon"></span>
-              Exportar
+              <span data-i18n="dashboard.export">Exportar</span>
             </button>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full min-w-[600px]">
               <thead>
                 <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="vehicleId">ID</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="shortName">Conductor</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="oem">OEM</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="product">Producto</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="status">Estado</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="platform">Plataforma</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="weeklyRevenue">Ingreso/Sem</th>
-                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="soh">SOH</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="vehicleId" data-i18n="dashboard.table.id">ID</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="shortName" data-i18n="dashboard.table.driver">Conductor</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="oem" data-i18n="dashboard.table.oem">OEM</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="product" data-i18n="dashboard.table.product">Producto</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="status" data-i18n="dashboard.table.status">Estado</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="platform" data-i18n="dashboard.table.platform">Plataforma</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="weeklyRevenue" data-i18n="dashboard.table.revenue">Ingreso/Sem</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="soh" data-i18n="dashboard.table.soh">SOH</th>
                 </tr>
               </thead>
               <tbody id="table-body" class="divide-y divide-white/5"></tbody>
@@ -143,6 +143,7 @@
     </main>
   </div>
 
+  <script src="../i18n.js"></script>
   <script src="shared.js"></script>
   <script src="dashboard.js"></script>
 </body>

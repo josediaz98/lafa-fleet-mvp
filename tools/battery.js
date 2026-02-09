@@ -5,7 +5,7 @@
   const L = window.LAFA;
 
   // ---------- Init ----------
-  L.initPage('battery', 'Monitor de Baterías', '');
+  L.initPage('battery', t('battery.title'), '');
 
   // ---------- KPIs ----------
   setTimeout(() => L.animateCounter(document.getElementById('kpi-soh'), L.FLEET_STATS.avgSOH, 800, '', '%'), 100);
@@ -67,7 +67,7 @@
         tooltip.innerHTML = `
           <div class="font-semibold text-white">${cell.dataset.vehicle}</div>
           <div class="text-gray-400">${cell.dataset.oem} — SOH: <span style="color:${sohCellColor(+cell.dataset.soh)}">${cell.dataset.soh}%</span></div>
-          <div class="text-gray-500">${cell.dataset.cycles} ciclos</div>
+          <div class="text-gray-500">${t('battery.heatmap.cycles', { n: cell.dataset.cycles })}</div>
         `;
         tooltip.style.display = 'block';
       });
@@ -104,14 +104,14 @@
 
     // Info
     document.getElementById('detail-info').innerHTML = `
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Vehículo</span><span>${driver.vehicleId}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">OEM / Modelo</span><span>${driver.oem} ${driver.model}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Conductor</span><span>${driver.shortName}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Producto</span><span>${L.productBadge(driver.product)}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Estado</span><span>${L.statusBadge(driver.status)}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">SOH Actual</span><span style="color:${L.sohColor(driver.soh)}" class="font-semibold">${driver.soh.toFixed(1)}%</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Ciclos</span><span>${driver.cycles}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Temp Promedio</span><span>${driver.avgTemp.toFixed(1)}°C</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.vehicle')}</span><span>${driver.vehicleId}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.oemModel')}</span><span>${driver.oem} ${driver.model}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.driver')}</span><span>${driver.shortName}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.product')}</span><span>${L.productBadge(driver.product)}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.status')}</span><span>${L.statusBadge(driver.status)}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.currentSoh')}</span><span style="color:${L.sohColor(driver.soh)}" class="font-semibold">${driver.soh.toFixed(1)}%</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.cycles')}</span><span>${driver.cycles}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.avgTemp')}</span><span>${driver.avgTemp.toFixed(1)}°C</span></div>
     `;
 
     // Projections
@@ -121,18 +121,18 @@
     const residualValue = Math.round(batteryValue * residualPct);
 
     document.getElementById('detail-projections').innerHTML = `
-      <div class="flex justify-between text-sm"><span class="text-gray-500">SOH proyectado (48 meses)</span><span class="font-semibold" style="color:${L.sohColor(+projectedSOH48)}">${projectedSOH48}%</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Vida útil estimada</span><span>${projectedSOH48 > 80 ? '6-8 años' : '4-5 años'}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Valor residual batería</span><span class="font-semibold">${L.formatMXN(residualValue)}</span></div>
-      <div class="flex justify-between text-sm"><span class="text-gray-500">Segunda vida viable</span><span class="${projectedSOH48 > 70 ? 'text-green-400' : 'text-red-400'}">${projectedSOH48 > 70 ? 'Sí' : 'Evaluar'}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.projSoh48')}</span><span class="font-semibold" style="color:${L.sohColor(+projectedSOH48)}">${projectedSOH48}%</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.usefulLife')}</span><span>${projectedSOH48 > 80 ? t('battery.detail.years68') : t('battery.detail.years45')}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.residualValue')}</span><span class="font-semibold">${L.formatMXN(residualValue)}</span></div>
+      <div class="flex justify-between text-sm"><span class="text-gray-500">${t('battery.detail.secondLife')}</span><span class="${projectedSOH48 > 70 ? 'text-green-400' : 'text-red-400'}">${projectedSOH48 > 70 ? t('battery.detail.yes') : t('battery.detail.evaluate')}</span></div>
     `;
 
     // Recommendations
     const recs = [];
-    if (driver.soh < 88) recs.push({ icon: 'alert-triangle', color: 'text-red-400', text: 'Programar diagnóstico completo de batería' });
-    if (driver.avgTemp > 26) recs.push({ icon: 'alert-triangle', color: 'text-yellow-400', text: 'Revisar patrón de carga — evitar carga rápida en horas pico' });
-    if (driver.cycles > 900) recs.push({ icon: 'clock', color: 'text-blue-400', text: 'Monitorear degradación acelerada por alto ciclaje' });
-    if (recs.length === 0) recs.push({ icon: 'check-circle', color: 'text-green-400', text: 'Batería en rango óptimo. Continuar monitoreo estándar.' });
+    if (driver.soh < 88) recs.push({ icon: 'alert-triangle', color: 'text-red-400', text: t('battery.rec.fullDiag') });
+    if (driver.avgTemp > 26) recs.push({ icon: 'alert-triangle', color: 'text-yellow-400', text: t('battery.rec.chargePattern') });
+    if (driver.cycles > 900) recs.push({ icon: 'clock', color: 'text-blue-400', text: t('battery.rec.highCycles') });
+    if (recs.length === 0) recs.push({ icon: 'check-circle', color: 'text-green-400', text: t('battery.rec.optimal') });
 
     document.getElementById('detail-recs').innerHTML = recs.map(r => `
       <div class="flex items-start gap-2 text-sm">
@@ -170,12 +170,12 @@
       chart: { type: 'line', height: responsiveChartHeight(256, 220, 180) },
       series: [
         { name: driver.vehicleId, data: vehicleCurve },
-        { name: 'Promedio flota', data: fleetCurve },
-        { name: 'LFP esperado (CDMX)', data: lfpCurve },
+        { name: t('battery.chart.fleetAvg'), data: fleetCurve },
+        { name: t('battery.chart.lfpExpected'), data: lfpCurve },
       ],
       xaxis: {
         categories: months,
-        title: { text: 'Meses', style: { color: L.COLORS.gray500, fontSize: '11px' } },
+        title: { text: t('battery.chart.months'), style: { color: L.COLORS.gray500, fontSize: '11px' } },
         labels: { style: { fontSize: '10px' } },
         tickAmount: 8,
       },
@@ -188,7 +188,7 @@
       stroke: { width: [3, 2, 2], dashArray: [0, 4, 6] },
       annotations: {
         yaxis: [{ y: 80, borderColor: L.COLORS.red, strokeDashArray: 3, label: { text: 'EOL 80%', style: { color: L.COLORS.red, background: 'transparent', fontSize: '10px' } } }],
-        xaxis: [{ x: currentMonth, borderColor: L.COLORS.gray500, strokeDashArray: 3, label: { text: 'Hoy', style: { color: L.COLORS.gray400, background: 'transparent', fontSize: '10px' } } }],
+        xaxis: [{ x: currentMonth, borderColor: L.COLORS.gray500, strokeDashArray: 3, label: { text: t('battery.chart.today'), style: { color: L.COLORS.gray400, background: 'transparent', fontSize: '10px' } } }],
       },
       legend: { position: 'top', horizontalAlign: 'right', labels: { colors: L.COLORS.gray400 }, fontSize: '11px' },
     }, degradationChart);
@@ -205,8 +205,8 @@
 
     chargeChart = L.createChart('chart-charge', {
       chart: { type: 'area', height: responsiveChartHeight(192, 170, 150) },
-      series: [{ name: 'Carga (kWh)', data: charges }],
-      xaxis: { categories: days, labels: { style: { fontSize: '10px' } }, tickAmount: 10, title: { text: 'Día', style: { color: L.COLORS.gray500, fontSize: '11px' } } },
+      series: [{ name: t('battery.chart.charge'), data: charges }],
+      xaxis: { categories: days, labels: { style: { fontSize: '10px' } }, tickAmount: 10, title: { text: t('battery.chart.day'), style: { color: L.COLORS.gray500, fontSize: '11px' } } },
       yaxis: { labels: { formatter: v => v + ' kWh', style: { fontSize: '10px' } } },
       colors: [L.COLORS.teal],
       fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.05 } },
@@ -222,7 +222,7 @@
     tbody.innerHTML = anomalies.map((d, i) => {
       const expected = 93 + L.randFloat(-1, 1);
       const deviation = +(d.soh - expected).toFixed(1);
-      const priority = d.soh < 82 ? 'Crítica' : d.soh < 85 ? 'Alta' : 'Media';
+      const priority = d.soh < 82 ? t('battery.anomaly.critical') : d.soh < 85 ? t('battery.anomaly.high') : t('battery.anomaly.medium');
       const priorityColor = d.soh < 82 ? 'text-red-400 bg-red-500/10' : d.soh < 85 ? 'text-yellow-400 bg-yellow-500/10' : 'text-blue-400 bg-blue-500/10';
 
       return `
@@ -234,12 +234,12 @@
             <div class="text-sm font-medium">${d.vehicleId}</div>
             <div class="text-xs text-gray-500">${d.oem} ${d.model}</div>
           </td>
-          <td class="px-5 py-3 text-sm text-gray-300">Degradación acelerada detectada</td>
+          <td class="px-5 py-3 text-sm text-gray-300">${t('battery.anomaly.degradation')}</td>
           <td class="px-5 py-3 text-sm text-right font-medium" style="color:${L.sohColor(d.soh)}">${d.soh.toFixed(1)}%</td>
           <td class="px-5 py-3 text-sm text-right text-gray-400">${expected.toFixed(1)}%</td>
           <td class="px-5 py-3 text-sm text-right text-red-400 font-medium">${deviation}%</td>
           <td class="px-5 py-3">
-            <button class="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-gray-300 transition-colors btn-diagnose" data-id="${d.id}">Diagnosticar</button>
+            <button class="text-xs bg-white/5 hover:bg-white/10 px-3 py-1.5 rounded-lg text-gray-300 transition-colors btn-diagnose" data-id="${d.id}">${t('battery.anomaly.diagnose')}</button>
           </td>
         </tr>
       `;
@@ -256,6 +256,15 @@
 
   // ---------- Filter Events ----------
   L.bindFilters(['heatmap-oem', 'heatmap-product', 'heatmap-sort'], renderHeatmap);
+
+  // ---------- Language change ----------
+  window.addEventListener('langchange', () => {
+    renderHeatmap();
+    renderAnomalyTable();
+    if (selectedVehicle) selectVehicle(selectedVehicle);
+    const titleEl = document.querySelector('#page-header h1');
+    if (titleEl) titleEl.textContent = t('battery.title');
+  });
 
   // ---------- Init ----------
   renderHeatmap();

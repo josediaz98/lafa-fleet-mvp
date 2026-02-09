@@ -180,7 +180,7 @@ for (let w = 0; w < 12; w++) {
   const daeRev = DRIVERS.filter(d => d.product === 'DaE').reduce((s, d) => s + d.payments[w].amount * (d.payments[w].status !== 'default' ? 1 : 0), 0);
   const ltoRev = DRIVERS.filter(d => d.product === 'LTO').reduce((s, d) => s + d.payments[w].amount * (d.payments[w].status !== 'default' ? 1 : 0), 0);
   WEEKLY_REVENUE.push({
-    week: `Sem ${w + 1}`,
+    week: typeof t === 'function' ? t('shared.weekAbbr', { n: w + 1 }) : `Sem ${w + 1}`,
     date: new Date(2026, 0, 6 + w * 7).toISOString().split('T')[0],
     dae: daeRev,
     lto: ltoRev,
@@ -188,11 +188,11 @@ for (let w = 0; w < 12; w++) {
   });
 }
 
-// Payment status by week (last 4 weeks)
+// Payment status by week (12 weeks)
 const PAYMENT_STATUS_WEEKS = [];
-for (let w = 8; w < 12; w++) {
+for (let w = 0; w < 12; w++) {
   PAYMENT_STATUS_WEEKS.push({
-    week: `Sem ${w + 1}`,
+    week: typeof t === 'function' ? t('shared.weekAbbr', { n: w + 1 }) : `Sem ${w + 1}`,
     onTime: DRIVERS.filter(d => d.payments[w].status === 'on-time').length,
     late: DRIVERS.filter(d => d.payments[w].status === 'late').length,
     default: DRIVERS.filter(d => d.payments[w].status === 'default').length,
@@ -201,16 +201,26 @@ for (let w = 8; w < 12; w++) {
 
 // ---------- Utilities ----------
 function formatMXN(amount) {
-  return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
+  const locale = (typeof getLang === 'function' && getLang() === 'en') ? 'en-MX' : 'es-MX';
+  return new Intl.NumberFormat(locale, { style: 'currency', currency: 'MXN', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(amount);
 }
 
 function formatNumber(n) {
-  return new Intl.NumberFormat('es-MX').format(n);
+  const locale = (typeof getLang === 'function' && getLang() === 'en') ? 'en-MX' : 'es-MX';
+  return new Intl.NumberFormat(locale).format(n);
 }
 
 function timeAgo(dateStr) {
   const diff = Date.now() - new Date(dateStr).getTime();
   const days = Math.floor(diff / 86400000);
+  if (typeof t === 'function') {
+    if (days === 0) return t('shared.time.today');
+    if (days === 1) return t('shared.time.yesterday');
+    if (days < 7) return t('shared.time.daysAgo', { n: days });
+    if (days < 30) return t('shared.time.weeksAgo', { n: Math.floor(days / 7) });
+    const months = Math.floor(days / 30);
+    return t('shared.time.monthsAgo', { n: months, plural: months > 1 ? 'es' : '' });
+  }
   if (days === 0) return 'Hoy';
   if (days === 1) return 'Ayer';
   if (days < 7) return `Hace ${days} días`;
@@ -219,14 +229,15 @@ function timeAgo(dateStr) {
 }
 
 function statusBadge(status) {
+  const _t = typeof t === 'function' ? t : (k) => k;
   const map = {
-    'active': { bg: 'bg-green-500/10', text: 'text-green-400', dot: 'bg-green-400', label: 'Activo' },
-    'maintenance': { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-400', label: 'Mantenimiento' },
-    'charging': { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400', label: 'Cargando' },
-    'idle': { bg: 'bg-gray-500/10', text: 'text-gray-400', dot: 'bg-gray-400', label: 'Inactivo' },
-    'on-time': { bg: 'bg-green-500/10', text: 'text-green-400', dot: 'bg-green-400', label: 'A tiempo' },
-    'late': { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-400', label: 'Tarde' },
-    'default': { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-400', label: 'Impago' },
+    'active': { bg: 'bg-green-500/10', text: 'text-green-400', dot: 'bg-green-400', label: _t('shared.status.active') },
+    'maintenance': { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-400', label: _t('shared.status.maintenance') },
+    'charging': { bg: 'bg-blue-500/10', text: 'text-blue-400', dot: 'bg-blue-400', label: _t('shared.status.charging') },
+    'idle': { bg: 'bg-gray-500/10', text: 'text-gray-400', dot: 'bg-gray-400', label: _t('shared.status.idle') },
+    'on-time': { bg: 'bg-green-500/10', text: 'text-green-400', dot: 'bg-green-400', label: _t('shared.status.onTime') },
+    'late': { bg: 'bg-yellow-500/10', text: 'text-yellow-400', dot: 'bg-yellow-400', label: _t('shared.status.late') },
+    'default': { bg: 'bg-red-500/10', text: 'text-red-400', dot: 'bg-red-400', label: _t('shared.status.default') },
   };
   const s = map[status] || map['idle'];
   return `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${s.bg} ${s.text}"><span class="w-1.5 h-1.5 rounded-full ${s.dot}"></span>${s.label}</span>`;
@@ -310,12 +321,16 @@ function mergeApexDefaults(opts) {
 
 // ---------- Sidebar Navigation ----------
 const SIDEBAR_PAGES = [
-  { id: 'roadmap', label: 'Roadmap', href: 'roadmap.html', icon: 'trending-up' },
-  { id: 'dashboard', label: 'Dashboard', href: 'dashboard.html', icon: 'layout-dashboard' },
-  { id: 'collections', label: 'Cobranza', href: 'collections.html', icon: 'message-square' },
-  { id: 'battery', label: 'Baterías', href: 'battery.html', icon: 'battery-charging' },
-  { id: 'onboarding', label: 'Onboarding', href: 'onboarding.html', icon: 'user-plus' },
+  { id: 'roadmap', labelKey: 'shared.sidebar.roadmap', href: 'roadmap.html', icon: 'trending-up' },
+  { id: 'dashboard', labelKey: 'shared.sidebar.dashboard', href: 'dashboard.html', icon: 'layout-dashboard' },
+  { id: 'collections', labelKey: 'shared.sidebar.collections', href: 'collections.html', icon: 'message-square' },
+  { id: 'battery', labelKey: 'shared.sidebar.battery', href: 'battery.html', icon: 'battery-charging' },
+  { id: 'onboarding', labelKey: 'shared.sidebar.onboarding', href: 'onboarding.html', icon: 'user-plus' },
 ];
+
+function sidebarLabel(page) {
+  return typeof t === 'function' ? t(page.labelKey) : page.labelKey.split('.').pop();
+}
 
 const LUCIDE_ICONS = {
   'layout-dashboard': '<path d="M3 3h7v9H3z"/><path d="M14 3h7v5h-7z"/><path d="M14 12h7v9h-7z"/><path d="M3 16h7v5H3z"/>',
@@ -382,7 +397,7 @@ function initSidebar(currentPage) {
         ${SIDEBAR_PAGES.map(p => `
           <a href="${p.href}" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors ${p.id === currentPage ? 'bg-lafa-orange/10 text-[#FF5A00]' : 'text-gray-400 hover:text-white hover:bg-white/5'}">
             ${lucideIcon(p.icon, 'w-5 h-5 flex-shrink-0')}
-            <span class="sidebar-label hidden whitespace-nowrap">${p.label}</span>
+            <span class="sidebar-label hidden whitespace-nowrap">${sidebarLabel(p)}</span>
           </a>
         `).join('')}
       </nav>
@@ -390,7 +405,7 @@ function initSidebar(currentPage) {
         <div class="border-t border-white/5 pt-4">
           <a href="../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">
             ${lucideIcon('arrow-left', 'w-5 h-5 flex-shrink-0')}
-            <span class="sidebar-label hidden whitespace-nowrap">Volver a LAFA</span>
+            <span class="sidebar-label hidden whitespace-nowrap">${typeof t === 'function' ? t('shared.sidebar.back') : 'Volver a LAFA'}</span>
           </a>
         </div>
       </div>
@@ -478,9 +493,10 @@ function initSidebar(currentPage) {
 }
 
 function createBottomNav(currentPage) {
+  const homeLabel = typeof t === 'function' ? t('shared.nav.home') : 'Inicio';
   const NAV_ITEMS = [
-    { id: 'home', label: 'Inicio', href: '../index.html', icon: 'home' },
-    ...SIDEBAR_PAGES,
+    { id: 'home', label: homeLabel, href: '../index.html', icon: 'home' },
+    ...SIDEBAR_PAGES.map(p => ({ ...p, label: sidebarLabel(p) })),
   ];
   const nav = document.createElement('nav');
   nav.id = 'bottom-nav';
@@ -504,9 +520,10 @@ function createPageHeader(title, subtitle) {
         </div>
       </div>
       <div class="flex items-center gap-3 flex-shrink-0">
+        <div id="header-lang-toggle"></div>
         <button class="relative p-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="notification-bell" aria-label="Notificaciones">
           ${lucideIcon('bell', 'w-5 h-5')}
-          <span id="notif-badge" class="notif-badge">${NOTIFICATIONS.length}</span>
+          <span id="notif-badge" class="notif-badge">${getNotifications().length}</span>
         </button>
       </div>
     </header>
@@ -515,40 +532,47 @@ function createPageHeader(title, subtitle) {
 
 // ---------- Notification Panel ----------
 const _worstBattery = [...DRIVERS].sort((a, b) => a.soh - b.soh)[0];
-const NOTIFICATIONS = [
-  {
-    id: 'fleet',
-    type: 'fleet',
-    title: `Utilización cayó a ${FLEET_STATS.fleetUtilization}%`,
-    desc: `${FLEET_STATS.idleVehicles} vehículos inactivos de ${FLEET_STATS.totalVehicles}.`,
-    time: 'Hace 3h',
-    link: 'dashboard.html',
-  },
-  {
-    id: 'payment',
-    type: 'payment',
-    title: 'Cobranza renegociada',
-    desc: 'Carlos Mendoza aceptó plan parcial — $2,100 MXN recibidos, $2,150 pendiente lunes.',
-    time: 'Hace 5h',
-    link: 'collections.html',
-  },
-  {
-    id: 'alert',
-    type: 'alert',
-    title: `${FLEET_STATS.anomalies} anomalías de batería`,
-    desc: `${_worstBattery.vehicleId} peor caso — SOH ${_worstBattery.soh.toFixed(1)}%. Ver tabla de diagnóstico.`,
-    time: 'Hace 2h',
-    link: 'battery.html',
-  },
-  {
-    id: 'onboarding',
-    type: 'onboarding',
-    title: 'Nuevo conductor pendiente',
-    desc: `${DRIVERS[DRIVERS.length - 1].shortName} — documentos por verificar.`,
-    time: 'Hace 6h',
-    link: 'onboarding.html',
-  },
-];
+
+function getNotifications() {
+  const _t = typeof t === 'function' ? t : (k, p) => k;
+  return [
+    {
+      id: 'fleet',
+      type: 'fleet',
+      title: _t('shared.notif.fleet.title', { pct: FLEET_STATS.fleetUtilization }),
+      desc: _t('shared.notif.fleet.desc', { n: FLEET_STATS.idleVehicles, total: FLEET_STATS.totalVehicles }),
+      time: _t('shared.notif.fleet.time'),
+      link: 'dashboard.html',
+    },
+    {
+      id: 'payment',
+      type: 'payment',
+      title: _t('shared.notif.payment.title'),
+      desc: _t('shared.notif.payment.desc'),
+      time: _t('shared.notif.payment.time'),
+      link: 'collections.html',
+    },
+    {
+      id: 'alert',
+      type: 'alert',
+      title: _t('shared.notif.alert.title', { n: FLEET_STATS.anomalies }),
+      desc: _t('shared.notif.alert.desc', { id: _worstBattery.vehicleId, soh: _worstBattery.soh.toFixed(1) }),
+      time: _t('shared.notif.alert.time'),
+      link: 'battery.html',
+    },
+    {
+      id: 'onboarding',
+      type: 'onboarding',
+      title: _t('shared.notif.onboarding.title'),
+      desc: _t('shared.notif.onboarding.desc', { name: DRIVERS[DRIVERS.length - 1].shortName }),
+      time: _t('shared.notif.onboarding.time'),
+      link: 'onboarding.html',
+    },
+  ];
+}
+
+// Backwards compatibility: NOTIFICATIONS as getter
+const NOTIFICATIONS = getNotifications();
 
 const NOTIF_ICON_MAP = {
   alert:       { icon: 'alert-triangle', color: 'text-red-400' },
@@ -563,6 +587,7 @@ function initNotifications() {
   if (!bell) return;
 
   const STORAGE_KEY = 'lafa-notif-read';
+  let notifs = getNotifications();
 
   // Restore read state from localStorage
   let readSet;
@@ -578,7 +603,7 @@ function initNotifications() {
   }
 
   function getUnreadCount() {
-    return NOTIFICATIONS.filter(n => !readSet.has(n.id)).length;
+    return notifs.filter(n => !readSet.has(n.id)).length;
   }
 
   function updateBadge() {
@@ -614,8 +639,13 @@ function initNotifications() {
 
   function renderPanel() {
     const listEl = panel.querySelector('.notif-list');
-    if (listEl) listEl.innerHTML = NOTIFICATIONS.map(renderItem).join('');
+    if (listEl) listEl.innerHTML = notifs.map(renderItem).join('');
     updateMarkAllBtn();
+    // Update header text
+    const headerTitle = panel.querySelector('.notif-header h3');
+    const markAllBtn = panel.querySelector('.notif-mark-all');
+    if (headerTitle && typeof t === 'function') headerTitle.textContent = t('shared.notif.title');
+    if (markAllBtn && typeof t === 'function') markAllBtn.textContent = t('shared.notif.markAll');
   }
 
   function markAsRead(id) {
@@ -633,7 +663,7 @@ function initNotifications() {
   }
 
   function markAllAsRead() {
-    NOTIFICATIONS.forEach(n => readSet.add(n.id));
+    notifs.forEach(n => readSet.add(n.id));
     saveReadState();
     panel.querySelectorAll('.notif-item').forEach(el => {
       el.classList.remove('is-unread');
@@ -647,10 +677,12 @@ function initNotifications() {
   const panel = document.createElement('div');
   panel.id = 'notification-panel';
   panel.className = 'fixed top-16 right-4 w-80 max-w-[calc(100vw-32px)] max-h-[70vh] overflow-y-auto bg-[#1E1D28] border border-white/10 rounded-xl shadow-2xl z-50 hidden';
+  const _notifTitle = typeof t === 'function' ? t('shared.notif.title') : 'Notificaciones';
+  const _markAllLabel = typeof t === 'function' ? t('shared.notif.markAll') : 'Marcar todo como leído';
   panel.innerHTML = `
     <div class="notif-header">
-      <h3 class="text-sm font-semibold text-white">Notificaciones</h3>
-      <button class="notif-mark-all">Marcar todo como leído</button>
+      <h3 class="text-sm font-semibold text-white">${_notifTitle}</h3>
+      <button class="notif-mark-all">${_markAllLabel}</button>
     </div>
     <div class="notif-list"></div>
   `;
@@ -691,6 +723,13 @@ function initNotifications() {
     markAllAsRead();
   });
 
+  // Re-render on language change
+  window.addEventListener('langchange', () => {
+    notifs = getNotifications();
+    renderPanel();
+    updateBadge();
+  });
+
   // Expose functions globally
   window.LAFA.markNotifRead = markAsRead;
   window.LAFA.markAllNotifsRead = markAllAsRead;
@@ -706,6 +745,10 @@ function initPage(pageId, title, subtitle, icons = {}) {
   initSidebar(pageId);
   document.getElementById('page-header').innerHTML = createPageHeader(title, subtitle);
   initNotifications();
+  // Init language toggle in header
+  if (typeof initLangToggle === 'function') {
+    initLangToggle(document.getElementById('header-lang-toggle'));
+  }
   // Wire mobile hamburger to sidebar toggle
   const mobileToggle = document.getElementById('mobile-sidebar-toggle');
   const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -715,6 +758,24 @@ function initPage(pageId, title, subtitle, icons = {}) {
   Object.entries(icons).forEach(([elId, iconName]) => {
     const el = document.getElementById(elId);
     if (el) el.innerHTML = lucideIcon(iconName, 'w-4 h-4');
+  });
+  // On language change: re-render sidebar labels, bottom nav, sweep DOM
+  window.addEventListener('langchange', () => {
+    // Re-render sidebar labels
+    document.querySelectorAll('#app-sidebar nav a .sidebar-label').forEach((el, i) => {
+      if (SIDEBAR_PAGES[i]) el.textContent = sidebarLabel(SIDEBAR_PAGES[i]);
+    });
+    // Re-render "Volver a LAFA"
+    const backLabel = document.querySelector('#app-sidebar .sidebar-label:last-of-type');
+    // Find the back link specifically
+    const backLink = document.querySelector('#app-sidebar a[href="../index.html"] .sidebar-label');
+    if (backLink) backLink.textContent = typeof t === 'function' ? t('shared.sidebar.back') : 'Volver a LAFA';
+    // Re-render bottom nav
+    const oldNav = document.getElementById('bottom-nav');
+    if (oldNav) oldNav.remove();
+    createBottomNav(pageId);
+    // Sweep data-i18n attributes
+    if (typeof sweepDOM === 'function') sweepDOM();
   });
 }
 
@@ -828,6 +889,8 @@ window.LAFA = {
   sohColor, sohBgClass, animateCounter, lucideIcon,
   mergeApexDefaults, APEX_DEFAULTS,
   initSidebar, createPageHeader, initNotifications, NOTIFICATIONS, NOTIF_ICON_MAP,
+  getNotifications, sidebarLabel,
   initPage, createChart, exportCSV, bindFilters, normalize, createModal,
   rand, randInt, randFloat, pick, shuffle, seededRandom,
+  localField: typeof localField === 'function' ? localField : function(obj, field) { return obj[field]; },
 };

@@ -17,7 +17,36 @@
     .timeline-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px; transition: width 0.25s ease; }
     .confidence-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
     .confidence-fill { height: 100%; border-radius: 3px; transition: width 0.25s ease; }
-    /* scenario tabs now use shared .filter-pill.amber from shared.css */
+    /* Scenario cards */
+    .scenario-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      padding: 8px 16px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      min-width: 120px;
+    }
+    .scenario-card > * {
+      pointer-events: none;
+    }
+    .scenario-card:hover {
+      background: rgba(255,255,255,0.06);
+      border-color: rgba(245,158,11,0.3);
+      transform: translateY(-2px);
+    }
+    .scenario-card.active {
+      background: rgba(245,158,11,0.1);
+      border-color: #F59E0B;
+      box-shadow: 0 0 12px rgba(245,158,11,0.15);
+    }
+    .scenario-card.active .font-semibold {
+      color: #F59E0B;
+    }
   </style>
 </head>
 <body class="bg-lafa-dark text-white font-sans antialiased">
@@ -28,19 +57,28 @@
     <main class="flex-1 overflow-y-auto">
       <div id="page-header"></div>
 
-      <div class="p-4 sm:p-6 space-y-6">
+      <div class="p-4 sm:p-6 space-y-4">
         <!-- Scenario Selector -->
-        <div class="flex items-center gap-3">
-          <span class="text-xs text-gray-500">Escenario:</span>
-          <div class="flex flex-wrap gap-2" id="scenario-tabs">
-            <button data-scenario="cooperative" class="filter-pill amber active">Cooperativo</button>
-            <button data-scenario="evasive" class="filter-pill amber">Evasivo</button>
-            <button data-scenario="unresponsive" class="filter-pill amber">Sin Respuesta</button>
-          </div>
+        <div class="flex flex-wrap gap-3" id="scenario-tabs">
+          <button data-scenario="cooperative" class="scenario-card active">
+            <span class="text-xl">🤝</span>
+            <span class="font-semibold text-sm" data-i18n="collections.scenario.cooperative">Cooperativo</span>
+            <span class="text-[10px] text-gray-500" data-i18n="collections.scenario.cooperativeDesc">Quiere pagar, pide plazo</span>
+          </button>
+          <button data-scenario="evasive" class="scenario-card">
+            <span class="text-xl">🙈</span>
+            <span class="font-semibold text-sm" data-i18n="collections.scenario.evasive">Evasivo</span>
+            <span class="text-[10px] text-gray-500" data-i18n="collections.scenario.evasiveDesc">Lee pero no responde</span>
+          </button>
+          <button data-scenario="unresponsive" class="scenario-card">
+            <span class="text-xl">🚫</span>
+            <span class="font-semibold text-sm" data-i18n="collections.scenario.unresponsive">Sin Respuesta</span>
+            <span class="text-[10px] text-gray-500" data-i18n="collections.scenario.unresponsiveDesc">Ignora todos los mensajes</span>
+          </button>
         </div>
 
         <!-- Split View -->
-        <div class="grid lg:grid-cols-2 gap-6" style="min-height: min(calc(100vh - 220px), 500px);">
+        <div class="grid lg:grid-cols-2 gap-4" style="min-height: min(calc(100vh - 220px), 500px);">
           <!-- Left: WhatsApp Chat -->
           <div class="flex flex-col bg-[#0B141A] rounded-xl overflow-hidden border border-white/5">
             <!-- Chat Header -->
@@ -60,99 +98,92 @@
             </div>
             <!-- Chat Input (decorative) -->
             <div class="flex items-center gap-2 px-4 py-3 bg-[#1F2C33] border-t border-white/5">
-              <div class="flex-1 bg-[#2A3942] rounded-full px-4 py-2 text-sm text-gray-500">Bot automático activo...</div>
+              <div class="flex-1 bg-[#2A3942] rounded-full px-4 py-2 text-sm text-gray-500" data-i18n="collections.chat.botActive">Bot automático activo...</div>
             </div>
           </div>
 
           <!-- Right: Agent Dashboard -->
-          <div class="space-y-4 overflow-y-auto">
+          <div class="space-y-3 overflow-y-auto">
             <!-- Driver Profile -->
-            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-              <div class="flex items-center gap-3 mb-4">
-                <img id="agent-avatar" src="../images/carlos.jpg" class="w-12 h-12 rounded-full object-cover" alt="">
+            <div class="bg-lafa-card rounded-xl p-4 border border-white/5">
+              <div class="flex items-center gap-3 mb-3">
+                <img id="agent-avatar" src="../images/carlos.jpg" class="w-10 h-10 rounded-full object-cover" alt="">
                 <div>
                   <p class="font-semibold" id="agent-name">Carlos Mendoza López</p>
                   <p class="text-sm text-gray-400" id="agent-meta">LTO — LAF-042 — DiDi — Condesa</p>
                 </div>
               </div>
               <div class="grid grid-cols-3 gap-3 text-center">
-                <div class="bg-white/5 rounded-lg p-3">
+                <div class="bg-white/5 rounded-lg p-2">
                   <p class="text-lg font-bold" id="agent-overdue">7</p>
-                  <p class="text-xs text-gray-500">Días atraso</p>
+                  <p class="text-xs text-gray-500" data-i18n="collections.agent.daysOverdue">Días atraso</p>
                 </div>
-                <div class="bg-white/5 rounded-lg p-3">
+                <div class="bg-white/5 rounded-lg p-2">
                   <p class="text-lg font-bold" id="agent-amount">$4,200</p>
-                  <p class="text-xs text-gray-500">Monto adeudado</p>
+                  <p class="text-xs text-gray-500" data-i18n="collections.agent.amountOwed">Monto adeudado</p>
                 </div>
-                <div class="bg-white/5 rounded-lg p-3">
+                <div class="bg-white/5 rounded-lg p-2">
                   <p class="text-lg font-bold" id="agent-rating">4.7</p>
-                  <p class="text-xs text-gray-500">Rating plat.</p>
+                  <p class="text-xs text-gray-500" data-i18n="collections.agent.rating">Rating plat.</p>
                 </div>
               </div>
             </div>
 
-            <!-- Risk Score -->
-            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-              <h4 class="text-sm font-semibold text-gray-300 mb-3">Score de Riesgo</h4>
-              <div class="flex flex-col sm:flex-row items-center gap-4">
-                <div class="relative w-20 h-20">
-                  <svg class="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
-                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
-                    <path id="risk-arc" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round"/>
-                  </svg>
-                  <span class="absolute inset-0 flex items-center justify-center text-lg font-bold" id="risk-value">—</span>
+            <!-- Risk Score + Escalation (merged) -->
+            <div class="bg-lafa-card rounded-xl p-4 border border-white/5">
+              <div class="flex items-center gap-4">
+                <!-- Left: Risk ring -->
+                <div class="flex items-center gap-3 flex-shrink-0">
+                  <div class="relative w-14 h-14">
+                    <svg class="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
+                      <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                      <path id="risk-arc" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round"/>
+                    </svg>
+                    <span class="absolute inset-0 flex items-center justify-center text-sm font-bold" id="risk-value">—</span>
+                  </div>
+                  <div>
+                    <p class="text-xs font-medium" id="risk-label">Calculando...</p>
+                  </div>
                 </div>
-                <div>
-                  <p class="text-sm font-medium" id="risk-label">Calculando...</p>
-                  <p class="text-xs text-gray-500" id="risk-desc">Basado en historial de pagos, actividad en plataforma y datos de conducción</p>
+                <!-- Right: Escalation bar -->
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-medium text-gray-400 mb-2" data-i18n="collections.agent.escalation">Escalamiento</p>
+                  <div class="flex justify-between text-[10px] text-gray-500 mb-1">
+                    <span data-i18n="collections.escalation.pre2">Día -2</span><span data-i18n="collections.escalation.day0">Día 0</span><span data-i18n="collections.escalation.day7">+7</span><span data-i18n="collections.escalation.day14">+14</span><span data-i18n="collections.escalation.legal">Legal</span>
+                  </div>
+                  <div class="timeline-bar">
+                    <div class="timeline-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" id="escalation-fill" style="width:0%"></div>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Escalation Timeline -->
-            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-              <h4 class="text-sm font-semibold text-gray-300 mb-4">Línea de Escalamiento</h4>
-              <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
-                <span>Día -2</span><span>Día 0</span><span>Día +7</span><span>Día +14</span><span>Legal</span>
-              </div>
-              <div class="timeline-bar">
-                <div class="timeline-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" id="escalation-fill" style="width:0%"></div>
-              </div>
-              <div class="flex items-center justify-between mt-2 text-xs">
-                <span class="text-green-400">Recordatorio</span>
-                <span class="text-yellow-400">Bot activo</span>
-                <span class="text-red-400">Revisión legal</span>
-              </div>
-            </div>
-
-            <!-- Intent Classification -->
-            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-              <h4 class="text-sm font-semibold text-gray-300 mb-3">Clasificación de Intención (AI)</h4>
-              <div id="intent-panel" class="space-y-3">
+            <!-- Intent Classification + Action Buttons (merged) -->
+            <div class="bg-lafa-card rounded-xl p-4 border border-white/5">
+              <h4 class="text-xs font-semibold text-gray-300 mb-2" data-i18n="collections.agent.intentTitle">Intención (AI)</h4>
+              <div id="intent-panel" class="space-y-2">
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-400">Intención detectada</span>
-                  <span class="text-sm font-medium text-white" id="intent-label">Esperando mensaje...</span>
+                  <span class="text-xs text-gray-400" data-i18n="collections.agent.detected">Detectada</span>
+                  <span class="text-xs font-medium text-white" id="intent-label">Esperando mensaje...</span>
                 </div>
                 <div class="confidence-bar">
                   <div class="confidence-fill bg-[#FF5A00]" id="intent-confidence" style="width: 0%"></div>
                 </div>
                 <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-400">Acción sugerida</span>
-                  <span class="text-sm font-medium" id="intent-action">—</span>
+                  <span class="text-xs text-gray-400" data-i18n="collections.agent.actionLabel">Acción</span>
+                  <span class="text-xs font-medium" id="intent-action">—</span>
                 </div>
+              </div>
+              <div class="flex gap-2 mt-3 pt-3 border-t border-white/5">
+                <button class="flex-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 font-medium py-2 rounded-lg text-xs transition-colors" data-i18n="collections.agent.approve">Aprobar</button>
+                <button class="flex-1 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-medium py-2 rounded-lg text-xs transition-colors" data-i18n="collections.agent.escalate">Escalar</button>
+                <button class="flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium py-2 rounded-lg text-xs transition-colors" data-i18n="collections.agent.legalReview">Rev. Legal</button>
               </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="flex gap-3">
-              <button class="flex-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Aprobar Plan</button>
-              <button class="flex-1 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Escalar</button>
-              <button class="flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Revisión Legal</button>
-            </div>
-
             <!-- Payment History -->
-            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
-              <h4 class="text-sm font-semibold text-gray-300 mb-3">Historial de Pagos</h4>
+            <div class="bg-lafa-card rounded-xl p-4 border border-white/5">
+              <h4 class="text-sm font-semibold text-gray-300 mb-2" data-i18n="collections.agent.payHistory">Historial de Pagos</h4>
               <div class="space-y-1.5" id="agent-payments"></div>
             </div>
           </div>
@@ -161,6 +192,7 @@
     </main>
   </div>
 
+  <script src="../i18n.js"></script>
   <script src="shared.js"></script>
   <script src="collections.js"></script>
 </body>

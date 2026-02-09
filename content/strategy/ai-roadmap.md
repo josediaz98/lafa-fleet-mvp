@@ -123,6 +123,8 @@ telematics (id, vehicle_id, timestamp, soc, odometer, lat, lon, battery_temp, ..
 **Effort:** 3-4 weeks
 **Stack:** PostgreSQL + FastAPI + Alembic (migrations) + AWS RDS
 
+**Benchmark:** Both VEMO (ZEE platform) and OCN built centralized operational databases as their first technical priority. LAFA at Stage 0 (spreadsheets) is the typical pre-scalability pattern.
+
 ---
 
 ### Project 0.2: Basic Dashboard (Metabase)
@@ -185,6 +187,8 @@ Accidents, theft, and mechanical failures are reported via ad-hoc WhatsApp group
 **Effort:** 2 weeks
 **Stack:** WhatsApp Business API + FastAPI + PostgreSQL (P0.1) + AWS S3 (photos)
 
+**Benchmark:** Shipday: incident forms integrated into real-time tracking. VEMO: QHSE protocol with rapid-response C2 and photographic documentation.
+
 ---
 
 ### Project 0.5d: Insurance Module
@@ -204,6 +208,8 @@ With 150 vehicles at MXN $20K-40K/year per policy = **MXN $3M-6M/year in premium
 
 **Effort:** 2 weeks
 **Stack:** FastAPI + PostgreSQL (P0.1) + Metabase + WhatsApp (alerts)
+
+**Benchmark:** VEMO: insurance bundled into monthly rent ($3,500-4,000 MXN/month). Reference model for LAFA: bundle insurance with the lease.
 
 ---
 
@@ -312,7 +318,7 @@ The battery represents 40-50% of an EV's cost (~MXN $150,000-200,000 of a MXN $4
      "Battery of LAF-017 projected to 80% SOH in 8 months"
         |
 [Fleet Battery Dashboard — in Metabase]
-  -> Battery health heatmap (green/yellow/red)
+  -> SOH heatmap, degradation curves, alerts
   -> Vehicle ranking by degradation risk
   -> Residual value projection per vehicle
 ```
@@ -427,8 +433,8 @@ Each new lease contract (LTO) or employment contract (DaE) requires customized l
   -> Promissory notes, delivery-acceptance letters
   -> Accident/insurance forms
         |
-[LLM Layer]
-  -> Incident report generation from free-form description
+[LLM Layer — V2]
+  -> Incident report generation via WhatsApp (integrates with P0.5c)
   -> Executive portfolio status summary for financiers
         |
 [Digital Signing] — Mifiel/ISign (NOM-151)
@@ -442,7 +448,9 @@ Each new lease contract (LTO) or employment contract (DaE) requires customized l
 
 **MVP (Weeks 27-30):**
 - Week 27-28: Jinja2 templates for LTO + DaE contracts. Auto-fill from database. PDF generation.
-- Week 29-30: LLM-powered claim assistant via WhatsApp. Basic electronic signature.
+- Week 29-30: Basic electronic signature (Mifiel/ISign, NOM-151).
+
+**Future scope (V2):** LLM-powered claim report assistant via WhatsApp (integrates with P0.5c Incident Reporting).
 
 **Stack:** Jinja2 + WeasyPrint + OpenAI GPT-4o + Mifiel API + AWS S3 + FastAPI + PostgreSQL
 
@@ -461,7 +469,8 @@ Each new lease contract (LTO) or employment contract (DaE) requires customized l
 **Internal tool type:** Executive intelligence dashboard
 **Products served:** Both (DaE + LTO)
 
-**Change vs. original:** The basic dashboard already exists since P0.2 (Mo 1). This phase adds: dbt transformations, advanced alerting, automated reports, sophisticated financial views, P&L per vehicle, cohort analysis.
+**Business problem:**
+The basic dashboard (P0.2) provides 4 static operational views. At 500+ vehicles with multiple business lines (DaE + LTO), the CEO and Head of Product need: real-time financial metrics (P&L per vehicle, unit economics per cohort), risk prediction (default ranking), intelligent alerts, and automated investor reports. This requires a transformation layer (dbt), advanced aggregations, and alerting infrastructure that P0.2 cannot support. Development in 4 concentrated weeks during Mo 7-8. Mo 9 = iteration based on stakeholder feedback + stabilization.
 
 **Architecture:**
 ```
@@ -480,6 +489,7 @@ Each new lease contract (LTO) or employment contract (DaE) requires customized l
   -> Financial view: P&L per vehicle, cohort analysis, unit economics
   -> Risk view: drivers ranked by default probability
   -> Battery view: SOH heatmap, degradation projections
+  -> Fleet map in real-time with KPI overlay (integrates battery data from P4 as map layer)
   -> DaE vs LTO comparison (metrics by product)
         |
 [Alerting Layer]
@@ -492,6 +502,15 @@ Each new lease contract (LTO) or employment contract (DaE) requires customized l
 - Week 39-40: Alert system. Automated PDF reports. Executive view for CEO.
 
 **Stack:** Metabase + dbt + PostgreSQL + TimescaleDB + FastAPI
+
+**Success metrics:**
+| KPI | Before | Target |
+|-----|--------|--------|
+| Calculated metrics available | 4 operational views | 30+ metrics (operational + financial + risk) |
+| Automated reports | 0 | 2/week (weekly + monthly PDF) |
+| Data latency | T+1 day (manual) | <5 minutes (near real-time) |
+
+**Benchmark:** Shipday: 9 report types segmented by stakeholder (Sales, Drivers, Performance, Heatmap, etc). OCN: executive dashboard with real-time portfolio metrics. LAFA P7: evolution from 4 basic views to 8+ segmented reports.
 
 ---
 
@@ -533,9 +552,11 @@ As LAFA grows from 150 to 2,000 vehicles, the team needs to grow from ~5 to ~20-
 **Success metrics:**
 | KPI | Target |
 |-----|--------|
-| Queries answered correctly | >85% |
+| Queries answered correctly | >85% (resolved without human escalation) |
 | Response time | <10 seconds |
 | New employee onboarding time | From 4 to <2 weeks |
+
+**Benchmark:** Slack AI: RAG over conversation history. Notion AI: semantic search over internal docs. LAFA: RAG over manuals, contracts, policies + WhatsApp FAQ bot for drivers.
 
 ---
 
@@ -559,6 +580,8 @@ For the Driver-as-Employee product, LAFA needs to assign shifts and vehicles. Wi
 - Vehicle assignment based on availability and zone
 - Driver confirmation via WhatsApp (reply "OK" or "NO")
 - Shift view in Metabase dashboard (who confirmed, who didn't)
+
+**Future scope (+500 vehicles):** Visual Kanban board (Assigned Shifts | Available Vehicles) with drag-and-drop for rapid assignment (Shipday Dispatch pattern).
 
 **Effort:** 1-2 weeks
 **Stack:** WhatsApp Business API + FastAPI + PostgreSQL
@@ -585,6 +608,8 @@ LAFA has 150+ Driver-as-Employee workers on formal payroll (nómina). Mexican la
 **Effort:** 2-3 weeks
 **Stack:** Runa/Worky API + FastAPI + PostgreSQL (P0.1)
 
+**Benchmark:** Runa is the #1 payroll SaaS in Mexico for startups (5,000+ companies). Worky is an alternative for teams <100. The buy-not-build decision is standard.
+
 ---
 
 ### Project 5: Charging Operations (Internal Depot Optimization)
@@ -596,7 +621,7 @@ LAFA has 150+ Driver-as-Employee workers on formal payroll (nómina). Mexican la
 **Change vs. original roadmap:** LAFA pays for charging ($300 MXN/week per vehicle, Driver-as-Employee). The scope changes from "driver recommendations" to **"internal depot charging optimization"**. LAFA controls where and when vehicles are charged.
 
 **Business problem:**
-With 150 vehicles charging at $300/week = MXN $180,000/month in electricity. At 2,000 vehicles = **MXN $2.4M/month.** Optimizing when and how charging occurs can save 30-40% of this cost.
+With 150 vehicles charging at $300/week = MXN $180,000/month in electricity. At 2,000 vehicles = **MXN $2.4M/month.** Optimizing when and how charging occurs can save 30-40% of this cost. Impact includes: base rate savings (30-40%) + CFE demand charge reduction (>40%) + reduction of losses from inefficient charging.
 
 | Charge type | Effective cost/kWh | Context |
 |-------------|-------------------|---------|
@@ -649,6 +674,8 @@ CFE GDMTH demand charges (MXN $200-350/kW/month) make simultaneous charging mana
 | Average charging cost per vehicle/week | MXN $300+ | >30% reduction (MXN $200) |
 | Monthly depot demand charge | Unmanaged | >40% reduction |
 
+**Benchmark:** VEMO: own charging stations with smart charge management. Tesla Autobidder: fleet-scale charge optimization with load management. LAFA: depot-first approach with OR-Tools.
+
 ### DaE Cross-Product Dependencies
 
 These Foundation track projects have DaE-specific scope:
@@ -670,7 +697,7 @@ These Foundation track projects have DaE-specific scope:
 ### Project 0.5b: LTO Account Statement (WhatsApp Bot)
 
 **Primary user:** Customer Support Lead
-**Internal tool type:** Self-service account visibility (reduces inbound support queries by 60-80%)
+**Internal tool type:** Self-service account visibility (reduces ~50 inbound support queries/month by 60-80%)
 **Products served:** LTO only
 
 **Business problem:**
@@ -760,7 +787,7 @@ This transforms the cold start problem into a **warm start** — model v1 can be
 | Credit decision time | <15 min | <10 min |
 | Model AUC | >0.80 (warm start!) | >0.85 |
 
-**Benchmark OCN:** Single-digit default rates for 2+ years. CTO Ammar Naqvi (ex-Amazon, Microsoft, Zoom) built the platform on GCP. LAFA advantage: warm start with proprietary data vs OCN which started cold.
+**Benchmark:** OCN: <3% default rate with AI underwriting on 25K+ customers. CTO Ammar Naqvi (ex-Amazon, Microsoft, Zoom) built the platform on GCP. VEMO: scoring integrated into ZEE platform with data from 2K+ EVs. LAFA advantage: warm start with 6+ months of proprietary operational data (payments, telematics, collections) vs cold start competitors.
 
 ### LTO Cross-Product Dependencies
 

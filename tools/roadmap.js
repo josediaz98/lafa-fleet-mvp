@@ -33,7 +33,7 @@ function getFilteredProjects() {
 
 // ---------- Init ----------
 document.addEventListener('DOMContentLoaded', () => {
-  L.initPage('roadmap', 'AI Roadmap Interactivo', '');
+  L.initPage('roadmap', t('roadmap.title'), '');
   detailModal = L.createModal('detail-modal', {
     overlay: 'detail-overlay',
     onClose: () => { state.selectedProject = null; }
@@ -69,13 +69,13 @@ function renderGantt() {
     .sort((a, b) => a.startMonth - b.startMonth || a.endMonth - b.endMonth);
 
   const data = ordered.map(p => ({
-    x: p.name,
+    x: localField(p, 'name'),
     y: [p.startMonth, p.startMonth === p.endMonth ? p.endMonth + 0.5 : p.endMonth],
     fillColor: TRACK_COLORS[p.track],
     projectId: p.id
   }));
 
-  const series = [{ name: 'Proyectos', data }];
+  const series = [{ name: t('roadmap.timeline'), data }];
 
   state.ganttChart = L.createChart('chart-gantt', {
     chart: {
@@ -111,7 +111,7 @@ function renderGantt() {
         formatter: (val) => `Mo ${Math.round(val)}`,
         style: { colors: L.COLORS.gray400, fontSize: '11px' }
       },
-      title: { text: 'Mes', style: { color: L.COLORS.gray500, fontSize: '12px' } }
+      title: { text: t('roadmap.month'), style: { color: L.COLORS.gray500, fontSize: '12px' } }
     },
     yaxis: {
       labels: {
@@ -130,9 +130,9 @@ function renderGantt() {
         const p = PROJECTS.find(pr => pr.id === bar.projectId);
         if (!p) return '';
         return `<div style="padding:10px;background:${L.COLORS.dark};border:1px solid rgba(255,255,255,0.1);border-radius:8px;min-width:240px;max-width:360px;word-wrap:break-word;">
-          <div style="font-weight:700;color:white;margin-bottom:4px;">${p.name}</div>
-          <div style="color:${L.COLORS.gray400};font-size:12px;margin-bottom:6px;line-height:1.4;">${p.description}</div>
-          <div style="color:${L.COLORS.gray600};font-size:10px;">Click para ver detalles</div>
+          <div style="font-weight:700;color:white;margin-bottom:4px;">${localField(p, 'name')}</div>
+          <div style="color:${L.COLORS.gray400};font-size:12px;margin-bottom:6px;line-height:1.4;">${localField(p, 'description')}</div>
+          <div style="color:${L.COLORS.gray600};font-size:10px;">${t('roadmap.clickHint')}</div>
         </div>`;
       }
     },
@@ -140,7 +140,7 @@ function renderGantt() {
       show: true,
       position: 'top',
       horizontalAlign: 'left',
-      customLegendItems: Object.values(TRACK_LABELS),
+      customLegendItems: [t('roadmap.legend.foundation'), t('roadmap.legend.dae'), t('roadmap.legend.lto')],
       markers: { fillColors: Object.values(TRACK_COLORS), radius: 3 },
       labels: { colors: L.COLORS.gray400 }
     },
@@ -165,7 +165,7 @@ function bindYAxisClicks(orderedProjects) {
       label.addEventListener('click', () => {
         const tspan = label.querySelector('tspan');
         const name = (tspan || label).textContent.trim();
-        const p = orderedProjects.find(pr => pr.name === name);
+        const p = orderedProjects.find(pr => localField(pr, 'name') === name);
         if (p) openDetailPanel(p.id);
       });
     });
@@ -178,24 +178,34 @@ function openDetailPanel(projectId) {
   if (!p) return;
   state.selectedProject = p;
 
-  document.getElementById('detail-id').textContent = p.id;
-  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-name').textContent = localField(p, 'name');
 
   // Badges
   const trackColor = TRACK_COLORS[p.track];
+  const trackLabelKey = 'roadmap.legend.' + p.track;
   document.getElementById('detail-badges').innerHTML = `
-    <span class="px-2.5 py-1 rounded-md text-xs font-medium" style="background:${trackColor}20;color:${trackColor}">${TRACK_LABELS[p.track]}</span>
-    <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-white/10 text-gray-300">Fase ${p.phase}</span>
-    <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-white/10 text-gray-300">Mo ${p.startMonth}-${p.endMonth} · ${p.effortWeeks} sem</span>
+    <span class="px-2.5 py-1 rounded-md text-xs font-medium" style="background:${trackColor}20;color:${trackColor}">${t(trackLabelKey)}</span>
   `;
 
   // Problem
-  document.getElementById('detail-problem').textContent = p.problem;
+  document.getElementById('detail-problem').textContent = localField(p, 'problem');
 
   // Deliverables
-  document.getElementById('detail-deliverables').innerHTML = p.deliverables.map(d =>
+  const deliverables = localField(p, 'deliverables');
+  document.getElementById('detail-deliverables').innerHTML = deliverables.map(d =>
     `<li class="flex items-start gap-2 text-sm text-gray-300"><span class="text-gray-500 mt-1">▸</span><span>${d}</span></li>`
   ).join('');
+
+  // Future Scope (if any)
+  const futureWrap = document.getElementById('detail-future-scope');
+  if (futureWrap) {
+    if (p.futureScope) {
+      futureWrap.classList.remove('hidden');
+      futureWrap.textContent = localField(p, 'futureScope');
+    } else {
+      futureWrap.classList.add('hidden');
+    }
+  }
 
   // Architecture — structured breakdown if available, paragraph fallback
   if (p.architectureBreakdown) {
@@ -203,83 +213,40 @@ function openDetailPanel(projectId) {
       `<div class="flex items-start gap-2 mb-2">
         <span class="text-sm">${b.icon}</span>
         <div>
-          <span class="text-xs font-semibold text-gray-300">${b.label}:</span>
-          <span class="text-xs text-gray-400 ml-1">${b.detail}</span>
+          <span class="text-xs font-semibold text-gray-300">${localField(b, 'label')}:</span>
+          <span class="text-xs text-gray-300 ml-1">${localField(b, 'detail')}</span>
         </div>
       </div>`
     ).join('');
-    // Hide stack badges — breakdown already names the tech
-    document.getElementById('detail-stack').innerHTML = '';
   } else {
-    document.getElementById('detail-architecture').textContent = p.architecture;
+    document.getElementById('detail-architecture').textContent = localField(p, 'architecture');
   }
 
   // Impact
   const [impMin, impMax] = impactAtFleet(p, 2000);
   if (impMin === 0) {
-    document.getElementById('detail-impact').textContent = 'Habilitador Crítico';
+    document.getElementById('detail-impact').textContent = t('roadmap.enabler');
     const blockCount = p.blocks.length;
-    document.getElementById('detail-impact-note').textContent =
-      blockCount > 0
-        ? `Base para ${blockCount} proyecto${blockCount > 1 ? 's' : ''} de Fase 1-2`
-        : 'Infraestructura crítica del stack';
+    let noteText = blockCount > 0
+      ? t('roadmap.baseFor', { n: blockCount, plural: blockCount > 1 ? 's' : '' })
+      : t('roadmap.infraCritical');
+    if (p.impactNote) noteText += ` · ${localField(p, 'impactNote')}`;
+    document.getElementById('detail-impact-note').textContent = noteText;
   } else {
-    document.getElementById('detail-impact').textContent = `${formatMXNShort(impMin)} – ${formatMXNShort(impMax)}/año`;
-    document.getElementById('detail-impact-note').textContent = `A escala completa`;
+    document.getElementById('detail-impact').textContent = `${formatMXNShort(impMin)} – ${formatMXNShort(impMax)}${t('roadmap.perYear')}`;
+    document.getElementById('detail-impact-note').textContent = t('roadmap.fullScale');
   }
-
-  // Metrics
-  document.getElementById('detail-metrics').innerHTML = p.metrics.map((m, i, arr) =>
-    `<div class="flex items-center justify-between text-xs py-2 ${i < arr.length - 1 ? 'border-b border-white/5' : ''}">
-      <span class="text-gray-400">${m.kpi}</span>
-      <div class="text-right">
-        ${m.before ? `<span class="text-red-400/70 line-through mr-2">${m.before}</span>` : ''}
-        <span class="text-green-400 font-medium">${m.target}</span>
-      </div>
-    </div>`
-  ).join('');
-
-  // Stack
-  document.getElementById('detail-stack').innerHTML = p.stack.map(s =>
-    `<span class="px-1.5 py-0.5 rounded text-[11px] font-medium bg-white/5 text-gray-500">${s}</span>`
-  ).join('');
-
-  // Dependencies — smart counter with tooltip
-  const deps = [];
-  if (p.dependsOn.length > 0) {
-    const depNames = p.dependsOn.map(d => {
-      const proj = PROJECTS.find(pr => pr.id === d);
-      return proj ? `${d}: ${proj.name}` : d;
-    }).join('\n');
-    deps.push(`<p class="text-xs text-gray-400">
-      <span class="text-yellow-400 font-medium cursor-help" title="${depNames}">
-        Requiere ${p.dependsOn.length} proyecto${p.dependsOn.length > 1 ? 's' : ''} previo${p.dependsOn.length > 1 ? 's' : ''}
-      </span>
-    </p>`);
-  }
-  if (p.blocks.length > 0) {
-    const blockNames = p.blocks.map(d => {
-      const proj = PROJECTS.find(pr => pr.id === d);
-      return proj ? `${d}: ${proj.name}` : d;
-    }).join('\n');
-    deps.push(`<p class="text-xs text-gray-400">
-      <span class="text-green-400 font-medium cursor-help" title="${blockNames}">
-        Desbloquea ${p.blocks.length} proyecto${p.blocks.length > 1 ? 's' : ''}
-      </span>
-    </p>`);
-  }
-  if (deps.length === 0) deps.push('<p class="text-xs text-gray-500">Sin dependencias</p>');
-  document.getElementById('detail-deps').innerHTML = deps.join('');
 
   // Users
-  document.getElementById('detail-users').innerHTML = p.primaryUsers.map(u =>
-    `<span class="px-2.5 py-1 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">${u}</span>`
-  ).join('');
+  const users = localField(p, 'primaryUsers');
+  document.getElementById('detail-users').innerHTML = users.map(u =>
+    `<span class="text-gray-300">${u}</span>`
+  ).join('<span class="text-gray-600 mx-1">·</span>');
 
   // Benchmark
   if (p.benchmark) {
     document.getElementById('detail-benchmark-wrap').classList.remove('hidden');
-    document.getElementById('detail-benchmark').textContent = p.benchmark;
+    document.getElementById('detail-benchmark').textContent = localField(p, 'benchmark');
   } else {
     document.getElementById('detail-benchmark-wrap').classList.add('hidden');
   }
@@ -297,15 +264,20 @@ function renderMilestones() {
   const container = document.getElementById('milestone-cards');
   container.innerHTML = MILESTONES.map((m, i) => {
     const isReached = 200 >= m.fleet;
+    const techBadges = (m.techRequired || []).map(id => {
+      const proj = PROJECTS.find(pr => pr.id === id);
+      const color = proj ? TRACK_COLORS[proj.track] : L.COLORS.gray400;
+      return `<span class="px-1.5 py-0.5 rounded text-[10px] font-medium" style="background:${color}15;color:${color}">${id}</span>`;
+    }).join('');
     return `
       <div class="milestone-card bg-lafa-card rounded-xl p-5 border border-white/5 relative" data-milestone="${i}">
         ${isReached ? '<div class="absolute top-3 right-3 w-2 h-2 rounded-full bg-green-400"></div>' : ''}
         <div class="flex items-baseline gap-1 mb-1">
-          <span class="text-3xl font-bold text-white" style="font-variant-numeric:tabular-nums">${m.fleet.toLocaleString('es-MX')}</span>
-          <span class="text-sm text-gray-500">vehículos</span>
+          <span class="text-3xl font-bold text-white" style="font-variant-numeric:tabular-nums">${m.fleet.toLocaleString(window.I18N_LANG === 'en' ? 'en-US' : 'es-MX')}</span>
+          <span class="text-sm text-gray-500">${t('roadmap.vehicles')}</span>
         </div>
-        <p class="text-sm font-semibold text-lafa-orange mb-2">${m.title}</p>
-        <p class="text-xs text-gray-500 leading-relaxed">${m.vision}</p>
+        <p class="text-sm font-semibold text-lafa-orange mb-2">${localField(m, 'title')}</p>
+        <p class="text-xs text-gray-500 leading-relaxed">${localField(m, 'vision')}</p>
       </div>
     `;
   }).join('');
@@ -371,4 +343,13 @@ function bindEvents() {
     setTimeout(() => card.classList.remove('highlighted'), 3000);
   });
 }
+
+// ---------- Language change ----------
+window.addEventListener('langchange', () => {
+  renderGantt();
+  renderMilestones();
+  if (state.selectedProject) openDetailPanel(state.selectedProject.id);
+  const titleEl = document.querySelector('#page-header h1');
+  if (titleEl) titleEl.textContent = t('roadmap.title');
+});
 })();

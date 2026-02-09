@@ -5,7 +5,7 @@
   const L = window.LAFA;
 
   // ---------- Init ----------
-  L.initPage('onboarding', 'Onboarding de Conductores', '', {
+  L.initPage('onboarding', t('onboarding.title'), '', {
     'search-icon': 'search',
     'modal-close-icon': 'x',
     'wa-icon': 'message-circle',
@@ -14,6 +14,8 @@
   // ---------- Constants ----------
   const STAGES = ['pendiente', 'revision', 'verificado', 'aprobado'];
   const DOCS = ['INE', 'Licencia', 'Comp. Domicilio', 'RFC', 'Screenshot'];
+  const DOC_KEYS = { 'INE': 'onboarding.doc.ine', 'Licencia': 'onboarding.doc.license', 'Comp. Domicilio': 'onboarding.doc.address', 'RFC': 'onboarding.doc.rfc', 'Screenshot': 'onboarding.doc.screenshot' };
+  function docName(name) { return t(DOC_KEYS[name] || name); }
 
   const DOC_META = {
     'INE':             { color: 'bg-blue-500/15',   iconColor: 'text-blue-400',   icon: 'shield-check' },
@@ -124,10 +126,10 @@
   renderSparkline('sparkline-auto', [62, 65, 68, 70, 73, 75, 78], '#22C55E');
   renderSparkline('sparkline-pending', [18, 20, 16, 15, 14, 13, 12], '#22C55E');
 
-  document.getElementById('kpi-apps-trend').textContent = '↑15% vs sem ant';
-  document.getElementById('kpi-time-trend').textContent = '↓13% vs sem ant';
-  document.getElementById('kpi-auto-trend').textContent = '↑4% vs sem ant';
-  document.getElementById('kpi-pending-trend').innerHTML = '<span class="text-green-400">↓8% vs sem ant</span>';
+  document.getElementById('kpi-apps-trend').textContent = t('onboarding.trend.apps');
+  document.getElementById('kpi-time-trend').textContent = t('onboarding.trend.time');
+  document.getElementById('kpi-auto-trend').textContent = t('onboarding.trend.auto');
+  document.getElementById('kpi-pending-trend').innerHTML = `<span class="text-green-400">${t('onboarding.trend.pending')}</span>`;
 
   // ---------- Truncate Phone ----------
   function truncatePhone(phone) {
@@ -161,7 +163,7 @@
       previousCounts[stage] = stageApps.length;
 
       if (stageApps.length === 0) {
-        col.innerHTML = '<div class="kanban-empty">Sin conductores en esta etapa</div>';
+        col.innerHTML = `<div class="kanban-empty">${t('onboarding.empty')}</div>`;
         continue;
       }
 
@@ -186,7 +188,7 @@
             <div class="progress-fill ${pct === 100 ? 'bg-green-500' : 'progress-gradient'}" style="width: ${pct}%"></div>
           </div>
           <div class="flex items-center justify-between mt-1">
-            <span class="text-xs text-gray-500">${a.docsReceived}/${a.docsTotal} docs</span>
+            <span class="text-xs text-gray-500">${a.docsReceived}/${a.docsTotal} ${t('onboarding.docs')}</span>
             <span class="text-xs text-gray-600">${a.date}</span>
           </div>
         </div>`;
@@ -224,7 +226,7 @@
           app.stage = newStage;
           renderKanban();
           if (newStage === 'aprobado') {
-            showToast(`${app.fullName} aprobada — WhatsApp enviado`, 'check-circle', 'text-green-400');
+            showToast(t('onboarding.toast.approved', { name: app.fullName }), 'check-circle', 'text-green-400');
           }
         }
       });
@@ -303,7 +305,7 @@
         <div class="doc-thumb ${meta.color}" data-doc="${doc.name}">
           <div class="flex flex-col items-center gap-1.5 text-center">
             ${L.lucideIcon(meta.icon, 'w-5 h-5 ' + meta.iconColor)}
-            <span class="text-xs text-gray-400 leading-tight">${doc.name}</span>
+            <span class="text-xs text-gray-400 leading-tight">${docName(doc.name)}</span>
           </div>
           <div class="doc-thumb-status bg-white/5">
             ${L.lucideIcon('clock', 'w-3 h-3 text-gray-500')}
@@ -334,42 +336,42 @@
   function runAutoDemo(app) {
     cancelDemo();
     const chat = document.getElementById('modal-wa-chat');
-    const productLabel = app.product === 'DaE' ? 'empleado (DaE)' : 'Lease-to-Own (LTO)';
-    let t = 0;
+    const productLabel = t(app.product === 'DaE' ? 'onboarding.product.dae' : 'onboarding.product.lto');
+    let delay = 0;
 
-    function schedule(delay, fn) {
-      t += delay;
-      demoTimeouts.push(setTimeout(fn, t));
+    function schedule(d, fn) {
+      delay += d;
+      demoTimeouts.push(setTimeout(fn, delay));
     }
 
     // 1. Bot greets
     schedule(100, () => addWAMsg(chat, 'bot',
-      `Hola ${app.firstName}! Bienvenido al proceso de onboarding de LAFA. Soy el asistente automatizado.`, '10:00'));
+      t('onboarding.wa.greeting', { name: app.firstName }), '10:00'));
 
     // 2. Bot lists docs
     schedule(700, () => addWAMsg(chat, 'bot',
-      `Para tu solicitud como conductor ${productLabel}, necesitamos:\n1. INE\n2. Licencia\n3. Comp. Domicilio\n4. RFC\n5. Screenshot DiDi`, '10:00'));
+      t('onboarding.wa.docList', { product: productLabel }), '10:00'));
 
     // 3. Driver replies
-    schedule(1000, () => addWAMsg(chat, 'driver', 'Si claro, dame un momento', '10:01'));
+    schedule(1000, () => addWAMsg(chat, 'driver', t('onboarding.wa.driverReply'), '10:01'));
 
     // 4. Loop through 5 docs
-    DOCS.forEach((docName, i) => {
+    DOCS.forEach((dn, i) => {
       // Driver sends doc
       schedule(900, () => addWAMsg(chat, 'driver',
-        `[📄 ${docName}]`, `10:${String(2 + i).padStart(2, '0')}`));
+        `[📄 ${docName(dn)}]`, `10:${String(2 + i).padStart(2, '0')}`));
 
       // Bot confirms + flip thumbnail
       schedule(400, () => {
         addWAMsg(chat, 'bot',
-          `${docName} verificado ✓`, `10:${String(2 + i).padStart(2, '0')}`);
-        flipDocToGreen(docName);
+          t('onboarding.wa.verified', { doc: docName(dn) }), `10:${String(2 + i).padStart(2, '0')}`);
+        flipDocToGreen(dn);
       });
     });
 
     // 5. Bot final message
     schedule(700, () => addWAMsg(chat, 'bot',
-      'Todos los documentos verificados! Tu solicitud está completa.', '10:07'));
+      t('onboarding.wa.allDone'), '10:07'));
 
     // 6. OCR section fades in (with scan animation then results)
     schedule(500, () => {
@@ -379,8 +381,8 @@
         <div class="relative bg-white/5 rounded-xl p-6 overflow-hidden" style="min-height: 160px;">
           <div class="scan-line"></div>
           <div class="text-center text-gray-400 mt-12">
-            <p class="text-sm animate-pulse">Procesando con AI...</p>
-            <p class="text-xs text-gray-600 mt-2">Extrayendo campos de INE</p>
+            <p class="text-sm animate-pulse">${t('onboarding.ocr.processing')}</p>
+            <p class="text-xs text-gray-600 mt-2">${t('onboarding.ocr.extracting')}</p>
           </div>
         </div>`;
       ocrSection.classList.add('visible');
@@ -441,76 +443,76 @@
         <div class="relative bg-gradient-to-br from-blue-900/30 to-blue-800/10 rounded-xl p-4 border border-blue-500/20 ocr-highlight">
           <div class="flex items-center gap-2 mb-3">
             ${L.lucideIcon('shield-check', 'w-4 h-4 text-blue-400')}
-            <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider">INE / Credencial de Elector</span>
+            <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider">${t('onboarding.ocr.ineTitle')}</span>
           </div>
           <div class="grid grid-cols-2 gap-3 text-sm">
             <div>
-              <span class="text-xs text-gray-500">Nombre</span>
+              <span class="text-xs text-gray-500">${t('onboarding.ocr.name')}</span>
               <p class="font-medium">${app.fullName}</p>
-              <span class="text-xs text-green-400">98% confianza</span>
+              <span class="text-xs text-green-400">${t('onboarding.ocr.confidence', { n: 98 })}</span>
             </div>
             <div>
-              <span class="text-xs text-gray-500">CURP</span>
+              <span class="text-xs text-gray-500">${t('onboarding.ocr.curp')}</span>
               <p class="font-mono text-xs">${app.curp}</p>
-              <span class="text-xs text-green-400">96% confianza</span>
+              <span class="text-xs text-green-400">${t('onboarding.ocr.confidence', { n: 96 })}</span>
             </div>
             <div>
-              <span class="text-xs text-gray-500">Dirección</span>
+              <span class="text-xs text-gray-500">${t('onboarding.ocr.address')}</span>
               <p class="text-xs text-gray-300">${aPick(['Av. Insurgentes 1234', 'Calle Reforma 567', 'Blvd. Periferico 890'])}, CDMX</p>
-              <span class="text-xs text-yellow-400">87% confianza</span>
+              <span class="text-xs text-yellow-400">${t('onboarding.ocr.confidence', { n: 87 })}</span>
             </div>
             <div>
-              <span class="text-xs text-gray-500">Vigencia</span>
+              <span class="text-xs text-gray-500">${t('onboarding.ocr.validity')}</span>
               <p>2029</p>
-              <span class="text-xs text-green-400">99% confianza</span>
+              <span class="text-xs text-green-400">${t('onboarding.ocr.confidence', { n: 99 })}</span>
             </div>
           </div>
         </div>
 
         <div class="bg-white/5 rounded-xl p-4 space-y-2">
-          <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Validación AI</h4>
+          <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">${t('onboarding.ocr.validation')}</h4>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">Documento auténtico</span>
+            <span class="text-sm text-gray-300">${t('onboarding.ocr.authentic')}</span>
             <span class="text-sm font-semibold text-green-400">SI (96%)</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">Vigencia</span>
-            <span class="text-sm font-semibold text-green-400">VIGENTE</span>
+            <span class="text-sm text-gray-300">${t('onboarding.ocr.validity')}</span>
+            <span class="text-sm font-semibold text-green-400">${t('onboarding.ocr.valid')}</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">CURP validado (RENAPO)</span>
+            <span class="text-sm text-gray-300">${t('onboarding.ocr.curpValidated')}</span>
             <span class="text-sm font-semibold text-green-400">SI</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">Coincidencia foto/rostro</span>
+            <span class="text-sm text-gray-300">${t('onboarding.ocr.faceMatch')}</span>
             <span class="text-sm font-semibold text-green-400">94%</span>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">Lista negra</span>
-            <span class="text-sm font-semibold text-green-400">LIMPIO</span>
+            <span class="text-sm text-gray-300">${t('onboarding.ocr.blacklist')}</span>
+            <span class="text-sm font-semibold text-green-400">${t('onboarding.ocr.clean')}</span>
           </div>
           ${app.product === 'LTO' ? `
           <div class="mt-3 pt-3 border-t border-white/5">
-            <h5 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Evaluación Financiera (LTO)</h5>
+            <h5 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">${t('onboarding.ocr.ltoTitle')}</h5>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-300">Ingresos verificados (Palenca)</span>
+              <span class="text-sm text-gray-300">${t('onboarding.ocr.verifiedIncome')}</span>
               <span class="text-sm font-semibold text-green-400">$8,200/sem</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-300">Score crediticio alternativo</span>
+              <span class="text-sm text-gray-300">${t('onboarding.ocr.altCredit')}</span>
               <span class="text-sm font-semibold text-green-400">${app.creditScore}/100</span>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-300">Capacidad de pago</span>
-              <span class="text-sm font-semibold text-green-400">APROBADO</span>
+              <span class="text-sm text-gray-300">${t('onboarding.ocr.payCapacity')}</span>
+              <span class="text-sm font-semibold text-green-400">${t('onboarding.ocr.approved')}</span>
             </div>
           </div>
           ` : ''}
         </div>
 
         <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
-          <p class="text-green-400 font-semibold">Verificación completa — Auto-aprobado</p>
-          <p class="text-xs text-gray-400 mt-1">Tiempo total de procesamiento: 23 segundos</p>
+          <p class="text-green-400 font-semibold">${t('onboarding.ocr.autoApproved')}</p>
+          <p class="text-xs text-gray-400 mt-1">${t('onboarding.ocr.processTime')}</p>
         </div>
       </div>`;
   }
@@ -546,10 +548,10 @@
 
     // Level
     let level;
-    if (score >= 75) level = 'Excelente';
-    else if (score >= 60) level = 'Bueno';
-    else if (score >= 40) level = 'Regular';
-    else level = 'Bajo';
+    if (score >= 75) level = t('onboarding.credit.excellent');
+    else if (score >= 60) level = t('onboarding.credit.good');
+    else if (score >= 40) level = t('onboarding.credit.regular');
+    else level = t('onboarding.credit.low');
 
     container.innerHTML = `
       <div class="flex items-center gap-6">
@@ -558,21 +560,21 @@
             <path class="gauge-arc gauge-bg" d="${arcPath(startAngle, endAngle)}" stroke-width="8" />
             <path class="gauge-arc" d="${arcPath(startAngle, scoreAngle)}" stroke="${gaugeColor}" stroke-width="8" />
             <text x="${cx}" y="${cy - 5}" text-anchor="middle" font-size="20" font-weight="700" fill="${gaugeColor}">${score}</text>
-            <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="9" fill="#6B7280">de 100</text>
+            <text x="${cx}" y="${cy + 10}" text-anchor="middle" font-size="9" fill="#6B7280">${t('onboarding.credit.of100')}</text>
           </svg>
         </div>
         <div class="space-y-2 text-sm">
           <div class="flex items-center gap-2">
-            <span class="text-gray-500">Nivel:</span>
+            <span class="text-gray-500">${t('onboarding.credit.level')}</span>
             <span class="font-medium" style="color:${gaugeColor}">${level}</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-gray-500">Ingreso verificado:</span>
-            <span class="text-gray-300">$8,200/sem</span>
+            <span class="text-gray-500">${t('onboarding.credit.verifiedIncome')}</span>
+            <span class="text-gray-300">$8,200/${t('onboarding.credit.perWeek')}</span>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-gray-500">Historial plataforma:</span>
-            <span class="text-gray-300">6+ meses</span>
+            <span class="text-gray-500">${t('onboarding.credit.platformHistory')}</span>
+            <span class="text-gray-300">${t('onboarding.credit.platformHistoryVal')}</span>
           </div>
         </div>
       </div>`;
@@ -581,11 +583,11 @@
   // ---------- Timeline ----------
   function renderTimelineAllActive(app) {
     const steps = [
-      { label: 'Solicitud', time: '10:00' },
-      { label: 'Documentos', time: '10:02' },
-      { label: 'OCR / AI', time: '10:04' },
-      { label: 'Revisión', time: '10:05' },
-      { label: 'Decisión', time: '10:07' },
+      { label: t('onboarding.timeline.request'), time: '10:00' },
+      { label: t('onboarding.timeline.documents'), time: '10:02' },
+      { label: t('onboarding.timeline.ocrAi'), time: '10:04' },
+      { label: t('onboarding.timeline.review'), time: '10:05' },
+      { label: t('onboarding.timeline.decision'), time: '10:07' },
     ];
 
     document.getElementById('modal-timeline').innerHTML = steps.map((s) => `
@@ -617,6 +619,13 @@
       setTimeout(() => toast.remove(), 400);
     }, 3500);
   }
+
+  // ---------- Language change ----------
+  window.addEventListener('langchange', () => {
+    renderKanban();
+    const titleEl = document.querySelector('#page-header h1');
+    if (titleEl) titleEl.textContent = t('onboarding.title');
+  });
 
   // ---------- Init ----------
   renderKanban();
