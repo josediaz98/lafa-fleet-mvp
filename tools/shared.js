@@ -508,7 +508,6 @@ function createPageHeader(title, subtitle) {
           ${lucideIcon('bell', 'w-5 h-5')}
           <span id="notif-badge" class="notif-badge">${NOTIFICATIONS.length}</span>
         </button>
-        <div class="w-8 h-8 rounded-full bg-lafa-orange/20 flex items-center justify-center text-xs font-bold text-lafa-orange">JD</div>
       </div>
     </header>
   `;
