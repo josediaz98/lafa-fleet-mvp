@@ -50,7 +50,7 @@
     /* ---------- Document Thumbnails ---------- */
     .doc-thumb {
       border-radius: 10px; padding: 12px; cursor: default;
-      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.3s ease;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease;
       position: relative; border: 1px solid rgba(255,255,255,0.06);
     }
     .doc-thumb:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
@@ -58,7 +58,7 @@
       position: absolute; top: 8px; right: 8px;
       width: 18px; height: 18px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      transition: background 0.3s ease;
+      transition: background 0.2s ease;
     }
     .doc-thumb.doc-done { border-color: rgba(34,197,94,0.4); }
     @keyframes doc-pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 100% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } }
@@ -84,7 +84,7 @@
       font-size: 13px; color: #E9EDEF;
       box-shadow: 0 8px 30px rgba(0,0,0,0.4);
       transform: translateX(120%); opacity: 0;
-      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
+      transition: transform 0.25s cubic-bezier(0.4,0,0.2,1), opacity 0.25s ease;
       display: flex; align-items: center; gap: 10px;
     }
     .toast.show { transform: translateX(0); opacity: 1; }
@@ -133,7 +133,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Solicitudes Esta Sem</span>
-            <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center gap-3 mt-3">
               <p class="text-3xl font-bold" id="kpi-apps">0</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-apps-trend"></span>
             </div>
@@ -141,7 +141,7 @@
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Tiempo Promedio</span>
-            <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center gap-3 mt-3">
               <p class="text-3xl font-bold" id="kpi-time">0h</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-time-trend"></span>
             </div>
@@ -149,7 +149,7 @@
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Auto-Aprobados</span>
-            <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center gap-3 mt-3">
               <p class="text-3xl font-bold text-green-400" id="kpi-auto">0%</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-auto-trend"></span>
             </div>
@@ -157,7 +157,7 @@
           </div>
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Pendientes</span>
-            <div class="flex items-center gap-3 mt-2">
+            <div class="flex items-center gap-3 mt-3">
               <p class="text-3xl font-bold text-yellow-400" id="kpi-pending">0</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-pending-trend"></span>
             </div>

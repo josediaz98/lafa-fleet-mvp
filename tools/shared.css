@@ -3,6 +3,32 @@
    Base CSS for all tool pages (dashboard, battery, etc.)
    ============================================================ */
 
+/* ---------- Design System Tokens ----------
+   Type roles:
+     page-title   = text-2xl / font-semibold (h1, via createPageHeader)
+     section-title = text-sm / font-semibold / text-gray-300 (h3 chart/card headers)
+     kpi-label    = text-xs / font-normal / uppercase tracking-wider / text-gray-400
+     kpi-value    = text-3xl / font-bold / mt-2
+     body         = text-sm / font-normal
+     caption      = text-xs / font-normal / text-gray-500
+     eyebrow      = 12px / font-semibold / uppercase / tracking-wider / text-lafa-orange
+
+   Motion buckets:
+     micro    = 150ms  (heatmap cells, kanban cards, doc-thumb hover)
+     standard = 200ms  (buttons, pills, card-hover, nav-link, badges)
+     modal    = 250ms  (modal open/close, slide-panel, toast, progress fills)
+
+   Border radius:
+     cards    = rounded-xl  (12px)
+     modals   = rounded-2xl (16px)
+     pills    = rounded-full (9999px)
+
+   Badge variants:
+     status   = rounded-full, px-2.5 py-1, dot indicator
+     product  = rounded-full, px-2.5 py-1
+     oem      = rounded-full, px-2.5 py-1
+   ---------- */
+
 /* Smooth scroll */
 html { scroll-behavior: smooth; }
 
@@ -14,9 +40,16 @@ html { scroll-behavior: smooth; }
   border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
-/* Card hover effect */
+/* Card hover effect (lift) */
 .card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
 .card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+/* Card border hover (subtle) */
+.card-interactive {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  cursor: pointer;
+}
+.card-interactive:hover { border-color: rgba(255,255,255,0.1); }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
@@ -24,7 +57,7 @@ html { scroll-behavior: smooth; }
 ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
 
 /* Slide panel (dashboard detail) */
-.slide-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+.slide-panel { transform: translateX(100%); transition: transform 0.25s ease; }
 .slide-panel.open { transform: translateX(0); }
 
 /* ---------- Notification System ---------- */
@@ -78,7 +111,7 @@ html { scroll-behavior: smooth; }
   padding: 12px 16px;
   cursor: pointer;
   position: relative;
-  transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
   text-decoration: none;
   border-left: 3px solid transparent;
 }
@@ -111,7 +144,7 @@ html { scroll-behavior: smooth; }
   position: absolute;
   top: 14px;
   right: 12px;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 .notif-item.is-read .notif-dot { opacity: 0; }
 
@@ -145,8 +178,8 @@ html { scroll-behavior: smooth; }
   margin: 0 2px;
   animation: typing 1.4s infinite;
 }
-.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
 @keyframes typing {
   0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
   30% { opacity: 1; transform: translateY(-4px); }
@@ -196,10 +229,12 @@ html { scroll-behavior: smooth; }
 }
 .filter-pill:hover { color: #fff; background: rgba(255,255,255,0.08); }
 .filter-pill.active { background: #FF5A00; color: #fff; border-color: #FF5A00; }
+.filter-pill.amber.active { background: #F59E0B; color: #111827; border-color: #F59E0B; }
+.filter-pill.amber.active:hover { background: #D97706; }
 
 /* ---------- Progress Bar ---------- */
 .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-.progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.25s ease; }
 .progress-gradient { background: linear-gradient(90deg, #FF5A00, #22C55E); }
 
 /* ---------- Avatar Initials ---------- */

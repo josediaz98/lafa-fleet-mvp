@@ -1,0 +1,5 @@
+<svg width="240" height="80" viewBox="0 0 240 80" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="40" cy="40" r="28" stroke="#4FB783" stroke-width="5" stroke-linecap="butt" stroke-dasharray="158 18" stroke-dashoffset="9" fill="none"/>
+  <line x1="67.2" y1="17.5" x2="70.5" y2="20.8" stroke="#4FB783" stroke-width="5" stroke-linecap="butt"/>
+  <text x="85" y="52" font-family="Inter, -apple-system, BlinkMacSystemFont, sans-serif" font-size="32" font-weight="500" fill="#4FB783" letter-spacing="3">NUMA</text>
+</svg>

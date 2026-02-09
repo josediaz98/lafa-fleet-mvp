@@ -176,9 +176,9 @@ function openDetailPanel(projectId) {
   // Badges
   const trackColor = TRACK_COLORS[p.track];
   document.getElementById('detail-badges').innerHTML = `
-    <span class="px-2 py-0.5 rounded text-xs font-medium" style="background:${trackColor}20;color:${trackColor}">${TRACK_LABELS[p.track]}</span>
-    <span class="px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-gray-300">Fase ${p.phase}</span>
-    <span class="px-2 py-0.5 rounded text-xs font-medium bg-white/10 text-gray-300">Mo ${p.startMonth}-${p.endMonth} · ${p.effortWeeks} sem</span>
+    <span class="px-2.5 py-1 rounded-md text-xs font-medium" style="background:${trackColor}20;color:${trackColor}">${TRACK_LABELS[p.track]}</span>
+    <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-white/10 text-gray-300">Fase ${p.phase}</span>
+    <span class="px-2.5 py-1 rounded-md text-xs font-medium bg-white/10 text-gray-300">Mo ${p.startMonth}-${p.endMonth} · ${p.effortWeeks} sem</span>
   `;
 
   // Problem
@@ -265,7 +265,7 @@ function openDetailPanel(projectId) {
 
   // Users
   document.getElementById('detail-users').innerHTML = p.primaryUsers.map(u =>
-    `<span class="px-2 py-0.5 rounded text-xs font-medium bg-blue-500/10 text-blue-400">${u}</span>`
+    `<span class="px-2.5 py-1 rounded-md text-xs font-medium bg-blue-500/10 text-blue-400">${u}</span>`
   ).join('');
 
   // Benchmark

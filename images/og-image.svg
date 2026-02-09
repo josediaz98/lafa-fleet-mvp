@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1200" viewBox="0 0 1200 1200">
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#1B1A23"/>
@@ -6,17 +6,14 @@
     </linearGradient>
   </defs>
 
-  <!-- Full background (dark to avoid white edges on crop) -->
-  <rect width="1200" height="1200" fill="#1B1A23"/>
-
-  <!-- OG content area: 0-630 -->
+  <!-- Background -->
   <rect width="1200" height="630" fill="url(#bg)"/>
 
   <!-- Accent line top -->
-  <rect x="0" y="0" width="1200" height="4" fill="#FF5A00"/>
+  <rect x="0" y="0" width="1200" height="5" fill="#FF5A00"/>
 
-  <!-- LAFA Logo (scaled from 124x22 to ~496x88, centered at x=352) -->
-  <g transform="translate(352, 180) scale(4)">
+  <!-- LAFA Logo scaled 7x: 124x21 → 868x147, centered -->
+  <g transform="translate(166, 165) scale(7)">
     <g clip-path="url(#logoClip)">
       <path d="M122.258 18.187C121.802 18.187 121.346 18.1759 120.89 18.187C120.669 18.2093 120.46 18.0923 120.376 17.8947C120.155 17.4632 119.92 17.0372 119.725 16.5973C119.659 16.3969 119.45 16.2716 119.232 16.2994H114.963C113.674 16.2994 112.387 16.3161 111.098 16.3106C110.863 16.2827 110.636 16.4136 110.558 16.6279C110.372 17.0205 110.157 17.3936 109.968 17.7833C109.881 18.006 109.658 18.1508 109.408 18.1397C108.432 18.1397 107.456 18.1703 106.484 18.1786C106.24 18.1786 106.205 18.1174 106.306 17.9225C106.995 16.6112 107.68 15.3027 108.371 13.9915C109.164 12.502 109.968 11.0181 110.761 9.52307C111.722 7.7218 112.681 5.91774 113.63 4.11369C113.706 3.91881 113.912 3.79631 114.127 3.8158C114.914 3.82415 115.701 3.82415 116.488 3.8158C116.688 3.79909 116.88 3.91045 116.952 4.09142C117.608 5.37764 118.276 6.6583 118.93 7.94731C119.818 9.70682 120.692 11.4719 121.584 13.2314C122.351 14.7515 123.138 16.2688 123.91 17.7805C124.078 18.1063 124.032 18.1703 123.657 18.1731C123.19 18.1954 122.722 18.1926 122.258 18.1926V18.187ZM115.282 7.61322C115.195 7.74407 115.143 7.81089 115.108 7.88606C114.185 9.67341 113.261 11.4608 112.341 13.2481C112.207 13.5042 112.236 13.5488 112.527 13.5488H117.835C118.122 13.5488 118.154 13.4903 118.035 13.2453C117.179 11.4747 116.319 9.70404 115.46 7.93339C115.416 7.85544 115.364 7.76635 115.28 7.61601L115.282 7.61322Z" fill="white"/>
       <path d="M89.2924 18.187H87.8956C87.6924 18.2037 87.5036 18.0923 87.4281 17.9114C87.2103 17.4799 86.9664 17.0595 86.7718 16.6168C86.705 16.3969 86.4785 16.2604 86.2433 16.2938C85.7003 16.3078 85.1514 16.2938 84.6055 16.2938C82.4479 16.2938 80.2932 16.3133 78.1356 16.3106C77.883 16.2799 77.6448 16.4247 77.5635 16.6586C77.3777 17.0817 77.1221 17.4798 76.8985 17.8891C76.8172 18.0673 76.6285 18.1786 76.4281 18.1675H73.5561C73.2803 18.1675 73.2425 18.0979 73.3703 17.8473C74.0266 16.5806 74.6828 15.3139 75.3391 14.0443C76.007 12.7553 76.6749 11.4691 77.3457 10.1801C77.6623 9.57318 77.9991 8.98018 78.3156 8.37326C78.9284 7.20118 79.5324 6.02353 80.1422 4.85145C80.2787 4.58975 80.4326 4.33641 80.5604 4.07471C80.6417 3.9021 80.8275 3.7963 81.025 3.81857H83.3075C83.4904 3.80465 83.6617 3.90766 83.7285 4.07192C84.1583 4.87373 84.5997 5.66718 85.0237 6.46898C85.9268 8.18395 86.8212 9.9017 87.7185 11.6194C88.6013 13.2954 89.4783 14.9714 90.3465 16.6502C90.5556 17.0483 90.7763 17.4409 90.9767 17.8418C91.119 18.123 91.0696 18.187 90.7357 18.1898H89.2866H89.2953L89.2924 18.187ZM79.1752 13.5098C79.2594 13.5293 79.3465 13.5432 79.4336 13.5516H84.8233C85.0934 13.5516 85.1195 13.5042 85.0092 13.2815C84.1118 11.4942 83.2145 9.71238 82.3143 7.93617C82.2766 7.86378 82.233 7.79696 82.1865 7.73015L82.0965 7.71901L79.1752 13.507V13.5098Z" fill="white"/>
@@ -33,31 +30,17 @@
     </g>
     <defs>
       <clipPath id="logoClip">
-        <rect width="124" height="21" fill="white" transform="translate(0 0.5)"/>
+        <rect width="124" height="22" fill="white" transform="translate(0 0)"/>
       </clipPath>
     </defs>
   </g>
 
-  <!-- Tagline -->
-  <text x="600" y="340" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="36" font-weight="600" fill="#FF5A00">De Spreadsheets a Plataforma</text>
-
   <!-- Subtitle -->
-  <text x="600" y="400" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="rgba(255,255,255,0.7)">Portfolio de Producto | Jose Diaz</text>
+  <text x="600" y="430" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="42" font-weight="600" fill="#FF5A00">De Spreadsheets a Plataforma</text>
 
-  <!-- Stats bar -->
-  <g transform="translate(0, 460)">
-    <rect x="200" y="0" width="800" height="1" fill="rgba(255,255,255,0.1)"/>
+  <!-- Author line -->
+  <text x="600" y="490" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="28" fill="rgba(255,255,255,0.6)">Portfolio de Producto | Jose Diaz</text>
 
-    <text x="330" y="50" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="white">150</text>
-    <text x="330" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="rgba(255,255,255,0.5)">EVs actuales</text>
-
-    <text x="600" y="50" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="#FF5A00">2,000</text>
-    <text x="600" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="rgba(255,255,255,0.5)">Meta 2026</text>
-
-    <text x="870" y="50" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="40" font-weight="700" fill="white">5</text>
-    <text x="870" y="80" text-anchor="middle" font-family="system-ui, -apple-system, sans-serif" font-size="16" fill="rgba(255,255,255,0.5)">Prototipos</text>
-  </g>
-
-  <!-- Accent line at 630 -->
-  <rect x="0" y="626" width="1200" height="4" fill="#FF5A00"/>
+  <!-- Accent line bottom -->
+  <rect x="0" y="625" width="1200" height="5" fill="#FF5A00"/>
 </svg>

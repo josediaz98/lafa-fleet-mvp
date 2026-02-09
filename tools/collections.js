@@ -187,9 +187,9 @@
 
   // ---------- Event Listeners ----------
   document.getElementById('scenario-tabs').addEventListener('click', (e) => {
-    const tab = e.target.closest('.scenario-tab');
+    const tab = e.target.closest('.filter-pill');
     if (!tab) return;
-    document.querySelectorAll('.scenario-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('#scenario-tabs .filter-pill').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     loadScenario(tab.dataset.scenario);
     playMessages();

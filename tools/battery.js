@@ -220,7 +220,7 @@
       return `
         <tr class="hover:bg-white/[0.03] cursor-pointer transition-colors" data-id="${d.id}">
           <td class="px-5 py-3">
-            <span class="px-2 py-1 rounded text-xs font-medium ${priorityColor}">${priority}</span>
+            <span class="px-2.5 py-1 rounded-md text-xs font-medium ${priorityColor}">${priority}</span>
           </td>
           <td class="px-5 py-3">
             <div class="text-sm font-medium">${d.vehicleId}</div>

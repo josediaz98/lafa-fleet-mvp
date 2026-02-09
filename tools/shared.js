@@ -233,8 +233,8 @@ function statusBadge(status) {
 }
 
 function productBadge(product) {
-  if (product === 'DaE') return '<span class="px-2 py-0.5 rounded text-xs font-medium bg-teal-500/10 text-teal-400">DaE</span>';
-  return '<span class="px-2 py-0.5 rounded text-xs font-medium bg-amber-500/10 text-amber-400">LTO</span>';
+  if (product === 'DaE') return '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-teal-500/10 text-teal-400">DaE</span>';
+  return '<span class="px-2.5 py-1 rounded-full text-xs font-medium bg-amber-500/10 text-amber-400">LTO</span>';
 }
 
 function oemBadge(oem) {
@@ -243,7 +243,7 @@ function oemBadge(oem) {
     JAC: 'bg-orange-500/10 text-orange-400',
     GAC: 'bg-amber-500/10 text-amber-400',
   };
-  return `<span class="px-2 py-0.5 rounded text-xs font-medium ${colors[oem] || ''}">${oem}</span>`;
+  return `<span class="px-2.5 py-1 rounded-full text-xs font-medium ${colors[oem] || ''}">${oem}</span>`;
 }
 
 function sohColor(soh) {
@@ -413,7 +413,7 @@ function createPageHeader(title, subtitle) {
   return `
     <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
       <div>
-        <h1 class="text-xl font-bold text-white">${title}</h1>
+        <h1 class="text-2xl font-semibold text-white">${title}</h1>
         ${subtitle ? `<p class="text-sm text-gray-400 mt-0.5">${subtitle}</p>` : ''}
       </div>
       <div class="flex items-center gap-3">
