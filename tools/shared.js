@@ -391,10 +391,13 @@ function initSidebar(currentPage) {
 
   const inner = document.getElementById('sidebar-inner');
   const toggle = document.getElementById('sidebar-toggle');
-  let expanded = false;
+  let expanded = true;
 
-  // Start collapsed
-  inner.style.width = '64px';
+  // Start expanded
+  inner.style.width = '240px';
+  inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => {
+    el.classList.remove('hidden');
+  });
 
   toggle.addEventListener('click', () => {
     expanded = !expanded;
