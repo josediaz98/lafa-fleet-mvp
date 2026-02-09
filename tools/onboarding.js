@@ -369,7 +369,7 @@
 
     // 5. Bot final message
     schedule(700, () => addWAMsg(chat, 'bot',
-      'Todos los documentos verificados! Tu solicitud esta completa.', '10:07'));
+      'Todos los documentos verificados! Tu solicitud está completa.', '10:07'));
 
     // 6. OCR section fades in (with scan animation then results)
     schedule(500, () => {
@@ -455,7 +455,7 @@
               <span class="text-xs text-green-400">96% confianza</span>
             </div>
             <div>
-              <span class="text-xs text-gray-500">Direccion</span>
+              <span class="text-xs text-gray-500">Dirección</span>
               <p class="text-xs text-gray-300">${aPick(['Av. Insurgentes 1234', 'Calle Reforma 567', 'Blvd. Periferico 890'])}, CDMX</p>
               <span class="text-xs text-yellow-400">87% confianza</span>
             </div>
@@ -468,9 +468,9 @@
         </div>
 
         <div class="bg-white/5 rounded-xl p-4 space-y-2">
-          <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Validacion AI</h4>
+          <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Validación AI</h4>
           <div class="flex items-center justify-between">
-            <span class="text-sm text-gray-300">Documento autentico</span>
+            <span class="text-sm text-gray-300">Documento auténtico</span>
             <span class="text-sm font-semibold text-green-400">SI (96%)</span>
           </div>
           <div class="flex items-center justify-between">
@@ -491,7 +491,7 @@
           </div>
           ${app.product === 'LTO' ? `
           <div class="mt-3 pt-3 border-t border-white/5">
-            <h5 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Evaluacion Financiera (LTO)</h5>
+            <h5 class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-2">Evaluación Financiera (LTO)</h5>
             <div class="flex items-center justify-between">
               <span class="text-sm text-gray-300">Ingresos verificados (Palenca)</span>
               <span class="text-sm font-semibold text-green-400">$8,200/sem</span>
@@ -509,7 +509,7 @@
         </div>
 
         <div class="bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
-          <p class="text-green-400 font-semibold">Verificacion completa — Auto-aprobado</p>
+          <p class="text-green-400 font-semibold">Verificación completa — Auto-aprobado</p>
           <p class="text-xs text-gray-400 mt-1">Tiempo total de procesamiento: 23 segundos</p>
         </div>
       </div>`;
@@ -584,8 +584,8 @@
       { label: 'Solicitud', time: '10:00' },
       { label: 'Documentos', time: '10:02' },
       { label: 'OCR / AI', time: '10:04' },
-      { label: 'Revision', time: '10:05' },
-      { label: 'Decision', time: '10:07' },
+      { label: 'Revisión', time: '10:05' },
+      { label: 'Decisión', time: '10:07' },
     ];
 
     document.getElementById('modal-timeline').innerHTML = steps.map((s) => `

@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
   <title>LAFA — Onboarding de Conductores</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -188,7 +190,7 @@
           </div>
           <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="revision">
             <div class="flex items-center justify-between mb-4">
-              <h3 class="text-sm font-semibold text-blue-400">En Revision</h3>
+              <h3 class="text-sm font-semibold text-blue-400">En Revisión</h3>
               <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full" id="count-revision">0</span>
             </div>
             <div class="space-y-3" id="col-revision"></div>
@@ -243,14 +245,14 @@
         <!-- WhatsApp Chat -->
         <div>
           <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
-            <span id="wa-icon"></span> Conversacion WhatsApp
+            <span id="wa-icon"></span> Conversación WhatsApp
           </h3>
           <div class="wa-chat flex flex-col" id="modal-wa-chat"></div>
         </div>
 
         <!-- OCR Results (hidden until auto-play reveals) -->
         <div id="modal-ocr-section" class="section-fade">
-          <h3 class="text-sm font-semibold text-gray-300 mb-3">Extraccion AI (OCR)</h3>
+          <h3 class="text-sm font-semibold text-gray-300 mb-3">Extracción AI (OCR)</h3>
           <div id="modal-ocr" class="space-y-4"></div>
         </div>
 
@@ -262,7 +264,7 @@
 
         <!-- Timeline (hidden until auto-play reveals) -->
         <div id="modal-timeline-section" class="section-fade">
-          <h3 class="text-sm font-semibold text-gray-300 mb-4">Linea de Tiempo</h3>
+          <h3 class="text-sm font-semibold text-gray-300 mb-4">Línea de Tiempo</h3>
           <div class="grid grid-cols-5 gap-2" id="modal-timeline"></div>
           <div class="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
             <div class="flex items-center gap-2 text-sm">
@@ -278,7 +280,7 @@
 
         <!-- Completion Banner (hidden until auto-play reveals) -->
         <div id="modal-completion" class="completion-banner bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
-          <p class="text-green-400 font-semibold">Verificacion completa — 23 segundos</p>
+          <p class="text-green-400 font-semibold">Verificación completa — 23 segundos</p>
         </div>
 
         <!-- Replay Link (hidden until auto-play completes) -->
