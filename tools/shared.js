@@ -658,6 +658,74 @@ function bindFilters(filterIds, callback) {
   });
 }
 
+// ---------- Modal Controller ----------
+// Two modes:
+//   "simple"    — toggles .hidden on the container (dashboard, roadmap)
+//   "animated"  — uses .hidden/.open/.closing classes with CSS transitions (onboarding)
+//
+// Usage:
+//   const modal = L.createModal('detail-modal', { overlay: 'detail-overlay' });
+//   modal.open();  modal.close();
+//
+//   const modal = L.createModal('onboard-modal', { animated: true });
+//   modal.open();  modal.close();
+//
+function createModal(containerId, opts = {}) {
+  const el = document.getElementById(containerId);
+  if (!el) return { open() {}, close() {}, isOpen() { return false; } };
+
+  const animated = opts.animated || false;
+  const overlayId = opts.overlay || null;
+  const closeDuration = opts.closeDuration || 250;
+  let onClose = opts.onClose || null;
+
+  function isOpen() {
+    return !el.classList.contains('hidden');
+  }
+
+  function open() {
+    if (animated) {
+      el.classList.remove('hidden', 'closing');
+      requestAnimationFrame(() => el.classList.add('open'));
+    } else {
+      el.classList.remove('hidden');
+    }
+  }
+
+  function close() {
+    if (!isOpen()) return;
+    if (onClose) onClose();
+    if (animated) {
+      el.classList.remove('open');
+      el.classList.add('closing');
+      setTimeout(() => {
+        el.classList.add('hidden');
+        el.classList.remove('closing');
+      }, closeDuration);
+    } else {
+      el.classList.add('hidden');
+    }
+  }
+
+  // Overlay / backdrop click
+  if (overlayId) {
+    const overlay = document.getElementById(overlayId);
+    if (overlay) overlay.addEventListener('click', close);
+  } else if (animated) {
+    // For animated modals, clicking the backdrop itself closes
+    el.addEventListener('click', (e) => {
+      if (e.target === el) close();
+    });
+  }
+
+  // Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && isOpen()) close();
+  });
+
+  return { open, close, isOpen, set onClose(fn) { onClose = fn; } };
+}
+
 // Export for use in page scripts
 window.LAFA = {
   COLORS, DRIVERS, FLEET_STATS, WEEKLY_REVENUE, PAYMENT_STATUS_WEEKS,
@@ -665,6 +733,6 @@ window.LAFA = {
   sohColor, sohBgClass, animateCounter, lucideIcon,
   mergeApexDefaults, APEX_DEFAULTS,
   initSidebar, createPageHeader, initNotifications, NOTIFICATIONS, NOTIF_ICON_MAP,
-  initPage, createChart, exportCSV, bindFilters, normalize,
+  initPage, createChart, exportCSV, bindFilters, normalize, createModal,
   rand, randInt, randFloat, pick, shuffle, seededRandom,
 };

@@ -8,18 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
-          colors: {
-            lafa: { dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200', teal: '#14B8A6', amber: '#F59E0B' }
-          }
-        }
-      }
-    }
-  </script>
+  <script src="tailwind.init.js"></script>
   <link rel="stylesheet" href="shared.css">
   <style>
     /* ---------- Kanban ---------- */
@@ -38,32 +27,11 @@
       border-color: rgba(255, 90, 0, 0.3);
     }
 
-    /* ---------- Progress Bar Gradient ---------- */
-    .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
-    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
-    .progress-gradient { background: linear-gradient(90deg, #FF5A00, #22C55E); }
-
-    /* ---------- Avatar Initials ---------- */
-    .avatar-initials {
-      width: 32px; height: 32px; border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 11px; font-weight: 700; flex-shrink: 0;
-    }
-
     /* ---------- Risk Dot ---------- */
     .risk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
     .risk-green { background: #22C55E; }
     .risk-yellow { background: #EAB308; }
     .risk-red { background: #EF4444; }
-
-    /* ---------- Filter Pills ---------- */
-    .filter-pill {
-      padding: 6px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500;
-      background: rgba(255,255,255,0.05); color: #9CA3AF;
-      cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
-    }
-    .filter-pill:hover { color: #fff; background: rgba(255,255,255,0.08); }
-    .filter-pill.active { background: #FF5A00; color: #fff; border-color: #FF5A00; }
 
     /* ---------- Sparkline ---------- */
     .sparkline-svg { display: block; }
@@ -76,55 +44,6 @@
       100% { transform: scale(1); }
     }
     .badge-pulse { animation: badge-pulse 0.4s ease; }
-
-    /* ---------- Full-Screen Modal ---------- */
-    .modal-backdrop {
-      position: fixed; inset: 0; z-index: 50;
-      background: rgba(0,0,0,0.6);
-      backdrop-filter: blur(6px);
-      -webkit-backdrop-filter: blur(6px);
-      display: flex; align-items: center; justify-content: center;
-      opacity: 0; transition: opacity 0.25s ease;
-    }
-    .modal-backdrop.open { opacity: 1; }
-    .modal-backdrop.closing { opacity: 0; }
-
-    .modal-content {
-      background: #1B1A23;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px;
-      width: 95vw; max-width: 720px;
-      max-height: 90vh;
-      overflow-y: auto;
-      transform: scale(0.95); opacity: 0;
-      transition: transform 0.25s ease, opacity 0.25s ease;
-    }
-    .modal-backdrop.open .modal-content { transform: scale(1); opacity: 1; }
-    .modal-backdrop.closing .modal-content { transform: scale(0.95); opacity: 0; }
-
-    /* ---------- WhatsApp Chat ---------- */
-    .wa-chat { background: #0B141A; border-radius: 12px; padding: 16px; max-height: 320px; overflow-y: auto; }
-    .wa-msg {
-      max-width: 75%; padding: 8px 12px; border-radius: 8px;
-      font-size: 13px; line-height: 1.4; margin-bottom: 6px;
-      word-wrap: break-word;
-    }
-    .wa-msg-bot { background: #202C33; color: #E9EDEF; border-bottom-left-radius: 2px; align-self: flex-start; }
-    .wa-msg-driver { background: #005C4B; color: #E9EDEF; border-bottom-right-radius: 2px; align-self: flex-end; }
-    .wa-msg-time { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
-
-    /* Typing dots */
-    .typing-dots { display: inline-flex; gap: 3px; padding: 10px 14px; }
-    .typing-dots span {
-      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4);
-      animation: typing-bounce 1.4s infinite;
-    }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing-bounce {
-      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-      30% { transform: translateY(-4px); opacity: 1; }
-    }
 
     /* ---------- Document Thumbnails ---------- */
     .doc-thumb {

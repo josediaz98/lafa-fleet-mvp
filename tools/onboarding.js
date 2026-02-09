@@ -248,6 +248,7 @@
 
   // ---------- Modal ----------
   const modalEl = document.getElementById('onboard-modal');
+  const modal = L.createModal('onboard-modal', { animated: true, onClose: cancelDemo });
 
   function openModal(app) {
     // Cancel any previous demo
@@ -275,12 +276,9 @@
     document.getElementById('modal-credit-gauge').innerHTML = '';
 
     // Show modal
-    modalEl.classList.remove('hidden', 'closing');
-    requestAnimationFrame(() => {
-      modalEl.classList.add('open');
-      // Start auto-play after modal opens
-      demoTimeouts.push(setTimeout(() => runAutoDemo(app), 400));
-    });
+    modal.open();
+    // Start auto-play after modal opens
+    demoTimeouts.push(setTimeout(() => runAutoDemo(app), 400));
 
     renderKanban();
   }
@@ -291,22 +289,10 @@
   }
 
   function closeModal() {
-    cancelDemo();
-    modalEl.classList.remove('open');
-    modalEl.classList.add('closing');
-    setTimeout(() => {
-      modalEl.classList.add('hidden');
-      modalEl.classList.remove('closing');
-    }, 250);
+    modal.close();
   }
 
   document.getElementById('modal-close').addEventListener('click', closeModal);
-  modalEl.addEventListener('click', (e) => {
-    if (e.target === modalEl) closeModal();
-  });
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modalEl.classList.contains('hidden')) closeModal();
-  });
 
   // ---------- Document Thumbnails ----------
   function renderDocThumbnailsPending(app) {

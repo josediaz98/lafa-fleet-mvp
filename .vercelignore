@@ -1,0 +1,6 @@
+content/
+CLAUDE.md
+README.md
+.claude/
+.mcp.json
+tools/UI-AUDIT-PROMPT.md

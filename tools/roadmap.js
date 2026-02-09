@@ -12,6 +12,7 @@ let state = {
   selectedProject: null,
   ganttChart: null
 };
+let detailModal;
 
 // ---------- Helper Functions ----------
 function impactAtFleet(project, fleet) {
@@ -33,6 +34,10 @@ function getFilteredProjects() {
 // ---------- Init ----------
 document.addEventListener('DOMContentLoaded', () => {
   L.initPage('roadmap', 'AI Roadmap Interactivo', '');
+  detailModal = L.createModal('detail-modal', {
+    overlay: 'detail-overlay',
+    onClose: () => { state.selectedProject = null; }
+  });
 
   animateKPIs();
   renderGantt();
@@ -272,12 +277,11 @@ function openDetailPanel(projectId) {
   }
 
   // Open modal
-  document.getElementById('detail-modal').classList.remove('hidden');
+  detailModal.open();
 }
 
 function closeDetailPanel() {
-  document.getElementById('detail-modal').classList.add('hidden');
-  state.selectedProject = null;
+  detailModal.close();
 }
 
 // ---------- Milestones ----------
@@ -332,12 +336,8 @@ function bindEvents() {
     });
   });
 
-  // Detail modal close
+  // Detail modal close button
   document.getElementById('detail-close').addEventListener('click', closeDetailPanel);
-  document.getElementById('detail-overlay').addEventListener('click', closeDetailPanel);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !document.getElementById('detail-modal').classList.contains('hidden')) closeDetailPanel();
-  });
 
   // Milestone cards
   document.getElementById('milestone-cards').addEventListener('click', (e) => {

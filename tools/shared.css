@@ -115,3 +115,97 @@ html { scroll-behavior: smooth; }
 }
 .notif-item.is-read .notif-dot { opacity: 0; }
 
+/* ---------- WhatsApp Chat ---------- */
+.wa-bg {
+  background-color: #0B141A;
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+}
+.msg-bot {
+  background: #1F2C33;
+  border-radius: 0 8px 8px 8px;
+  max-width: 85%;
+}
+.msg-driver {
+  background: #005C4B;
+  border-radius: 8px 0 8px 8px;
+  max-width: 85%;
+  margin-left: auto;
+}
+.msg-system {
+  background: rgba(255,255,255,0.08);
+  border-radius: 8px;
+  max-width: 70%;
+  margin: 0 auto;
+}
+.typing-dots span {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: #8696A0;
+  margin: 0 2px;
+  animation: typing 1.4s infinite;
+}
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typing {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-4px); }
+}
+
+/* WhatsApp chat (onboarding modal variant) */
+.wa-chat { background: #0B141A; border-radius: 12px; padding: 16px; max-height: 320px; overflow-y: auto; }
+.wa-msg {
+  max-width: 75%; padding: 8px 12px; border-radius: 8px;
+  font-size: 13px; line-height: 1.4; margin-bottom: 6px;
+  word-wrap: break-word;
+}
+.wa-msg-bot { background: #202C33; color: #E9EDEF; border-bottom-left-radius: 2px; align-self: flex-start; }
+.wa-msg-driver { background: #005C4B; color: #E9EDEF; border-bottom-right-radius: 2px; align-self: flex-end; }
+.wa-msg-time { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+/* ---------- Modal Backdrop ---------- */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity 0.25s ease;
+}
+.modal-backdrop.open { opacity: 1; }
+.modal-backdrop.closing { opacity: 0; }
+
+.modal-content {
+  background: #1B1A23;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  width: 95vw; max-width: 720px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: scale(0.95); opacity: 0;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+.modal-backdrop.open .modal-content { transform: scale(1); opacity: 1; }
+.modal-backdrop.closing .modal-content { transform: scale(0.95); opacity: 0; }
+
+/* ---------- Filter Pills ---------- */
+.filter-pill {
+  padding: 6px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500;
+  background: rgba(255,255,255,0.05); color: #9CA3AF;
+  cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
+}
+.filter-pill:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.filter-pill.active { background: #FF5A00; color: #fff; border-color: #FF5A00; }
+
+/* ---------- Progress Bar ---------- */
+.progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+.progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+.progress-gradient { background: linear-gradient(90deg, #FF5A00, #22C55E); }
+
+/* ---------- Avatar Initials ---------- */
+.avatar-initials {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+

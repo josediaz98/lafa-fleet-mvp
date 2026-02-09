@@ -59,8 +59,9 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 │   │   └── jj-interview-prep.md           ← CEO interview prep
 │   └── reference/                         ← Brand assets
 ├── tools/                                 ← Internal tools app (HTML + JS + CSS)
-│   ├── shared.css                         ← Shared styles
-│   ├── shared.js                          ← Shared data, sidebar, utilities
+│   ├── tailwind.init.js                   ← Shared Tailwind config (all tool pages)
+│   ├── shared.css                         ← Shared styles (WA chat, modals, pills, etc.)
+│   ├── shared.js                          ← Shared data, sidebar, utilities, modal controller
 │   ├── dashboard.html / dashboard.js      ← Fleet operations dashboard
 │   ├── battery.html / battery.js          ← Battery health monitor
 │   ├── collections.html / collections.js  ← WhatsApp collections bot

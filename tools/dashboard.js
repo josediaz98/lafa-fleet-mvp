@@ -201,8 +201,7 @@
   });
 
   // ---------- Detail Modal ----------
-  const modal = document.getElementById('detail-modal');
-  const overlay = document.getElementById('detail-overlay');
+  const modal = L.createModal('detail-modal', { overlay: 'detail-overlay' });
 
   function showDetailPanel(d) {
     const lastPayment = d.payments[d.payments.length - 1];
@@ -276,18 +275,9 @@
       </div>
     `;
 
-    modal.classList.remove('hidden');
-    document.getElementById('close-panel').addEventListener('click', closePanel);
+    modal.open();
+    document.getElementById('close-panel').addEventListener('click', () => modal.close());
   }
-
-  function closePanel() {
-    modal.classList.add('hidden');
-  }
-
-  overlay.addEventListener('click', closePanel);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && !modal.classList.contains('hidden')) closePanel();
-  });
 
   // ---------- Init ----------
   filterAndRender();

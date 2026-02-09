@@ -8,55 +8,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
-          colors: {
-            lafa: { dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200', teal: '#14B8A6', amber: '#F59E0B' }
-          }
-        }
-      }
-    }
-  </script>
+  <script src="tailwind.init.js"></script>
   <link rel="stylesheet" href="shared.css">
   <style>
-    .wa-bg {
-      background-color: #0B141A;
-      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-    .msg-bot {
-      background: #1F2C33;
-      border-radius: 0 8px 8px 8px;
-      max-width: 85%;
-    }
-    .msg-driver {
-      background: #005C4B;
-      border-radius: 8px 0 8px 8px;
-      max-width: 85%;
-      margin-left: auto;
-    }
-    .msg-system {
-      background: rgba(255,255,255,0.08);
-      border-radius: 8px;
-      max-width: 70%;
-      margin: 0 auto;
-    }
-    .typing-dots span {
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #8696A0;
-      margin: 0 2px;
-      animation: typing 1.4s infinite;
-    }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes typing {
-      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
-      30% { opacity: 1; transform: translateY(-4px); }
-    }
     .timeline-bar { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
     .timeline-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px; transition: width 0.5s ease; }
     .confidence-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
