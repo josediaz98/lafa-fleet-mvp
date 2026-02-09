@@ -67,7 +67,8 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 │   ├── collections.html / collections.js  ← WhatsApp collections bot
 │   ├── onboarding.html / onboarding.js    ← Driver onboarding pipeline
 │   ├── roadmap.html / roadmap.js          ← AI roadmap interactive
-│   └── roadmap-data.js                    ← Roadmap project data
+│   ├── roadmap-data.js                    ← Roadmap project data
+│   └── fleetmap.html / fleetmap.js        ← Real-time fleet map (Leaflet.js)
 ├── images/                                ← Image assets
 └── index.html                             ← Marketing landing page
 ```

@@ -324,6 +324,7 @@ const SIDEBAR_PAGES = [
   { id: 'roadmap', labelKey: 'shared.sidebar.roadmap', href: 'roadmap.html', icon: 'trending-up' },
   { id: 'dashboard', labelKey: 'shared.sidebar.dashboard', href: 'dashboard.html', icon: 'layout-dashboard' },
   { id: 'collections', labelKey: 'shared.sidebar.collections', href: 'collections.html', icon: 'message-square' },
+  { id: 'fleetmap', labelKey: 'shared.sidebar.fleetmap', href: 'fleetmap.html', icon: 'map-pin' },
   { id: 'battery', labelKey: 'shared.sidebar.battery', href: 'battery.html', icon: 'battery-charging' },
   { id: 'onboarding', labelKey: 'shared.sidebar.onboarding', href: 'onboarding.html', icon: 'user-plus' },
 ];
@@ -364,6 +365,7 @@ const LUCIDE_ICONS = {
   'image': '<rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/>',
   'send': '<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
   'message-circle': '<path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/>',
+  'map-pin': '<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>',
 };
 
 function lucideIcon(name, cls = 'w-5 h-5') {
@@ -496,7 +498,7 @@ function createBottomNav(currentPage) {
   const homeLabel = typeof t === 'function' ? t('shared.nav.home') : 'Inicio';
   const NAV_ITEMS = [
     { id: 'home', label: homeLabel, href: '../index.html', icon: 'home' },
-    ...SIDEBAR_PAGES.map(p => ({ ...p, label: sidebarLabel(p) })),
+    ...SIDEBAR_PAGES.filter(p => p.id !== 'onboarding').map(p => ({ ...p, label: sidebarLabel(p) })),
   ];
   const nav = document.createElement('nav');
   nav.id = 'bottom-nav';
@@ -676,7 +678,8 @@ function initNotifications() {
   // Create panel element
   const panel = document.createElement('div');
   panel.id = 'notification-panel';
-  panel.className = 'fixed top-16 right-4 w-80 max-w-[calc(100vw-32px)] max-h-[70vh] overflow-y-auto bg-[#1E1D28] border border-white/10 rounded-xl shadow-2xl z-50 hidden';
+  panel.className = 'fixed top-16 right-4 w-80 max-w-[calc(100vw-32px)] max-h-[70vh] overflow-y-auto bg-[#1E1D28] border border-white/10 rounded-xl shadow-2xl hidden';
+  panel.style.zIndex = '9999';
   const _notifTitle = typeof t === 'function' ? t('shared.notif.title') : 'Notificaciones';
   const _markAllLabel = typeof t === 'function' ? t('shared.notif.markAll') : 'Marcar todo como leído';
   panel.innerHTML = `
@@ -777,6 +780,8 @@ function initPage(pageId, title, subtitle, icons = {}) {
     // Sweep data-i18n attributes
     if (typeof sweepDOM === 'function') sweepDOM();
   });
+  // Sweep on init so saved language is applied to data-i18n elements
+  if (typeof sweepDOM === 'function') sweepDOM();
 }
 
 // ---------- Chart Lifecycle Utility ----------
