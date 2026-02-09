@@ -28,11 +28,11 @@
     <main class="flex-1 overflow-y-auto">
       <div id="page-header"></div>
 
-      <div class="p-6 space-y-6">
+      <div class="p-4 sm:p-6 space-y-6">
         <!-- Scenario Selector -->
         <div class="flex items-center gap-3">
           <span class="text-xs text-gray-500">Escenario:</span>
-          <div class="flex gap-2" id="scenario-tabs">
+          <div class="flex flex-wrap gap-2" id="scenario-tabs">
             <button data-scenario="cooperative" class="filter-pill amber active">Cooperativo</button>
             <button data-scenario="evasive" class="filter-pill amber">Evasivo</button>
             <button data-scenario="unresponsive" class="filter-pill amber">Sin Respuesta</button>
@@ -40,7 +40,7 @@
         </div>
 
         <!-- Split View -->
-        <div class="grid lg:grid-cols-2 gap-6" style="min-height: calc(100vh - 220px);">
+        <div class="grid lg:grid-cols-2 gap-6" style="min-height: min(calc(100vh - 220px), 500px);">
           <!-- Left: WhatsApp Chat -->
           <div class="flex flex-col bg-[#0B141A] rounded-xl overflow-hidden border border-white/5">
             <!-- Chat Header -->
@@ -94,7 +94,7 @@
             <!-- Risk Score -->
             <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
               <h4 class="text-sm font-semibold text-gray-300 mb-3">Score de Riesgo</h4>
-              <div class="flex items-center gap-4">
+              <div class="flex flex-col sm:flex-row items-center gap-4">
                 <div class="relative w-20 h-20">
                   <svg class="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
                     <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
@@ -145,9 +145,9 @@
 
             <!-- Action Buttons -->
             <div class="flex gap-3">
-              <button class="flex-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Aprobar Plan</button>
-              <button class="flex-1 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Escalar</button>
-              <button class="flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Revisión Legal</button>
+              <button class="flex-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Aprobar Plan</button>
+              <button class="flex-1 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Escalar</button>
+              <button class="flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium py-3.5 rounded-xl text-sm transition-colors">Revisión Legal</button>
             </div>
 
             <!-- Payment History -->

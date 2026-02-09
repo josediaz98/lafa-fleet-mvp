@@ -356,6 +356,14 @@ function lucideIcon(name, cls = 'w-5 h-5') {
   return `<svg xmlns="http://www.w3.org/2000/svg" class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 }
 
+// ---------- Responsive Chart Height Helper ----------
+function responsiveChartHeight(desktop, tablet, mobile) {
+  const w = window.innerWidth;
+  if (w < 480) return mobile || 180;
+  if (w < 768) return tablet || 220;
+  return desktop || 256;
+}
+
 function initSidebar(currentPage) {
   const sidebar = document.getElementById('app-sidebar');
   if (!sidebar) return;
@@ -392,32 +400,95 @@ function initSidebar(currentPage) {
   const inner = document.getElementById('sidebar-inner');
   const toggle = document.getElementById('sidebar-toggle');
   let expanded = true;
+  const isMobile = () => window.innerWidth < 768;
+  let backdrop = null;
 
-  // Start expanded
-  inner.style.width = '240px';
-  inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => {
-    el.classList.remove('hidden');
-  });
+  function closeMobileDrawer() {
+    inner.style.width = '64px';
+    inner.style.position = '';
+    inner.style.zIndex = '';
+    inner.style.height = '';
+    inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.add('hidden'));
+    if (backdrop) { backdrop.remove(); backdrop = null; }
+    expanded = false;
+  }
+
+  function openMobileDrawer() {
+    inner.style.width = '240px';
+    inner.style.position = 'fixed';
+    inner.style.zIndex = '50';
+    inner.style.height = '100vh';
+    inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.remove('hidden'));
+    // Create backdrop
+    backdrop = document.createElement('div');
+    backdrop.className = 'sidebar-backdrop';
+    document.body.appendChild(backdrop);
+    backdrop.addEventListener('click', closeMobileDrawer);
+    expanded = true;
+  }
+
+  // Initial state based on screen size
+  if (isMobile()) {
+    inner.style.width = '64px';
+    inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.add('hidden'));
+    expanded = false;
+  } else {
+    inner.style.width = '240px';
+    inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.remove('hidden'));
+  }
 
   toggle.addEventListener('click', () => {
-    expanded = !expanded;
-    inner.style.width = expanded ? '240px' : '64px';
-    inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => {
-      el.classList.toggle('hidden', !expanded);
+    if (isMobile()) {
+      if (expanded) closeMobileDrawer();
+      else openMobileDrawer();
+    } else {
+      expanded = !expanded;
+      inner.style.width = expanded ? '240px' : '64px';
+      inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => {
+        el.classList.toggle('hidden', !expanded);
+      });
+    }
+  });
+
+  // Close drawer on nav link click (mobile)
+  inner.querySelectorAll('nav a').forEach(link => {
+    link.addEventListener('click', () => {
+      if (isMobile() && expanded) closeMobileDrawer();
     });
+  });
+
+  // Responsive listener: auto-collapse on resize to mobile
+  const mql = window.matchMedia('(max-width: 768px)');
+  mql.addEventListener('change', (e) => {
+    if (e.matches) {
+      closeMobileDrawer();
+    } else {
+      inner.style.position = '';
+      inner.style.zIndex = '';
+      inner.style.height = '';
+      if (backdrop) { backdrop.remove(); backdrop = null; }
+      inner.style.width = '240px';
+      inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.remove('hidden'));
+      expanded = true;
+    }
   });
 }
 
 // ---------- Page Header ----------
 function createPageHeader(title, subtitle) {
   return `
-    <header class="glass-nav sticky top-0 z-40 px-6 py-4 flex items-center justify-between">
-      <div>
-        <h1 class="text-2xl font-semibold text-white">${title}</h1>
-        ${subtitle ? `<p class="text-sm text-gray-400 mt-0.5">${subtitle}</p>` : ''}
+    <header class="glass-nav sticky top-0 z-40 px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
+      <div class="flex items-center gap-3 min-w-0">
+        <button class="md:hidden p-2.5 -ml-1 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors flex-shrink-0" id="mobile-sidebar-toggle" aria-label="Abrir menú">
+          ${lucideIcon('menu', 'w-5 h-5')}
+        </button>
+        <div class="min-w-0">
+          <h1 class="text-xl sm:text-2xl font-semibold text-white truncate">${title}</h1>
+          ${subtitle ? `<p class="text-sm text-gray-400 mt-0.5 hidden sm:block">${subtitle}</p>` : ''}
+        </div>
       </div>
-      <div class="flex items-center gap-3">
-        <button class="relative p-2 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="notification-bell" aria-label="Notificaciones">
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <button class="relative p-2.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors" id="notification-bell" aria-label="Notificaciones">
           ${lucideIcon('bell', 'w-5 h-5')}
           <span id="notif-badge" class="notif-badge">${NOTIFICATIONS.length}</span>
         </button>
@@ -560,7 +631,7 @@ function initNotifications() {
   // Create panel element
   const panel = document.createElement('div');
   panel.id = 'notification-panel';
-  panel.className = 'fixed top-16 right-4 w-80 max-h-[70vh] overflow-y-auto bg-[#1E1D28] border border-white/10 rounded-xl shadow-2xl z-50 hidden';
+  panel.className = 'fixed top-16 right-4 w-80 max-w-[calc(100vw-32px)] max-h-[70vh] overflow-y-auto bg-[#1E1D28] border border-white/10 rounded-xl shadow-2xl z-50 hidden';
   panel.innerHTML = `
     <div class="notif-header">
       <h3 class="text-sm font-semibold text-white">Notificaciones</h3>
@@ -620,6 +691,12 @@ function initPage(pageId, title, subtitle, icons = {}) {
   initSidebar(pageId);
   document.getElementById('page-header').innerHTML = createPageHeader(title, subtitle);
   initNotifications();
+  // Wire mobile hamburger to sidebar toggle
+  const mobileToggle = document.getElementById('mobile-sidebar-toggle');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  if (mobileToggle && sidebarToggle) {
+    mobileToggle.addEventListener('click', () => sidebarToggle.click());
+  }
   Object.entries(icons).forEach(([elId, iconName]) => {
     const el = document.getElementById(elId);
     if (el) el.innerHTML = lucideIcon(iconName, 'w-4 h-4');

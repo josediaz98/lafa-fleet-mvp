@@ -80,7 +80,7 @@ function renderGantt() {
   state.ganttChart = L.createChart('chart-gantt', {
     chart: {
       type: 'rangeBar',
-      height: Math.max(400, filtered.length * 36 + 80),
+      height: Math.max(window.innerWidth < 480 ? 300 : 400, filtered.length * (window.innerWidth < 480 ? 24 : 36) + 80),
       zoom: { enabled: false },
       toolbar: { show: false },
       events: {
@@ -144,6 +144,14 @@ function renderGantt() {
       markers: { fillColors: Object.values(TRACK_COLORS), radius: 3 },
       labels: { colors: L.COLORS.gray400 }
     },
+    responsive: [{
+      breakpoint: 480,
+      options: {
+        plotOptions: { bar: { horizontal: true, barHeight: '65%' } },
+        yaxis: { labels: { style: { fontSize: '10px' }, maxWidth: 120 } },
+        xaxis: { labels: { style: { fontSize: '10px' } } }
+      }
+    }],
     annotations: {}
   }, state.ganttChart);
 

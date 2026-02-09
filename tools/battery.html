@@ -53,46 +53,46 @@
     <main class="flex-1 overflow-y-auto">
       <div id="page-header"></div>
 
-      <div class="p-6 space-y-6">
+      <div class="p-4 sm:p-6 space-y-6">
         <!-- KPI Row -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+          <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">SOH Promedio</span>
-            <p class="text-3xl font-bold mt-2" id="kpi-soh">0%</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-soh">0%</p>
           </div>
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+          <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Anomalías</span>
-            <p class="text-3xl font-bold mt-2 text-red-400" id="kpi-anomalies">0</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-2 text-red-400" id="kpi-anomalies">0</p>
           </div>
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+          <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Temp Promedio</span>
-            <p class="text-3xl font-bold mt-2" id="kpi-temp">0°C</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-temp">0°C</p>
           </div>
-          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+          <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Ciclos Promedio</span>
-            <p class="text-3xl font-bold mt-2" id="kpi-cycles">0</p>
+            <p class="text-2xl sm:text-3xl font-bold mt-2" id="kpi-cycles">0</p>
           </div>
         </div>
 
         <!-- Heatmap Filters -->
         <div class="flex flex-wrap items-center gap-3">
-          <select id="heatmap-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
+          <select id="heatmap-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="">Todos OEM</option>
             <option value="Geely">Geely</option>
             <option value="JAC">JAC</option>
             <option value="GAC">GAC</option>
           </select>
-          <select id="heatmap-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
+          <select id="heatmap-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="">Todos Productos</option>
             <option value="DaE">DaE</option>
             <option value="LTO">LTO</option>
           </select>
-          <select id="heatmap-sort" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
+          <select id="heatmap-sort" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2.5 text-sm text-gray-300 focus:outline-none focus:border-lafa-orange/50">
             <option value="id">Ordenar por ID</option>
             <option value="soh">Ordenar por SOH</option>
             <option value="cycles">Ordenar por Ciclos</option>
           </select>
-          <div class="ml-auto flex items-center gap-2 text-xs text-gray-500">
+          <div class="ml-0 sm:ml-auto w-full sm:w-auto flex items-center gap-2 text-xs text-gray-500">
             <span>SOH:</span>
             <span class="w-4 h-4 rounded bg-green-600"></span>96-100%
             <span class="w-4 h-4 rounded bg-green-400"></span>90-95%
@@ -102,7 +102,7 @@
         </div>
 
         <!-- Fleet Heatmap -->
-        <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+        <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
           <h3 class="text-sm font-semibold text-gray-300 mb-4">Mapa de Salud de Flota</h3>
           <div id="heatmap-grid" class="grid gap-1" style="grid-template-columns: repeat(25, 1fr);"></div>
         </div>
@@ -112,29 +112,29 @@
           <div class="grid lg:grid-cols-5 gap-4">
             <!-- Charts -->
             <div class="lg:col-span-3 space-y-4">
-              <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <div class="flex items-center justify-between mb-4">
                   <h3 class="text-sm font-semibold text-gray-300">Curva de Degradación</h3>
                   <span class="text-xs text-gray-500" id="detail-vehicle-id"></span>
                 </div>
                 <div id="chart-degradation" class="h-64"></div>
               </div>
-              <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <h3 class="text-sm font-semibold text-gray-300 mb-4">Patrón de Carga (30 días)</h3>
                 <div id="chart-charge" class="h-48"></div>
               </div>
             </div>
             <!-- Info -->
             <div class="lg:col-span-2 space-y-4">
-              <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <h4 class="text-sm font-semibold text-gray-300 mb-3">Información del Vehículo</h4>
                 <div class="space-y-3" id="detail-info"></div>
               </div>
-              <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <h4 class="text-sm font-semibold text-gray-300 mb-3">Proyecciones AI</h4>
                 <div class="space-y-3" id="detail-projections"></div>
               </div>
-              <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="bg-lafa-card rounded-xl p-4 sm:p-5 border border-white/5">
                 <h4 class="text-sm font-semibold text-gray-300 mb-3">Recomendaciones</h4>
                 <div class="space-y-2" id="detail-recs"></div>
               </div>

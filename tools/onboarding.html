@@ -128,13 +128,13 @@
     <main class="flex-1 overflow-y-auto">
       <div id="page-header"></div>
 
-      <div class="p-6 space-y-6">
+      <div class="p-4 sm:p-6 space-y-6">
         <!-- KPI Row -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Solicitudes Esta Sem</span>
             <div class="flex items-center gap-3 mt-3">
-              <p class="text-3xl font-bold" id="kpi-apps">0</p>
+              <p class="text-2xl sm:text-3xl font-bold" id="kpi-apps">0</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-apps-trend"></span>
             </div>
             <div class="mt-2" id="sparkline-apps"></div>
@@ -142,7 +142,7 @@
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Tiempo Promedio</span>
             <div class="flex items-center gap-3 mt-3">
-              <p class="text-3xl font-bold" id="kpi-time">0h</p>
+              <p class="text-2xl sm:text-3xl font-bold" id="kpi-time">0h</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-time-trend"></span>
             </div>
             <div class="mt-2" id="sparkline-time"></div>
@@ -150,7 +150,7 @@
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Auto-Aprobados</span>
             <div class="flex items-center gap-3 mt-3">
-              <p class="text-3xl font-bold text-green-400" id="kpi-auto">0%</p>
+              <p class="text-2xl sm:text-3xl font-bold text-green-400" id="kpi-auto">0%</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-auto-trend"></span>
             </div>
             <div class="mt-2" id="sparkline-auto"></div>
@@ -158,7 +158,7 @@
           <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
             <span class="text-xs text-gray-400 uppercase tracking-wider">Pendientes</span>
             <div class="flex items-center gap-3 mt-3">
-              <p class="text-3xl font-bold text-yellow-400" id="kpi-pending">0</p>
+              <p class="text-2xl sm:text-3xl font-bold text-yellow-400" id="kpi-pending">0</p>
               <span class="text-xs text-green-400 font-medium" id="kpi-pending-trend"></span>
             </div>
             <div class="mt-2" id="sparkline-pending"></div>
@@ -170,7 +170,7 @@
           <div class="relative flex-1 max-w-xs">
             <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" id="search-icon"></span>
             <input type="text" id="onboard-search" placeholder="Buscar conductor..."
-              class="w-full bg-lafa-card border border-white/5 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50 transition-colors">
+              class="w-full bg-lafa-card border border-white/5 rounded-lg pl-10 pr-4 py-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50 transition-colors">
           </div>
           <div class="flex items-center gap-2">
             <button class="filter-pill active" data-filter="">Todos</button>
@@ -180,7 +180,7 @@
         </div>
 
         <!-- Kanban Board -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="pendiente">
             <div class="flex items-center justify-between mb-4">
               <h3 class="text-sm font-semibold text-gray-300">Pendiente</h3>
@@ -229,17 +229,17 @@
             <p class="text-xs text-gray-500 mt-0.5" id="modal-phone"></p>
           </div>
         </div>
-        <button id="modal-close" class="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors" aria-label="Cerrar">
+        <button id="modal-close" class="p-3 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors" aria-label="Cerrar">
           <span id="modal-close-icon"></span>
         </button>
       </div>
 
       <!-- Modal Body — Single Column Auto-Play -->
-      <div class="p-5 space-y-5 max-w-2xl mx-auto">
+      <div class="p-4 sm:p-5 space-y-5 max-w-2xl mx-auto">
         <!-- Document Thumbnails -->
         <div>
           <h3 class="text-sm font-semibold text-gray-300 mb-3">Documentos</h3>
-          <div class="grid grid-cols-5 gap-2" id="modal-doc-thumbs"></div>
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-2" id="modal-doc-thumbs"></div>
         </div>
 
         <!-- WhatsApp Chat -->
@@ -265,7 +265,7 @@
         <!-- Timeline (hidden until auto-play reveals) -->
         <div id="modal-timeline-section" class="section-fade">
           <h3 class="text-sm font-semibold text-gray-300 mb-4">Línea de Tiempo</h3>
-          <div class="grid grid-cols-5 gap-2" id="modal-timeline"></div>
+          <div class="grid grid-cols-3 sm:grid-cols-5 gap-1 sm:gap-2" id="modal-timeline"></div>
           <div class="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
             <div class="flex items-center gap-2 text-sm">
               <span class="text-green-400 font-bold" id="time-new">7 min</span>

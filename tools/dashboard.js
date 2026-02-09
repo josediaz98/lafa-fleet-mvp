@@ -16,7 +16,7 @@
 
   // ---------- Revenue Area Chart ----------
   const revenueChart = L.createChart('chart-revenue', {
-    chart: { type: 'area', height: 256 },
+    chart: { type: 'area', height: responsiveChartHeight(256, 220, 180) },
     series: [
       { name: 'DaE', data: L.WEEKLY_REVENUE.map(w => w.dae) },
       { name: 'LTO', data: L.WEEKLY_REVENUE.map(w => w.lto) },
@@ -32,7 +32,7 @@
 
   // ---------- Fleet Status Donut ----------
   const fleetDonut = L.createChart('chart-fleet-status', {
-    chart: { type: 'donut', height: 256 },
+    chart: { type: 'donut', height: responsiveChartHeight(256, 220, 180) },
     series: [L.FLEET_STATS.activeVehicles, L.FLEET_STATS.maintenanceVehicles, L.FLEET_STATS.chargingVehicles, L.FLEET_STATS.idleVehicles],
     labels: ['Activo', 'Mantenimiento', 'Cargando', 'Inactivo'],
     colors: [L.COLORS.green, L.COLORS.yellow, L.COLORS.blue, L.COLORS.gray500],
@@ -70,7 +70,7 @@
   }));
 
   L.createChart('chart-oem', {
-    chart: { type: 'bar', height: 224, stacked: true },
+    chart: { type: 'bar', height: responsiveChartHeight(224, 200, 170), stacked: true },
     series: [
       { name: 'DaE', data: oemData.map(o => o.dae) },
       { name: 'LTO', data: oemData.map(o => o.lto) },
@@ -84,7 +84,7 @@
 
   // ---------- Payment Status Grouped Bar ----------
   L.createChart('chart-payments', {
-    chart: { type: 'bar', height: 224 },
+    chart: { type: 'bar', height: responsiveChartHeight(224, 200, 170) },
     series: [
       { name: 'A tiempo', data: L.PAYMENT_STATUS_WEEKS.map(w => w.onTime) },
       { name: 'Tarde', data: L.PAYMENT_STATUS_WEEKS.map(w => w.late) },
@@ -166,7 +166,7 @@
     for (let i = 1; i <= totalPages; i++) {
       const btn = document.createElement('button');
       btn.textContent = i;
-      btn.className = `px-3 py-1 rounded text-xs transition-colors ${i === currentPage ? 'bg-lafa-orange text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`;
+      btn.className = `px-3 py-1.5 min-w-[36px] min-h-[36px] rounded text-xs transition-colors ${i === currentPage ? 'bg-lafa-orange text-white' : 'bg-white/5 text-gray-400 hover:bg-white/10'}`;
       btn.addEventListener('click', () => { currentPage = i; renderTable(); });
       pag.appendChild(btn);
     }
@@ -206,7 +206,7 @@
   function showDetailPanel(d) {
     const lastPayment = d.payments[d.payments.length - 1];
     document.getElementById('detail-content').innerHTML = `
-      <div class="p-6">
+      <div class="p-0">
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-full bg-[#FF5A00]/20 flex items-center justify-center text-sm font-bold text-[#FF5A00]">

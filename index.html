@@ -75,6 +75,10 @@
       animation-delay: -3s;
       opacity: 0.15;
     }
+    @media (max-width: 768px) {
+      .orb-1 { width: 250px; height: 250px; }
+      .orb-2 { width: 180px; height: 180px; }
+    }
 
     /* Glass nav */
     .glass-nav {
@@ -354,7 +358,7 @@
         </div>
 
         <!-- Mobile hamburger -->
-        <button id="menu-toggle" class="md:hidden p-2 text-gray-300 hover:text-white" aria-label="Abrir menú">
+        <button id="menu-toggle" class="md:hidden p-3 text-gray-300 hover:text-white" aria-label="Abrir menú">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
           </svg>
@@ -363,10 +367,10 @@
 
       <!-- Mobile menu -->
       <div id="mobile-menu" class="mobile-menu md:hidden pb-4">
-        <a href="#problema" class="block py-2 text-sm text-gray-300 hover:text-white">El Problema</a>
-        <a href="#roadmap" class="block py-2 text-sm text-gray-300 hover:text-white">Roadmap</a>
-        <a href="#tools" class="block py-2 text-sm text-gray-300 hover:text-white">Prototipos</a>
-        <a href="#about" class="block py-2 text-sm text-gray-300 hover:text-white">Sobre Jose</a>
+        <a href="#problema" class="block py-3 text-sm text-gray-300 hover:text-white">El Problema</a>
+        <a href="#roadmap" class="block py-3 text-sm text-gray-300 hover:text-white">Roadmap</a>
+        <a href="#tools" class="block py-3 text-sm text-gray-300 hover:text-white">Prototipos</a>
+        <a href="#about" class="block py-3 text-sm text-gray-300 hover:text-white">Sobre Jose</a>
         <a href="#tools" class="inline-block mt-3 btn-primary text-sm font-semibold px-5 py-2.5 rounded-lg">
           Ver Demos
         </a>
@@ -375,7 +379,7 @@
   </nav>
 
   <!-- ========== 1. HERO ========== -->
-  <section class="relative flex items-center overflow-hidden pt-16 fade-in-section">
+  <section class="relative flex items-center overflow-x-hidden overflow-hidden pt-16 fade-in-section">
     <div class="orb orb-1" aria-hidden="true"></div>
     <div class="orb orb-2" aria-hidden="true"></div>
 
@@ -384,7 +388,7 @@
         <!-- Left: Copy -->
         <div class="max-w-xl">
           <p class="eyebrow">AI Product Engineer — Herramientas Internas</p>
-          <h1 class="text-4xl sm:text-5xl font-bold leading-tight tracking-tight">
+          <h1 class="text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-bold leading-tight tracking-tight">
             De Spreadsheets a Plataforma.
             <span class="block text-lafa-orange">En 14 Meses.</span>
           </h1>
@@ -392,10 +396,10 @@
             LAFA gestiona 150 EVs con hojas de cálculo. Escalar a 2,000 requiere una capa tecnológica que hoy no existe. Diseñé un roadmap de 16 proyectos en 3 tracks — y construí 5 prototipos funcionales para demostrarlo.
           </p>
           <div class="mt-10 flex flex-col sm:flex-row gap-4">
-            <a href="tools/roadmap.html" class="btn-primary inline-flex items-center justify-center font-semibold px-8 py-3.5 rounded-lg text-base">
+            <a href="tools/roadmap.html" class="btn-primary inline-flex items-center justify-center font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg text-base w-full sm:w-auto">
               Ver el Roadmap
             </a>
-            <a href="#tools" class="btn-secondary inline-flex items-center justify-center font-semibold px-8 py-3.5 rounded-lg text-base">
+            <a href="#tools" class="btn-secondary inline-flex items-center justify-center font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg text-base w-full sm:w-auto">
               Explorar Prototipos
             </a>
           </div>
@@ -445,9 +449,9 @@
         </p>
       </div>
 
-      <div class="grid md:grid-cols-3 gap-8 stagger-fade">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 stagger-fade">
         <!-- Card 1: Sin Base de Datos -->
-        <div class="card gradient-border p-8">
+        <div class="card gradient-border p-6 md:p-8">
           <div class="w-12 h-12 rounded-lg bg-lafa-orange/15 flex items-center justify-center mb-6">
             <svg class="w-6 h-6 text-lafa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"/>
@@ -461,7 +465,7 @@
         </div>
 
         <!-- Card 2: Todo es Manual -->
-        <div class="card gradient-border p-8">
+        <div class="card gradient-border p-6 md:p-8">
           <div class="w-12 h-12 rounded-lg bg-lafa-orange/10 flex items-center justify-center mb-6">
             <svg class="w-6 h-6 text-lafa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 13.5 2.25H15a2.25 2.25 0 0 1 2.15 1.586m-5.8 0c-.376.023-.75.05-1.124.08C9.095 4.01 8.25 4.973 8.25 6.108V8.25m0 0H4.875c-.621 0-1.125.504-1.125 1.125v11.25c0 .621.504 1.125 1.125 1.125h9.75c.621 0 1.125-.504 1.125-1.125V9.375c0-.621-.504-1.125-1.125-1.125H8.25ZM6.75 12h.008v.008H6.75V12Zm0 3h.008v.008H6.75V15Zm0 3h.008v.008H6.75V18Z"/>
@@ -475,7 +479,7 @@
         </div>
 
         <!-- Card 3: Sin Datos para Decidir -->
-        <div class="card gradient-border p-8">
+        <div class="card gradient-border p-6 md:p-8">
           <div class="w-12 h-12 rounded-lg bg-lafa-orange/10 flex items-center justify-center mb-6">
             <svg class="w-6 h-6 text-lafa-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941"/>
@@ -503,7 +507,7 @@
       </div>
 
       <!-- Desktop Timeline -->
-      <div class="hidden md:block overflow-x-auto pb-4">
+      <div class="hidden lg:block overflow-x-auto pb-4">
         <div class="min-w-[800px]">
           <!-- Month headers -->
           <div class="flex items-center mb-6 pl-28">
@@ -638,7 +642,7 @@
       </div>
 
       <!-- Mobile Timeline (vertical list) -->
-      <div class="md:hidden space-y-6">
+      <div class="lg:hidden space-y-6">
         <div>
           <h4 class="text-sm font-semibold text-lafa-orange mb-3">Fase 0 — Mes 1-2</h4>
           <div class="space-y-2 pl-4 border-l-2 border-lafa-orange/30">
@@ -691,7 +695,7 @@
         </p>
       </div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 stagger-fade">
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 stagger-fade">
 
         <!-- Tool 1: AI Roadmap -->
         <a href="tools/roadmap.html" class="group card gradient-border overflow-hidden block">
@@ -880,9 +884,9 @@
         <p class="mt-4 text-gray-400 text-lg">Producto + AI + Ejecución Rápida</p>
       </div>
 
-      <div class="grid lg:grid-cols-5 gap-10">
+      <div class="grid md:grid-cols-2 lg:grid-cols-5 gap-10">
         <!-- Left: Credentials (3/5) -->
-        <div class="lg:col-span-3 space-y-8">
+        <div class="md:col-span-1 lg:col-span-3 space-y-8">
           <!-- Yape -->
           <div class="credential-block">
             <h3 class="text-lg font-bold mb-2">Yape — AI a Escala</h3>
@@ -922,8 +926,8 @@
         </div>
 
         <!-- Right: Key facts (2/5) -->
-        <div class="lg:col-span-2">
-          <div class="bg-lafa-dark rounded-xl p-8 border border-white/5">
+        <div class="md:col-span-1 lg:col-span-2">
+          <div class="bg-lafa-dark rounded-xl p-6 md:p-8 border border-white/5">
             <h4 class="text-sm font-semibold uppercase tracking-wider text-gray-400 mb-6">Key Facts</h4>
             <dl class="space-y-4">
               <div>
@@ -963,11 +967,11 @@
         Explora el roadmap, prueba los prototipos, o hablemos.
       </p>
       <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="tools/roadmap.html" class="inline-flex items-center justify-center bg-white text-lafa-orange font-bold px-10 py-4 rounded-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 text-base">
+        <a href="tools/roadmap.html" class="inline-flex items-center justify-center bg-white text-lafa-orange font-bold px-6 py-3 sm:px-8 sm:py-3.5 md:px-10 md:py-4 rounded-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 text-base w-full sm:w-auto">
           Ver el Roadmap
           <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
         </a>
-        <a href="mailto:josediazalen@gmail.com" class="inline-flex items-center justify-center border border-white/80 text-white font-semibold px-8 py-3.5 rounded-lg hover:bg-white/10 transition-all hover:-translate-y-0.5 text-base">
+        <a href="mailto:josediazalen@gmail.com" class="inline-flex items-center justify-center border border-white/80 text-white font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg hover:bg-white/10 transition-all hover:-translate-y-0.5 text-base w-full sm:w-auto">
           Escríbeme
         </a>
       </div>
@@ -1005,12 +1009,12 @@
         </div>
 
         <!-- Center: Tool links -->
-        <div class="flex flex-wrap justify-center gap-4">
-          <a href="tools/roadmap.html" class="text-xs text-gray-500 hover:text-white transition-colors">Roadmap</a>
-          <a href="tools/dashboard.html" class="text-xs text-gray-500 hover:text-white transition-colors">Dashboard</a>
-          <a href="tools/collections.html" class="text-xs text-gray-500 hover:text-white transition-colors">Cobranza</a>
-          <a href="tools/battery.html" class="text-xs text-gray-500 hover:text-white transition-colors">Baterías</a>
-          <a href="tools/onboarding.html" class="text-xs text-gray-500 hover:text-white transition-colors">Onboarding</a>
+        <div class="flex flex-wrap justify-center gap-2 md:gap-4">
+          <a href="tools/roadmap.html" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Roadmap</a>
+          <a href="tools/dashboard.html" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Dashboard</a>
+          <a href="tools/collections.html" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Cobranza</a>
+          <a href="tools/battery.html" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Baterías</a>
+          <a href="tools/onboarding.html" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Onboarding</a>
         </div>
 
         <!-- Right: Subtle context -->

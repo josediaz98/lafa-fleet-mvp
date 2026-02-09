@@ -44,8 +44,10 @@
   function renderHeatmap() {
     const grid = document.getElementById('heatmap-grid');
     const drivers = getFilteredDrivers();
-    const cols = Math.min(25, drivers.length);
-    grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+    const w = window.innerWidth;
+    const maxCols = w < 480 ? 8 : w < 768 ? 12 : 25;
+    const cols = Math.min(maxCols, drivers.length);
+    grid.style.gridTemplateColumns = `repeat(${cols}, minmax(28px, 1fr))`;
 
     grid.innerHTML = drivers.map(d => `
       <div class="heatmap-cell ${selectedVehicle && selectedVehicle.id === d.id ? 'selected' : ''}"
@@ -70,8 +72,14 @@
         tooltip.style.display = 'block';
       });
       cell.addEventListener('mousemove', (e) => {
-        tooltip.style.left = (e.clientX + 12) + 'px';
-        tooltip.style.top = (e.clientY - 10) + 'px';
+        let left = e.clientX + 12;
+        let top = e.clientY - 10;
+        const tw = tooltip.offsetWidth || 180;
+        const th = tooltip.offsetHeight || 60;
+        if (left + tw > window.innerWidth) left = e.clientX - tw - 12;
+        if (top < 0) top = e.clientY + 16;
+        tooltip.style.left = left + 'px';
+        tooltip.style.top = top + 'px';
       });
       cell.addEventListener('mouseleave', () => {
         tooltip.style.display = 'none';
@@ -159,7 +167,7 @@
     const lfpCurve = months.map(m => +(100 - m * 0.15).toFixed(1));
 
     degradationChart = L.createChart('chart-degradation', {
-      chart: { type: 'line', height: 256 },
+      chart: { type: 'line', height: responsiveChartHeight(256, 220, 180) },
       series: [
         { name: driver.vehicleId, data: vehicleCurve },
         { name: 'Promedio flota', data: fleetCurve },
@@ -196,7 +204,7 @@
     });
 
     chargeChart = L.createChart('chart-charge', {
-      chart: { type: 'area', height: 192 },
+      chart: { type: 'area', height: responsiveChartHeight(192, 170, 150) },
       series: [{ name: 'Carga (kWh)', data: charges }],
       xaxis: { categories: days, labels: { style: { fontSize: '10px' } }, tickAmount: 10, title: { text: 'Día', style: { color: L.COLORS.gray500, fontSize: '11px' } } },
       yaxis: { labels: { formatter: v => v + ' kWh', style: { fontSize: '10px' } } },
