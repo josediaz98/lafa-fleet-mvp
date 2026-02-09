@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAFA — Bot de Cobranza WhatsApp</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
+          colors: {
+            lafa: { dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200', teal: '#14B8A6', amber: '#F59E0B' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .wa-bg {
+      background-color: #0B141A;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .msg-bot {
+      background: #1F2C33;
+      border-radius: 0 8px 8px 8px;
+      max-width: 85%;
+    }
+    .msg-driver {
+      background: #005C4B;
+      border-radius: 8px 0 8px 8px;
+      max-width: 85%;
+      margin-left: auto;
+    }
+    .msg-system {
+      background: rgba(255,255,255,0.08);
+      border-radius: 8px;
+      max-width: 70%;
+      margin: 0 auto;
+    }
+    .typing-dots span {
+      display: inline-block;
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #8696A0;
+      margin: 0 2px;
+      animation: typing 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing {
+      0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+      30% { opacity: 1; transform: translateY(-4px); }
+    }
+    .timeline-bar { position: relative; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; }
+    .timeline-fill { position: absolute; left: 0; top: 0; height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+    .confidence-bar { height: 6px; border-radius: 3px; background: rgba(255,255,255,0.1); overflow: hidden; }
+    .confidence-fill { height: 100%; border-radius: 3px; transition: width 0.8s ease; }
+    .scenario-tab {
+      padding: 0.375rem 1rem;
+      font-size: 0.875rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      transition: background-color 0.2s, color 0.2s;
+      background: rgba(255,255,255,0.05);
+      color: #9CA3AF;
+      border: 1px solid rgba(255,255,255,0.1);
+      font-weight: 500;
+    }
+    .scenario-tab:hover { background: rgba(255,255,255,0.1); }
+    .scenario-tab.active {
+      background: #F59E0B;
+      color: #111827;
+      font-weight: 600;
+      border-color: #F59E0B;
+    }
+    .scenario-tab.active:hover { background: #D97706; }
+  </style>
+</head>
+<body class="bg-lafa-dark text-white font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    <aside id="app-sidebar"></aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div id="page-header"></div>
+
+      <div class="p-6 space-y-6">
+        <!-- Scenario Selector -->
+        <div class="flex items-center gap-3">
+          <span class="text-xs text-gray-500">Escenario:</span>
+          <div class="flex gap-2" id="scenario-tabs">
+            <button data-scenario="cooperative" class="scenario-tab active">Cooperativo</button>
+            <button data-scenario="evasive" class="scenario-tab">Evasivo</button>
+            <button data-scenario="unresponsive" class="scenario-tab">Sin Respuesta</button>
+          </div>
+        </div>
+
+        <!-- Split View -->
+        <div class="grid lg:grid-cols-2 gap-6" style="min-height: calc(100vh - 220px);">
+          <!-- Left: WhatsApp Chat -->
+          <div class="flex flex-col bg-[#0B141A] rounded-xl overflow-hidden border border-white/5">
+            <!-- Chat Header -->
+            <div class="flex items-center gap-3 px-4 py-3 bg-[#1F2C33] border-b border-white/5">
+              <img id="chat-avatar" src="../images/carlos.jpg" class="w-10 h-10 rounded-full object-cover" alt="">
+              <div class="flex-1">
+                <p class="text-sm font-semibold text-white" id="chat-driver-name">Carlos Mendoza</p>
+                <p class="text-xs text-gray-400" id="chat-driver-sub">LTO — LAF-042 — 7 días de retraso</p>
+              </div>
+              <div class="flex items-center gap-2 text-gray-400">
+                <span id="phone-icon"></span>
+              </div>
+            </div>
+            <!-- Chat Messages -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-3 wa-bg" id="chat-messages">
+              <!-- Messages injected by JS -->
+            </div>
+            <!-- Chat Input (decorative) -->
+            <div class="flex items-center gap-2 px-4 py-3 bg-[#1F2C33] border-t border-white/5">
+              <div class="flex-1 bg-[#2A3942] rounded-full px-4 py-2 text-sm text-gray-500">Bot automático activo...</div>
+            </div>
+          </div>
+
+          <!-- Right: Agent Dashboard -->
+          <div class="space-y-4 overflow-y-auto">
+            <!-- Driver Profile -->
+            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <div class="flex items-center gap-3 mb-4">
+                <img id="agent-avatar" src="../images/carlos.jpg" class="w-12 h-12 rounded-full object-cover" alt="">
+                <div>
+                  <p class="font-semibold" id="agent-name">Carlos Mendoza López</p>
+                  <p class="text-sm text-gray-400" id="agent-meta">LTO — LAF-042 — DiDi — Condesa</p>
+                </div>
+              </div>
+              <div class="grid grid-cols-3 gap-3 text-center">
+                <div class="bg-white/5 rounded-lg p-3">
+                  <p class="text-lg font-bold" id="agent-overdue">7</p>
+                  <p class="text-xs text-gray-500">Días atraso</p>
+                </div>
+                <div class="bg-white/5 rounded-lg p-3">
+                  <p class="text-lg font-bold" id="agent-amount">$4,200</p>
+                  <p class="text-xs text-gray-500">Monto adeudado</p>
+                </div>
+                <div class="bg-white/5 rounded-lg p-3">
+                  <p class="text-lg font-bold" id="agent-rating">4.7</p>
+                  <p class="text-xs text-gray-500">Rating plat.</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Risk Score -->
+            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <h4 class="text-sm font-semibold text-gray-300 mb-3">Score de Riesgo</h4>
+              <div class="flex items-center gap-4">
+                <div class="relative w-20 h-20">
+                  <svg class="w-20 h-20 -rotate-90" viewBox="0 0 36 36">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="3"/>
+                    <path id="risk-arc" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#22C55E" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round"/>
+                  </svg>
+                  <span class="absolute inset-0 flex items-center justify-center text-lg font-bold" id="risk-value">—</span>
+                </div>
+                <div>
+                  <p class="text-sm font-medium" id="risk-label">Calculando...</p>
+                  <p class="text-xs text-gray-500" id="risk-desc">Basado en historial de pagos, actividad en plataforma y datos de conducción</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Escalation Timeline -->
+            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <h4 class="text-sm font-semibold text-gray-300 mb-4">Línea de Escalamiento</h4>
+              <div class="flex items-center justify-between text-xs text-gray-500 mb-2">
+                <span>Día -2</span><span>Día 0</span><span>Día +7</span><span>Día +14</span><span>Legal</span>
+              </div>
+              <div class="timeline-bar">
+                <div class="timeline-fill bg-gradient-to-r from-green-500 via-yellow-500 to-red-500" id="escalation-fill" style="width:0%"></div>
+              </div>
+              <div class="flex items-center justify-between mt-2 text-xs">
+                <span class="text-green-400">Recordatorio</span>
+                <span class="text-yellow-400">Bot activo</span>
+                <span class="text-red-400">Revisión legal</span>
+              </div>
+            </div>
+
+            <!-- Intent Classification -->
+            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <h4 class="text-sm font-semibold text-gray-300 mb-3">Clasificación de Intención (AI)</h4>
+              <div id="intent-panel" class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-400">Intención detectada</span>
+                  <span class="text-sm font-medium text-white" id="intent-label">Esperando mensaje...</span>
+                </div>
+                <div class="confidence-bar">
+                  <div class="confidence-fill bg-[#FF5A00]" id="intent-confidence" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-sm text-gray-400">Acción sugerida</span>
+                  <span class="text-sm font-medium" id="intent-action">—</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+              <button class="flex-1 bg-green-500/10 text-green-400 hover:bg-green-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Aprobar Plan</button>
+              <button class="flex-1 bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Escalar</button>
+              <button class="flex-1 bg-red-500/10 text-red-400 hover:bg-red-500/20 font-medium py-3 rounded-xl text-sm transition-colors">Revisión Legal</button>
+            </div>
+
+            <!-- Payment History -->
+            <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+              <h4 class="text-sm font-semibold text-gray-300 mb-3">Historial de Pagos</h4>
+              <div class="space-y-1.5" id="agent-payments"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="collections.js"></script>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAFA — AI Roadmap Interactivo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
+          colors: {
+            lafa: {
+              dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200',
+              teal: '#14B8A6', amber: '#F59E0B', green: '#22C55E', red: '#EF4444', yellow: '#EAB308',
+              blue: '#3B82F6'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* Track toggles */
+    .track-toggle { cursor: pointer; transition: all 0.2s ease; opacity: 0.5; }
+    .track-toggle.active { opacity: 1; }
+
+    /* Milestone glow */
+    .milestone-card { cursor: pointer; transition: all 0.2s ease; }
+    .milestone-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+    .milestone-card.highlighted { box-shadow: 0 0 20px rgba(255,90,0,0.4); border-color: #FF5A00 !important; }
+
+    /* Gantt bar highlight */
+    .apexcharts-bar-area.highlighted { filter: brightness(1.4); }
+
+    /* Y-axis labels clickable */
+    #chart-gantt .apexcharts-yaxis-label {
+      cursor: pointer !important;
+      pointer-events: all !important;
+    }
+    #chart-gantt .apexcharts-yaxis-label:hover tspan {
+      fill: #FF5A00;
+    }
+
+    /* Tooltip text cutoff fix */
+    .apexcharts-tooltip {
+      overflow: visible !important;
+      white-space: normal !important;
+    }
+
+    /* Progress line for milestones */
+    .milestone-progress { position: relative; }
+    .milestone-progress::before {
+      content: ''; position: absolute; top: 50%; left: 0; right: 0;
+      height: 3px; background: rgba(255,255,255,0.1);
+      transform: translateY(-50%); z-index: 0;
+    }
+  </style>
+</head>
+<body class="bg-lafa-dark text-white font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    <aside id="app-sidebar"></aside>
+
+    <main class="flex-1 overflow-y-auto relative" id="main-content">
+      <div id="page-header"></div>
+
+      <div class="p-6 space-y-8">
+
+        <!-- Section 1: Growth Milestones -->
+        <section id="section-milestones">
+          <div class="bg-lafa-card rounded-xl border border-white/5 p-5">
+            <h3 class="text-lg font-bold text-white mb-4">Hitos de Crecimiento</h3>
+            <!-- Milestone cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="milestone-cards"></div>
+          </div>
+        </section>
+
+        <!-- Section 3: Interactive Gantt Timeline -->
+        <section id="section-gantt">
+          <div class="bg-lafa-card rounded-xl border border-white/5 p-5">
+            <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+              <h3 class="text-lg font-bold text-white">Timeline de Proyectos</h3>
+              <div class="flex gap-2" id="track-toggles">
+                <button class="track-toggle active px-3 py-1.5 rounded-lg text-xs font-medium bg-white/10 text-white border border-white/10" data-track="all">Todos</button>
+                <button class="track-toggle active px-3 py-1.5 rounded-lg text-xs font-medium bg-lafa-orange/10 text-lafa-orange border border-lafa-orange/20" data-track="foundation">Fundación (11)</button>
+                <button class="track-toggle active px-3 py-1.5 rounded-lg text-xs font-medium bg-lafa-teal/10 text-lafa-teal border border-lafa-teal/20" data-track="dae">Driver-as-Employee (3)</button>
+                <button class="track-toggle active px-3 py-1.5 rounded-lg text-xs font-medium bg-lafa-amber/10 text-lafa-amber border border-lafa-amber/20" data-track="lto">Lease-to-Own (2)</button>
+              </div>
+            </div>
+            <div id="chart-gantt" style="min-height: 500px;"></div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Detail Modal -->
+  <div id="detail-modal" class="fixed inset-0 z-50 hidden">
+    <div id="detail-overlay" class="absolute inset-0 bg-black/60 cursor-pointer"></div>
+    <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+      <div class="bg-[#1E1D28] rounded-2xl border border-white/[0.08] shadow-2xl w-full max-w-4xl max-h-[85vh] overflow-y-auto pointer-events-auto p-8">
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <p class="text-xs text-gray-500 font-medium mb-1" id="detail-id"></p>
+            <h3 class="text-lg font-bold text-white" id="detail-name"></h3>
+            <div class="flex items-center gap-2 mt-2" id="detail-badges"></div>
+          </div>
+          <button id="detail-close" class="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+
+        <div class="grid lg:grid-cols-5 gap-6">
+          <!-- Left 60% -->
+          <div class="lg:col-span-3">
+            <div class="pb-4 border-b border-white/5">
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Problema de Negocio</h4>
+              <p class="text-sm text-gray-300 leading-relaxed" id="detail-problem"></p>
+            </div>
+            <div class="pb-4 border-b border-white/5 pt-4">
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Entregables</h4>
+              <ul class="space-y-1.5" id="detail-deliverables"></ul>
+            </div>
+            <div class="pt-4">
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Arquitectura</h4>
+              <p class="text-sm text-gray-400 leading-relaxed" id="detail-architecture"></p>
+              <div class="flex flex-wrap gap-1.5 mt-3" id="detail-stack"></div>
+            </div>
+          </div>
+
+          <!-- Right 40% -->
+          <div class="lg:col-span-2 space-y-4">
+            <!-- Impact card -->
+            <div class="bg-gradient-to-br from-green-500/[0.08] to-transparent rounded-xl p-4 border border-green-500/10">
+              <h4 class="text-xs text-green-400 uppercase tracking-wider mb-2">Impacto Estimado</h4>
+              <p class="text-lg font-semibold text-green-400" id="detail-impact"></p>
+              <p class="text-xs text-gray-500 mt-1" id="detail-impact-note"></p>
+            </div>
+
+            <!-- Success metrics -->
+            <div>
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Métricas de Éxito</h4>
+              <div id="detail-metrics" class=""></div>
+            </div>
+
+            <!-- Dependencies -->
+            <div>
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Dependencias</h4>
+              <div id="detail-deps" class="space-y-1.5"></div>
+            </div>
+
+            <!-- Primary users -->
+            <div>
+              <h4 class="text-xs text-gray-500 uppercase tracking-wider mb-2">Usuarios Principales</h4>
+              <div class="flex flex-wrap gap-1.5" id="detail-users"></div>
+            </div>
+
+            <!-- Benchmark -->
+            <div id="detail-benchmark-wrap" class="hidden bg-gradient-to-br from-blue-500/[0.08] to-transparent rounded-xl p-4 border border-blue-500/10">
+              <h4 class="text-xs text-blue-400 uppercase tracking-wider mb-2">Benchmark Competitivo</h4>
+              <p class="text-sm text-blue-200/70 leading-relaxed" id="detail-benchmark"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="roadmap-data.js"></script>
+  <script src="roadmap.js"></script>
+</body>
+</html>

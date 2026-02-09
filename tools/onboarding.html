@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAFA — Onboarding de Conductores</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
+          colors: {
+            lafa: { dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200', teal: '#14B8A6', amber: '#F59E0B' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ---------- Kanban ---------- */
+    .kanban-col { min-height: 400px; }
+    .kanban-card {
+      cursor: grab;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kanban-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .kanban-card.dragging { opacity: 0.5; cursor: grabbing; }
+    .kanban-col.drag-over {
+      background: rgba(255, 90, 0, 0.05);
+      border-color: rgba(255, 90, 0, 0.3);
+    }
+
+    /* ---------- Progress Bar Gradient ---------- */
+    .progress-bar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
+    .progress-fill { height: 100%; border-radius: 2px; transition: width 0.3s ease; }
+    .progress-gradient { background: linear-gradient(90deg, #FF5A00, #22C55E); }
+
+    /* ---------- Avatar Initials ---------- */
+    .avatar-initials {
+      width: 32px; height: 32px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; flex-shrink: 0;
+    }
+
+    /* ---------- Risk Dot ---------- */
+    .risk-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .risk-green { background: #22C55E; }
+    .risk-yellow { background: #EAB308; }
+    .risk-red { background: #EF4444; }
+
+    /* ---------- Filter Pills ---------- */
+    .filter-pill {
+      padding: 6px 16px; border-radius: 9999px; font-size: 13px; font-weight: 500;
+      background: rgba(255,255,255,0.05); color: #9CA3AF;
+      cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
+    }
+    .filter-pill:hover { color: #fff; background: rgba(255,255,255,0.08); }
+    .filter-pill.active { background: #FF5A00; color: #fff; border-color: #FF5A00; }
+
+    /* ---------- Sparkline ---------- */
+    .sparkline-svg { display: block; }
+    .sparkline-svg polyline { fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+    /* ---------- Badge Pulse ---------- */
+    @keyframes badge-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    .badge-pulse { animation: badge-pulse 0.4s ease; }
+
+    /* ---------- Full-Screen Modal ---------- */
+    .modal-backdrop {
+      position: fixed; inset: 0; z-index: 50;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity 0.25s ease;
+    }
+    .modal-backdrop.open { opacity: 1; }
+    .modal-backdrop.closing { opacity: 0; }
+
+    .modal-content {
+      background: #1B1A23;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 16px;
+      width: 95vw; max-width: 720px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.95); opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+    }
+    .modal-backdrop.open .modal-content { transform: scale(1); opacity: 1; }
+    .modal-backdrop.closing .modal-content { transform: scale(0.95); opacity: 0; }
+
+    /* ---------- WhatsApp Chat ---------- */
+    .wa-chat { background: #0B141A; border-radius: 12px; padding: 16px; max-height: 320px; overflow-y: auto; }
+    .wa-msg {
+      max-width: 75%; padding: 8px 12px; border-radius: 8px;
+      font-size: 13px; line-height: 1.4; margin-bottom: 6px;
+      word-wrap: break-word;
+    }
+    .wa-msg-bot { background: #202C33; color: #E9EDEF; border-bottom-left-radius: 2px; align-self: flex-start; }
+    .wa-msg-driver { background: #005C4B; color: #E9EDEF; border-bottom-right-radius: 2px; align-self: flex-end; }
+    .wa-msg-time { font-size: 10px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+
+    /* Typing dots */
+    .typing-dots { display: inline-flex; gap: 3px; padding: 10px 14px; }
+    .typing-dots span {
+      width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.4);
+      animation: typing-bounce 1.4s infinite;
+    }
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typing-bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-4px); opacity: 1; }
+    }
+
+    /* ---------- Document Thumbnails ---------- */
+    .doc-thumb {
+      border-radius: 10px; padding: 12px; cursor: default;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.3s ease;
+      position: relative; border: 1px solid rgba(255,255,255,0.06);
+    }
+    .doc-thumb:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.3); }
+    .doc-thumb-status {
+      position: absolute; top: 8px; right: 8px;
+      width: 18px; height: 18px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.3s ease;
+    }
+    .doc-thumb.doc-done { border-color: rgba(34,197,94,0.4); }
+    @keyframes doc-pulse { 0% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); } 100% { box-shadow: 0 0 0 8px rgba(34,197,94,0); } }
+    .doc-thumb.doc-pulse { animation: doc-pulse 0.6s ease-out; }
+
+    /* ---------- Section Fade (auto-play reveal) ---------- */
+    .section-fade { opacity: 0; transform: translateY(8px); transition: opacity 0.5s ease, transform 0.5s ease; pointer-events: none; }
+    .section-fade.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
+    /* ---------- Completion Banner ---------- */
+    .completion-banner { opacity: 0; transform: scale(0.95); transition: opacity 0.5s ease, transform 0.5s ease; }
+    .completion-banner.visible { opacity: 1; transform: scale(1); }
+
+    /* ---------- Credit Gauge ---------- */
+    .gauge-arc { fill: none; stroke-linecap: round; }
+    .gauge-bg { stroke: rgba(255,255,255,0.08); }
+
+    /* ---------- Toast ---------- */
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 60; display: flex; flex-direction: column; gap: 8px; }
+    .toast {
+      background: #252B37; border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px; padding: 12px 20px;
+      font-size: 13px; color: #E9EDEF;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      transform: translateX(120%); opacity: 0;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1), opacity 0.35s ease;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .toast.show { transform: translateX(0); opacity: 1; }
+    .toast.hide { transform: translateX(120%); opacity: 0; }
+
+    /* ---------- Timeline ---------- */
+    .timeline-step { position: relative; }
+    .timeline-step::after {
+      content: ''; position: absolute; top: 16px; left: 100%;
+      width: calc(100% - 32px); height: 2px;
+      background: rgba(255,255,255,0.1);
+    }
+    .timeline-step:last-child::after { display: none; }
+    .timeline-step.active::after { background: #FF5A00; }
+
+    /* ---------- OCR ---------- */
+    .ocr-highlight { animation: pulse-border 2s infinite; }
+    @keyframes pulse-border {
+      0%, 100% { border-color: rgba(255, 90, 0, 0.3); }
+      50% { border-color: rgba(255, 90, 0, 0.8); }
+    }
+    @keyframes scan-line {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+    .scan-line {
+      position: absolute; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, #FF5A00, transparent);
+      animation: scan-line 2s ease-in-out infinite;
+    }
+
+    /* ---------- Empty State ---------- */
+    .kanban-empty { text-align: center; padding: 32px 12px; color: #4B5563; font-size: 13px; }
+  </style>
+</head>
+<body class="bg-lafa-dark text-white font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    <aside id="app-sidebar"></aside>
+
+    <main class="flex-1 overflow-y-auto">
+      <div id="page-header"></div>
+
+      <div class="p-6 space-y-6">
+        <!-- KPI Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Solicitudes Esta Sem</span>
+            <div class="flex items-center gap-3 mt-2">
+              <p class="text-3xl font-bold" id="kpi-apps">0</p>
+              <span class="text-xs text-green-400 font-medium" id="kpi-apps-trend"></span>
+            </div>
+            <div class="mt-2" id="sparkline-apps"></div>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Tiempo Promedio</span>
+            <div class="flex items-center gap-3 mt-2">
+              <p class="text-3xl font-bold" id="kpi-time">0h</p>
+              <span class="text-xs text-green-400 font-medium" id="kpi-time-trend"></span>
+            </div>
+            <div class="mt-2" id="sparkline-time"></div>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Auto-Aprobados</span>
+            <div class="flex items-center gap-3 mt-2">
+              <p class="text-3xl font-bold text-green-400" id="kpi-auto">0%</p>
+              <span class="text-xs text-green-400 font-medium" id="kpi-auto-trend"></span>
+            </div>
+            <div class="mt-2" id="sparkline-auto"></div>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <span class="text-xs text-gray-500 uppercase tracking-wider">Pendientes</span>
+            <div class="flex items-center gap-3 mt-2">
+              <p class="text-3xl font-bold text-yellow-400" id="kpi-pending">0</p>
+              <span class="text-xs text-green-400 font-medium" id="kpi-pending-trend"></span>
+            </div>
+            <div class="mt-2" id="sparkline-pending"></div>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="relative flex-1 max-w-xs">
+            <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" id="search-icon"></span>
+            <input type="text" id="onboard-search" placeholder="Buscar conductor..."
+              class="w-full bg-lafa-card border border-white/5 rounded-lg pl-10 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50 transition-colors">
+          </div>
+          <div class="flex items-center gap-2">
+            <button class="filter-pill active" data-filter="">Todos</button>
+            <button class="filter-pill" data-filter="DaE">DaE</button>
+            <button class="filter-pill" data-filter="LTO">LTO</button>
+          </div>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="pendiente">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-gray-300">Pendiente</h3>
+              <span class="text-xs bg-gray-500/20 text-gray-400 px-2 py-0.5 rounded-full" id="count-pendiente">0</span>
+            </div>
+            <div class="space-y-3" id="col-pendiente"></div>
+          </div>
+          <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="revision">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-blue-400">En Revision</h3>
+              <span class="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded-full" id="count-revision">0</span>
+            </div>
+            <div class="space-y-3" id="col-revision"></div>
+          </div>
+          <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="verificado">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-yellow-400">Verificado</h3>
+              <span class="text-xs bg-yellow-500/20 text-yellow-400 px-2 py-0.5 rounded-full" id="count-verificado">0</span>
+            </div>
+            <div class="space-y-3" id="col-verificado"></div>
+          </div>
+          <div class="kanban-col bg-lafa-card/50 rounded-xl border border-white/5 p-4" data-stage="aprobado">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-green-400">Aprobado</h3>
+              <span class="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded-full" id="count-aprobado">0</span>
+            </div>
+            <div class="space-y-3" id="col-aprobado"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Full-Screen Modal -->
+  <div id="onboard-modal" class="modal-backdrop hidden">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-5 border-b border-white/5">
+        <div class="flex items-center gap-4">
+          <div class="avatar-initials" id="modal-avatar"></div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-lg font-bold" id="modal-name"></h2>
+              <span id="modal-product-badge"></span>
+            </div>
+            <p class="text-xs text-gray-500 mt-0.5" id="modal-phone"></p>
+          </div>
+        </div>
+        <button id="modal-close" class="p-2 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors">
+          <span id="modal-close-icon"></span>
+        </button>
+      </div>
+
+      <!-- Modal Body — Single Column Auto-Play -->
+      <div class="p-5 space-y-5 max-w-2xl mx-auto">
+        <!-- Document Thumbnails -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 mb-3">Documentos</h3>
+          <div class="grid grid-cols-5 gap-2" id="modal-doc-thumbs"></div>
+        </div>
+
+        <!-- WhatsApp Chat -->
+        <div>
+          <h3 class="text-sm font-semibold text-gray-300 mb-3 flex items-center gap-2">
+            <span id="wa-icon"></span> Conversacion WhatsApp
+          </h3>
+          <div class="wa-chat flex flex-col" id="modal-wa-chat"></div>
+        </div>
+
+        <!-- OCR Results (hidden until auto-play reveals) -->
+        <div id="modal-ocr-section" class="section-fade">
+          <h3 class="text-sm font-semibold text-gray-300 mb-3">Extraccion AI (OCR)</h3>
+          <div id="modal-ocr" class="space-y-4"></div>
+        </div>
+
+        <!-- Credit Gauge (LTO only, hidden until auto-play reveals) -->
+        <div id="modal-credit-section" class="section-fade">
+          <h3 class="text-sm font-semibold text-amber-400 mb-3">Score Crediticio Alternativo</h3>
+          <div id="modal-credit-gauge"></div>
+        </div>
+
+        <!-- Timeline (hidden until auto-play reveals) -->
+        <div id="modal-timeline-section" class="section-fade">
+          <h3 class="text-sm font-semibold text-gray-300 mb-4">Linea de Tiempo</h3>
+          <div class="grid grid-cols-5 gap-2" id="modal-timeline"></div>
+          <div class="flex items-center justify-between mt-4 pt-3 border-t border-white/5">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-green-400 font-bold" id="time-new">7 min</span>
+              <span class="text-gray-500">con AI</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-red-400 font-bold line-through">48 horas</span>
+              <span class="text-gray-500">proceso anterior</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Completion Banner (hidden until auto-play reveals) -->
+        <div id="modal-completion" class="completion-banner bg-green-500/10 border border-green-500/20 rounded-xl p-4 text-center">
+          <p class="text-green-400 font-semibold">Verificacion completa — 23 segundos</p>
+        </div>
+
+        <!-- Replay Link (hidden until auto-play completes) -->
+        <div id="modal-replay" class="section-fade text-center pb-2">
+          <button id="btn-replay" class="text-sm text-gray-400 hover:text-white transition-colors">
+            ↻ Reproducir de nuevo
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="shared.js"></script>
+  <script src="onboarding.js"></script>
+</body>
+</html>

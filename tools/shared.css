@@ -1,0 +1,117 @@
+/* ============================================================
+   LAFA Internal Tools — Shared Styles
+   Base CSS for all tool pages (dashboard, battery, etc.)
+   ============================================================ */
+
+/* Smooth scroll */
+html { scroll-behavior: smooth; }
+
+/* Glass navigation bar */
+.glass-nav {
+  background: rgba(27, 26, 35, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* Card hover effect */
+.card-hover { transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+
+/* Slide panel (dashboard detail) */
+.slide-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+.slide-panel.open { transform: translateX(0); }
+
+/* ---------- Notification System ---------- */
+
+/* Badge on bell */
+.notif-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 9999px;
+  background: #EF4444;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+  pointer-events: none;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.notif-badge.is-hidden {
+  opacity: 0;
+  transform: scale(0);
+}
+
+/* Panel header */
+.notif-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.notif-mark-all {
+  font-size: 11px;
+  color: #3B82F6;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+.notif-mark-all:hover { color: #60A5FA; }
+.notif-mark-all.is-hidden { display: none; }
+
+/* Notification items */
+.notif-item {
+  display: block;
+  padding: 12px 16px;
+  cursor: pointer;
+  position: relative;
+  transition: background 0.3s ease, border-color 0.3s ease, opacity 0.3s ease;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+.notif-item:hover { background: rgba(255,255,255,0.04); }
+
+/* Unread state */
+.notif-item.is-unread {
+  background: rgba(255,255,255,0.03);
+}
+.notif-item.is-unread.notif-type-fleet    { border-left-color: #FF5A00; }
+.notif-item.is-unread.notif-type-payment  { border-left-color: #EAB308; }
+.notif-item.is-unread.notif-type-alert    { border-left-color: #EF4444; }
+.notif-item.is-unread.notif-type-onboarding { border-left-color: #22C55E; }
+
+.notif-item.is-unread .notif-title { color: #fff; }
+.notif-item.is-unread .notif-desc  { color: #9CA3AF; }
+
+/* Read state */
+.notif-item.is-read .notif-title { color: #9CA3AF; }
+.notif-item.is-read .notif-desc  { color: #4B5563; }
+.notif-item.is-read .notif-time  { color: #374151; }
+.notif-item.is-read .notif-icon  { opacity: 0.4; }
+
+/* Blue dot for unread */
+.notif-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: #3B82F6;
+  position: absolute;
+  top: 14px;
+  right: 12px;
+  transition: opacity 0.3s ease;
+}
+.notif-item.is-read .notif-dot { opacity: 0; }
+

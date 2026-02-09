@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LAFA — Dashboard de Operaciones</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter Tight', 'system-ui', 'sans-serif'] },
+          colors: {
+            lafa: { dark: '#1B1A23', card: '#252B37', orange: '#FF5A00', 'orange-logo': '#FF6200', teal: '#14B8A6', amber: '#F59E0B' }
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <link rel="stylesheet" href="shared.css">
+</head>
+<body class="bg-lafa-dark text-white font-sans antialiased">
+
+  <div class="flex h-screen overflow-hidden">
+    <aside id="app-sidebar"></aside>
+
+    <main class="flex-1 overflow-y-auto relative">
+      <div id="page-header"></div>
+
+      <div class="p-6 space-y-6">
+        <!-- KPI Row -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-gray-500 uppercase tracking-wider">Vehículos Activos</span>
+              <span class="text-xs text-green-400 font-medium">+8 esta sem</span>
+            </div>
+            <p class="text-3xl font-bold" id="kpi-vehicles">0</p>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-gray-500 uppercase tracking-wider">Ingreso Semanal</span>
+              <span class="text-xs text-green-400 font-medium">+12.3%</span>
+            </div>
+            <p class="text-3xl font-bold" id="kpi-revenue">$0</p>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-gray-500 uppercase tracking-wider">Utilización Flota</span>
+              <span id="kpi-util-icon"></span>
+            </div>
+            <p class="text-3xl font-bold"><span id="kpi-utilization">0</span>%</p>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5 card-hover">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-xs text-gray-500 uppercase tracking-wider">Pagos A Tiempo</span>
+              <span id="kpi-pay-icon"></span>
+            </div>
+            <p class="text-3xl font-bold"><span id="kpi-payments">0</span>%</p>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="grid lg:grid-cols-5 gap-4">
+          <div class="lg:col-span-3 bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4">Ingreso Semanal (12 semanas)</h3>
+            <div id="chart-revenue" class="h-64"></div>
+          </div>
+          <div class="lg:col-span-2 bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4">Estado de Flota</h3>
+            <div id="chart-fleet-status" class="h-64"></div>
+          </div>
+        </div>
+
+        <!-- OEM + Payments Charts Row -->
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4">Distribución por OEM</h3>
+            <div id="chart-oem" class="h-56"></div>
+          </div>
+          <div class="bg-lafa-card rounded-xl p-5 border border-white/5">
+            <h3 class="text-sm font-semibold text-gray-300 mb-4">Estado de Pagos (últimas 4 semanas)</h3>
+            <div id="chart-payments" class="h-56"></div>
+          </div>
+        </div>
+
+        <!-- Filters + Table -->
+        <div class="bg-lafa-card rounded-xl border border-white/5">
+          <div class="p-5 border-b border-white/5 flex flex-wrap items-center gap-3">
+            <div class="flex-1 min-w-[200px] relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" id="search-icon"></span>
+              <input type="text" id="table-search" placeholder="Buscar conductor o vehículo..." class="w-full bg-white/5 border border-white/5 rounded-lg pl-10 pr-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#FF5A00]/50">
+            </div>
+            <select id="filter-oem" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+              <option value="">Todos OEM</option>
+              <option value="Geely">Geely</option>
+              <option value="JAC">JAC</option>
+              <option value="GAC">GAC</option>
+            </select>
+            <select id="filter-product" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+              <option value="">Todos Productos</option>
+              <option value="DaE">DaE</option>
+              <option value="LTO">LTO</option>
+            </select>
+            <select id="filter-status" class="bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-gray-300 focus:outline-none">
+              <option value="">Todos Estados</option>
+              <option value="active">Activo</option>
+              <option value="maintenance">Mantenimiento</option>
+              <option value="charging">Cargando</option>
+              <option value="idle">Inactivo</option>
+            </select>
+            <button id="btn-export" class="flex items-center gap-2 bg-white/5 border border-white/5 rounded-lg px-4 py-2 text-sm text-gray-300 hover:bg-white/10 transition-colors">
+              <span id="download-icon"></span>
+              Exportar
+            </button>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead>
+                <tr class="text-left text-xs text-gray-500 uppercase tracking-wider">
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="vehicleId">ID</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="shortName">Conductor</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="oem">OEM</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="product">Producto</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="status">Estado</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white" data-sort="platform">Plataforma</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="weeklyRevenue">Ingreso/Sem</th>
+                  <th class="px-5 py-3 cursor-pointer hover:text-white text-right" data-sort="soh">SOH</th>
+                </tr>
+              </thead>
+              <tbody id="table-body" class="divide-y divide-white/5"></tbody>
+            </table>
+          </div>
+          <div class="p-4 border-t border-white/5 flex items-center justify-between">
+            <span class="text-xs text-gray-500" id="table-count"></span>
+            <div class="flex gap-1" id="table-pagination"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Modal -->
+      <div id="detail-modal" class="fixed inset-0 z-50 hidden">
+        <div id="detail-overlay" class="absolute inset-0 bg-black/60 cursor-pointer"></div>
+        <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+          <div class="bg-[#1E1D28] rounded-2xl border border-white/10 shadow-2xl w-full max-w-3xl max-h-[85vh] overflow-y-auto pointer-events-auto" id="detail-content"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="shared.js"></script>
+  <script src="dashboard.js"></script>
+</body>
+</html>
