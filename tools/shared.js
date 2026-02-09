@@ -472,6 +472,22 @@ function initSidebar(currentPage) {
       expanded = true;
     }
   });
+
+  // Bottom navigation for mobile
+  createBottomNav(currentPage);
+}
+
+function createBottomNav(currentPage) {
+  const NAV_ITEMS = [
+    { id: 'home', label: 'Inicio', href: '../index.html', icon: 'home' },
+    ...SIDEBAR_PAGES,
+  ];
+  const nav = document.createElement('nav');
+  nav.id = 'bottom-nav';
+  nav.innerHTML = `<div class="bottom-nav-inner">${NAV_ITEMS.map(p =>
+    `<a href="${p.href}"${p.id === currentPage ? ' class="active"' : ''}>${lucideIcon(p.icon, 'w-5 h-5')}<span>${p.label}</span></a>`
+  ).join('')}</div>`;
+  document.body.appendChild(nav);
 }
 
 // ---------- Page Header ----------
