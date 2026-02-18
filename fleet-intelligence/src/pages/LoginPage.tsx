@@ -4,22 +4,36 @@ import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import LafaLogo from '../components/ui/LafaLogo';
 
+/** Demo-only hash — NOT cryptographic. Prevents plain-text storage for new users. */
+function simpleHash(s: string): string {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) {
+    h = ((h << 5) - h) + s.charCodeAt(i);
+    h |= 0;
+  }
+  return '#' + Math.abs(h).toString(36);
+}
+
+export { simpleHash };
+
 export default function LoginPage() {
   const { users } = useAppState();
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@lafa.mx');
+  const [password, setPassword] = useState('admin123');
   const [error, setError] = useState('');
 
   function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     setError('');
 
+    const hashed = simpleHash(password);
     const user = users.find(
-      u => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password
+      u => u.email.toLowerCase() === email.trim().toLowerCase() &&
+        (u.password === password || u.password === hashed)
     );
 
     if (!user) {
@@ -43,11 +57,6 @@ export default function LoginPage() {
     dispatch({ type: 'LOGIN', payload: session });
     showToast('success', `Bienvenido, ${user.name}`);
     navigate('/dashboard');
-  }
-
-  function fillDemo() {
-    setEmail('admin@lafa.mx');
-    setPassword('admin123');
   }
 
   return (
@@ -80,15 +89,6 @@ export default function LoginPage() {
           >
             Iniciar sesión
           </button>
-          <div className="text-center pt-4">
-            <button
-              type="button"
-              onClick={fillDemo}
-              className="text-xs text-lafa-text-secondary/60 hover:text-lafa-accent transition-colors"
-            >
-              Usar credenciales de demo
-            </button>
-          </div>
         </form>
       </div>
     </div>
