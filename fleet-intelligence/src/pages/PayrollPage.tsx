@@ -289,12 +289,13 @@ export default function PayrollPage() {
                     <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Bono</th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Overtime</th>
                     <SortHeader label="Pago total" field="totalPay" />
+                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Status</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sorted.length === 0 && (
                     <tr>
-                      <td colSpan={9} className="px-4 py-8">
+                      <td colSpan={10} className="px-4 py-8">
                         <EmptyState icon={Receipt} title={'Sin registros de n\u00f3mina'} />
                       </td>
                     </tr>
@@ -322,6 +323,15 @@ export default function PayrollPage() {
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.productivityBonus)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.overtimePay)}</td>
                       <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalPay)}</td>
+                      <td className="px-4 py-3 text-center">
+                        {tab === 'actual' ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(234,179,8,0.15)] text-[#EAB308]">Borrador</span>
+                        ) : row.status === 'cerrado' ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">Cerrado</span>
+                        ) : (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(239,68,68,0.15)] text-[#EF4444]">Superseded</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -401,6 +411,37 @@ export default function PayrollPage() {
                   <span className="text-lafa-accent">{formatMXN(selectedRow.totalPay)}</span>
                 </div>
               </div>
+              {selectedRow.totalPay > 0 && (() => {
+                const total = selectedRow.totalPay;
+                const basePct = Math.round((selectedRow.baseSalary / total) * 100);
+                const bonoPct = Math.round((selectedRow.productivityBonus / total) * 100);
+                const otPct = Math.round((selectedRow.overtimePay / total) * 100);
+                const supportAmt = selectedRow.goalMet ? 0 : 1000;
+                const supportPct = Math.round((supportAmt / total) * 100);
+                const items = [
+                  { label: 'Base', pct: basePct, color: '#3B82F6' },
+                  { label: 'Bono', pct: bonoPct, color: '#22C55E' },
+                  { label: 'Overtime', pct: otPct, color: '#EAB308' },
+                  ...(!selectedRow.goalMet ? [{ label: 'Apoyo', pct: supportPct, color: '#EF4444' }] : []),
+                ].filter(i => i.pct > 0);
+                return (
+                  <div className="mt-3">
+                    <div className="flex rounded-full overflow-hidden h-2 bg-lafa-bg">
+                      {items.map(i => (
+                        <div key={i.label} style={{ width: `${i.pct}%`, backgroundColor: i.color }} />
+                      ))}
+                    </div>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
+                      {items.map(i => (
+                        <span key={i.label} className="flex items-center gap-1.5 text-xs text-lafa-text-secondary">
+                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: i.color }} />
+                          {i.label} {i.pct}%
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             {selectedRowTrips.length > 0 && (

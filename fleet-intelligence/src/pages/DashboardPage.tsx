@@ -43,6 +43,24 @@ export default function DashboardPage() {
 
   const { startDate: weekStart, endDate: weekEnd } = getWeekBounds();
 
+  const driversNear6K = useMemo(() => {
+    return filteredDrivers
+      .filter(d => d.status === 'activo')
+      .map(driver => {
+        const billing = trips
+          .filter(t => {
+            if (t.driverId !== driver.didiDriverId) return false;
+            const parts = t.fecha.split('/');
+            if (parts.length !== 3) return false;
+            const tripDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
+            return tripDate >= weekStart && tripDate < weekEnd;
+          })
+          .reduce((sum, t) => sum + t.costo, 0);
+        return { name: driver.fullName, billing };
+      })
+      .filter(d => d.billing >= 4500 && d.billing < 6000);
+  }, [filteredDrivers, trips, weekStart, weekEnd]);
+
   const weekTrips = useMemo(() => trips.filter(t => {
     const parts = t.fecha.split('/');
     if (parts.length !== 3) return false;
@@ -156,6 +174,25 @@ export default function DashboardPage() {
             ))}
             {alertShifts.length === 0 && (
               <EmptyState icon={AlertTriangle} title="Sin alertas activas" description="Todos los turnos est\u00e1n dentro del rango normal." />
+            )}
+
+            {driversNear6K.length > 0 && (
+              <div className="mt-4 bg-[rgba(234,179,8,0.08)] border border-[rgba(234,179,8,0.2)] rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <DollarSign size={16} className="text-[#EAB308]" />
+                  <span className="text-sm font-semibold text-[#EAB308]">Cerca del umbral $6K</span>
+                </div>
+                <div className="space-y-2">
+                  {driversNear6K.map(d => (
+                    <div key={d.name} className="flex items-center justify-between text-xs">
+                      <span className="text-lafa-text-primary font-medium">{d.name}</span>
+                      <span className="text-lafa-text-secondary">
+                        {formatMXN(d.billing)} — faltan {formatMXN(6000 - d.billing)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>

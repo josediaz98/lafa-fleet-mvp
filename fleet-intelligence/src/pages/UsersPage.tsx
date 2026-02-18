@@ -71,6 +71,10 @@ export default function UsersPage() {
       setFormError('Ya existe un usuario con ese email.');
       return;
     }
+    if (form.role === 'supervisor' && users.some(u => u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId)) {
+      setFormError('Ya existe un supervisor activo en ese centro.');
+      return;
+    }
     const newUser: User = {
       id: `u-${Date.now()}`,
       name: form.name.trim(),
@@ -112,6 +116,10 @@ export default function UsersPage() {
     const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase() && u.id !== selectedUser.id);
     if (emailExists) {
       setFormError('Ya existe otro usuario con ese email.');
+      return;
+    }
+    if (form.role === 'supervisor' && users.some(u => u.id !== selectedUser.id && u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId)) {
+      setFormError('Ya existe un supervisor activo en ese centro.');
       return;
     }
     const updated: User = {

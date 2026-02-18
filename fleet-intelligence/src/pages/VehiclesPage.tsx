@@ -35,6 +35,9 @@ export default function VehiclesPage() {
   const [form, setForm] = useState<VehicleFormState>(emptyForm);
   const [formError, setFormError] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState<VehicleFormState>(emptyForm);
+  const [editError, setEditError] = useState('');
 
   const centeredVehicles = filterByCenter(vehicles);
   const filtered = centeredVehicles.filter(v =>
@@ -61,7 +64,7 @@ export default function VehiclesPage() {
   }, [selectedVehicle, shifts]);
 
   function getAvailableStatuses(vehicle: Vehicle) {
-    const statuses = isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES;
+    const statuses = (isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES).filter(s => s !== 'en_turno');
     const hasActiveShift = shifts.some(
       s => s.vehicleId === vehicle.id && s.status === 'en_turno'
     );
@@ -98,6 +101,10 @@ export default function VehiclesPage() {
       setFormError('Todos los campos son obligatorios.');
       return;
     }
+    if (vehicles.some(v => v.plate.toLowerCase() === form.plate.trim().toLowerCase())) {
+      setFormError('Ya existe un vehículo con esa placa.');
+      return;
+    }
     const newVehicle: Vehicle = {
       id: `v-${Date.now()}`,
       plate: form.plate.trim().toUpperCase(),
@@ -109,6 +116,32 @@ export default function VehiclesPage() {
     dispatch({ type: 'ADD_VEHICLE', payload: newVehicle });
     showToast('success', `Veh\u00edculo ${newVehicle.plate} creado.`);
     setShowCreateModal(false);
+  }
+
+  function openVehicleEdit() {
+    if (!selectedVehicle) return;
+    setEditForm({ plate: selectedVehicle.plate, model: selectedVehicle.model, oem: selectedVehicle.oem, centerId: selectedVehicle.centerId });
+    setEditError('');
+    setEditMode(true);
+  }
+
+  function handleSaveVehicleEdit() {
+    if (!selectedVehicle) return;
+    setEditError('');
+    if (!editForm.plate.trim() || !editForm.model.trim() || !editForm.oem.trim() || !editForm.centerId) {
+      setEditError('Todos los campos son obligatorios.');
+      return;
+    }
+    const newPlate = editForm.plate.trim().toUpperCase();
+    if (newPlate !== selectedVehicle.plate && vehicles.some(v => v.plate.toLowerCase() === newPlate.toLowerCase())) {
+      setEditError('Ya existe un vehículo con esa placa.');
+      return;
+    }
+    const updated: Vehicle = { ...selectedVehicle, plate: newPlate, model: editForm.model.trim(), oem: editForm.oem.trim(), centerId: editForm.centerId };
+    dispatch({ type: 'UPDATE_VEHICLE', payload: updated });
+    setSelectedVehicle(updated);
+    showToast('success', `Vehículo ${updated.plate} actualizado.`);
+    setEditMode(false);
   }
 
   const summaryItems = [
@@ -206,10 +239,10 @@ export default function VehiclesPage() {
 
       <SlidePanel
         open={!!selectedVehicle}
-        onClose={() => setSelectedVehicle(null)}
+        onClose={() => { setSelectedVehicle(null); setEditMode(false); }}
         title={selectedVehicle ? `${selectedVehicle.plate} \u2014 ${selectedVehicle.model}` : ''}
       >
-        {selectedVehicle && (
+        {selectedVehicle && !editMode && (
           <div>
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
@@ -258,6 +291,17 @@ export default function VehiclesPage() {
               </div>
             </div>
 
+            {isAdmin && (
+              <div className="mb-6">
+                <button
+                  onClick={openVehicleEdit}
+                  className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
+                >
+                  Editar datos
+                </button>
+              </div>
+            )}
+
             <div>
               <h4 className="text-sm font-medium text-lafa-text-primary mb-3">Turnos recientes</h4>
               {vehicleShifts.length === 0 ? (
@@ -282,6 +326,61 @@ export default function VehiclesPage() {
                   ))}
                 </div>
               )}
+            </div>
+          </div>
+        )}
+        {selectedVehicle && editMode && (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
+              <input
+                value={editForm.plate}
+                onChange={e => setEditForm({ ...editForm, plate: e.target.value })}
+                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
+              <input
+                value={editForm.model}
+                onChange={e => setEditForm({ ...editForm, model: e.target.value })}
+                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
+              <input
+                value={editForm.oem}
+                onChange={e => setEditForm({ ...editForm, oem: e.target.value })}
+                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
+              <select
+                value={editForm.centerId}
+                onChange={e => setEditForm({ ...editForm, centerId: e.target.value })}
+                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+              >
+                {MOCK_CENTERS.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+            {editError && <p className="text-sm text-[#EF4444]">{editError}</p>}
+            <div className="flex gap-3">
+              <button
+                onClick={handleSaveVehicleEdit}
+                className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+              >
+                Guardar
+              </button>
+              <button
+                onClick={() => setEditMode(false)}
+                className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+              >
+                Cancelar
+              </button>
             </div>
           </div>
         )}

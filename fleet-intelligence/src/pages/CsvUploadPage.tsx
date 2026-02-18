@@ -13,6 +13,11 @@ const STEPS = [
 
 const CSV_TEMPLATE = 'driverId,fecha,tripId,horaInicio,horaFin,costo,propina\n114958,16/02/2026,abc123,6:32:00,7:18:00,195.50,0\n114959,16/02/2026,def456,7:40:00,8:35:00,228.60,30';
 
+const CDMX_LAT_MIN = 19.1;
+const CDMX_LAT_MAX = 19.6;
+const CDMX_LNG_MIN = -99.4;
+const CDMX_LNG_MAX = -98.9;
+
 interface ParsedRow {
   driverId: number;
   fecha: string;
@@ -21,6 +26,8 @@ interface ParsedRow {
   horaFin: string;
   costo: number;
   propina: number;
+  pickupLat?: number;
+  pickupLng?: number;
   estado: 'valido' | 'warning' | 'error';
   errorMsg?: string;
 }
@@ -48,6 +55,13 @@ function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: S
     return { ...row, estado: 'error', errorMsg: 'Hora inicio >= hora fin' };
   }
 
+  if (row.pickupLat !== undefined && row.pickupLng !== undefined) {
+    if (row.pickupLat < CDMX_LAT_MIN || row.pickupLat > CDMX_LAT_MAX ||
+        row.pickupLng < CDMX_LNG_MIN || row.pickupLng > CDMX_LNG_MAX) {
+      return { ...row, estado: 'warning', errorMsg: 'Coordenadas fuera de CDMX' };
+    }
+  }
+
   if (row.costo > 500) {
     return { ...row, estado: 'warning', errorMsg: 'Tarifa inusualmente alta' };
   }
@@ -67,10 +81,12 @@ function parseCsvText(text: string): ParsedRow[] {
   const finIdx = headers.findIndex(h => h.includes('fin'));
   const costoIdx = headers.findIndex(h => h.includes('costo'));
   const propinaIdx = headers.findIndex(h => h.includes('propina'));
+  const latIdx = headers.findIndex(h => h.includes('lat'));
+  const lngIdx = headers.findIndex(h => h.includes('lng') || h.includes('lon'));
 
   return lines.slice(1).filter(l => l.trim()).map(line => {
     const cols = line.split(',').map(c => c.trim());
-    return {
+    const row: ParsedRow = {
       driverId: parseInt(cols[driverIdx] || '0', 10),
       fecha: cols[fechaIdx] || '',
       tripId: cols[tripIdx] || '',
@@ -80,6 +96,15 @@ function parseCsvText(text: string): ParsedRow[] {
       propina: parseFloat(cols[propinaIdx] || '0'),
       estado: 'valido' as const,
     };
+    if (latIdx !== -1 && lngIdx !== -1) {
+      const lat = parseFloat(cols[latIdx] || '');
+      const lng = parseFloat(cols[lngIdx] || '');
+      if (!isNaN(lat) && !isNaN(lng)) {
+        row.pickupLat = lat;
+        row.pickupLng = lng;
+      }
+    }
+    return row;
   });
 }
 

@@ -113,6 +113,11 @@ export default function DriversPage() {
       setFormError('Nombre es obligatorio.');
       return;
     }
+    const newDidiId = parseInt(form.didiDriverId, 10);
+    if (newDidiId !== selectedDriver.didiDriverId && drivers.some(d => d.didiDriverId === newDidiId)) {
+      setFormError('Ya existe un conductor con ese DiDi ID.');
+      return;
+    }
     const updated: Driver = {
       ...selectedDriver,
       fullName: form.fullName.trim(),
@@ -477,6 +482,7 @@ export default function DriversPage() {
       {showCreateModal && (
         <DriverCreateModal
           defaultCenterId={effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? ''}
+          drivers={drivers}
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreateDriver}
         />

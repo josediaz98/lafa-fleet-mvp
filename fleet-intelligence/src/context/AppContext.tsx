@@ -81,6 +81,7 @@ type Action =
   | { type: 'UPDATE_DRIVER'; payload: Driver }
   | { type: 'DEACTIVATE_DRIVER'; payload: string }
   | { type: 'ADD_VEHICLE'; payload: Vehicle }
+  | { type: 'UPDATE_VEHICLE'; payload: Vehicle }
   | { type: 'ADD_USER'; payload: User }
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'DEACTIVATE_USER'; payload: string }
@@ -136,6 +137,12 @@ function appReducer(state: AppState, action: Action): AppState {
 
     case 'ADD_VEHICLE':
       return { ...state, vehicles: [...state.vehicles, action.payload] };
+
+    case 'UPDATE_VEHICLE':
+      return {
+        ...state,
+        vehicles: state.vehicles.map(v => (v.id === action.payload.id ? action.payload : v)),
+      };
 
     case 'ADD_USER':
       return { ...state, users: [...state.users, action.payload] };

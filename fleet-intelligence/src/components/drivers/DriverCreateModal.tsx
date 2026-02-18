@@ -11,11 +11,12 @@ interface DriverFormState {
 
 interface DriverCreateModalProps {
   defaultCenterId: string;
+  drivers: Array<{ didiDriverId: number }>;
   onClose: () => void;
   onCreate: (form: DriverFormState) => void;
 }
 
-export default function DriverCreateModal({ defaultCenterId, onClose, onCreate }: DriverCreateModalProps) {
+export default function DriverCreateModal({ defaultCenterId, drivers, onClose, onCreate }: DriverCreateModalProps) {
   const [form, setForm] = useState<DriverFormState>({
     fullName: '',
     didiDriverId: '',
@@ -29,6 +30,11 @@ export default function DriverCreateModal({ defaultCenterId, onClose, onCreate }
     setFormError('');
     if (!form.fullName.trim() || !form.didiDriverId || !form.centerId) {
       setFormError('Todos los campos son obligatorios.');
+      return;
+    }
+    const didiId = parseInt(form.didiDriverId, 10);
+    if (drivers.some(d => d.didiDriverId === didiId)) {
+      setFormError('Ya existe un conductor con ese DiDi ID.');
       return;
     }
     onCreate(form);
