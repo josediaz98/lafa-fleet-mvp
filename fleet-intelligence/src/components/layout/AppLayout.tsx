@@ -13,7 +13,7 @@ export default function AppLayout() {
         <button onClick={() => setMobileOpen(true)} className="p-1.5 rounded hover:bg-lafa-border transition-colors">
           <Menu size={20} className="text-lafa-text-primary" />
         </button>
-        <span className="text-sm font-bold text-lafa-accent tracking-tight">LAFA</span>
+        <img src="/lafa-logo.svg" alt="LAFA" className="h-4 w-auto" />
       </div>
       <main className="lg:ml-64 p-4 pt-16 lg:p-8 lg:pt-8 min-h-screen">
         <Outlet />
