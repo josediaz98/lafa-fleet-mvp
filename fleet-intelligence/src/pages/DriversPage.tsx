@@ -3,6 +3,7 @@ import { Search, Plus, Users, Clock } from 'lucide-react';
 import { useAppState, useAppDispatch, type Driver } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
 import { MOCK_CENTERS, formatMXN, formatTime } from '../data/mockData';
+import { getCenterName } from '../lib/dataUtils';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
@@ -83,10 +84,6 @@ export default function DriversPage() {
       .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
       .slice(0, 20);
   }, [selectedDriver, shifts]);
-
-  function getCenterName(centerId: string) {
-    return MOCK_CENTERS.find(c => c.id === centerId)?.name ?? '';
-  }
 
   function openCreate() {
     setForm({

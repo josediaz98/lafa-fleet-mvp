@@ -8,17 +8,11 @@ import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
+import { getCenterName } from '../lib/dataUtils';
+import { STATUS_LABELS } from '../lib/statusMap';
 
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
 const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
-
-const STATUS_LABELS: Record<string, string> = {
-  disponible: 'Disponible',
-  en_turno: 'En turno',
-  cargando: 'Cargando',
-  mantenimiento: 'Mantenimiento',
-  fuera_de_servicio: 'Fuera de servicio',
-};
 
 interface VehicleFormState {
   plate: string;
@@ -65,10 +59,6 @@ export default function VehiclesPage() {
       .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
       .slice(0, 10);
   }, [selectedVehicle, shifts]);
-
-  function getCenterName(centerId: string) {
-    return MOCK_CENTERS.find(c => c.id === centerId)?.name ?? '';
-  }
 
   function getAvailableStatuses(vehicle: Vehicle) {
     const statuses = isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES;

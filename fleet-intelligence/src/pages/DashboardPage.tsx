@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
 import { formatTime, getElapsedTime, formatMXN } from '../data/mockData';
+import { getWeekBounds } from '../lib/dateUtils';
+import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
@@ -20,7 +22,7 @@ export default function DashboardPage() {
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 60000);
+    const id = setInterval(() => setTick(t => t + 1), REFRESH_INTERVAL);
     return () => clearInterval(id);
   }, []);
 
@@ -36,24 +38,17 @@ export default function DashboardPage() {
 
   const alertShifts = filteredShifts.filter(s =>
     (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
-    (Date.now() - new Date(s.checkIn).getTime()) > 12 * 3600000
+    (Date.now() - new Date(s.checkIn).getTime()) > SHIFT_WINDOW_MS
   );
 
-  const now = new Date();
-  const dayOfWeek = now.getDay();
-  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-  const weekStart = new Date(now);
-  weekStart.setDate(now.getDate() + mondayOffset);
-  weekStart.setHours(0, 0, 0, 0);
-  const weekEnd = new Date(weekStart);
-  weekEnd.setDate(weekStart.getDate() + 7);
+  const { startDate: weekStart, endDate: weekEnd } = getWeekBounds();
 
-  const weekTrips = trips.filter(t => {
+  const weekTrips = useMemo(() => trips.filter(t => {
     const parts = t.fecha.split('/');
     if (parts.length !== 3) return false;
     const tripDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
     return tripDate >= weekStart && tripDate < weekEnd;
-  });
+  }), [trips, weekStart, weekEnd]);
   const weekBilling = weekTrips.reduce((sum, t) => sum + t.costo, 0);
 
   const kpiCards = [

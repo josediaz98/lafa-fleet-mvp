@@ -3,6 +3,7 @@ import { Plus, Search, Shield } from 'lucide-react';
 import { useAppState, useAppDispatch, type User } from '../context/AppContext';
 import { MOCK_CENTERS } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
+import { getCenterName } from '../lib/dataUtils';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
@@ -44,11 +45,6 @@ export default function UsersPage() {
     u.name.toLowerCase().includes(search.toLowerCase()) ||
     u.email.toLowerCase().includes(search.toLowerCase())
   );
-
-  function getCenterName(centerId: string | null) {
-    if (!centerId) return 'Todos';
-    return MOCK_CENTERS.find(c => c.id === centerId)?.name ?? '';
-  }
 
   function openCreate() {
     setForm({ ...emptyForm, centerId: MOCK_CENTERS[0]?.id ?? '' });

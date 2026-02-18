@@ -3,6 +3,7 @@ import { Clock, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
 import { formatTime, getElapsedTime, MOCK_CENTERS } from '../data/mockData';
+import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
@@ -26,7 +27,7 @@ export default function ShiftsPage() {
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
-    const id = setInterval(() => setTick(t => t + 1), 60000);
+    const id = setInterval(() => setTick(t => t + 1), REFRESH_INTERVAL);
     return () => clearInterval(id);
   }, []);
 
@@ -36,15 +37,15 @@ export default function ShiftsPage() {
   const completedShifts = filteredShifts.filter(s => s.status === 'completado');
   const pendingShifts = filteredShifts.filter(s =>
     (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
-    (Date.now() - new Date(s.checkIn).getTime()) > 12 * 3600000
+    (Date.now() - new Date(s.checkIn).getTime()) > SHIFT_WINDOW_MS
   );
 
-  const driversInShift = new Set(
+  const driversInShift = useMemo(() => new Set(
     shifts.filter(s => s.status === 'en_turno').map(s => s.driverId)
-  );
-  const vehiclesInShift = new Set(
+  ), [shifts]);
+  const vehiclesInShift = useMemo(() => new Set(
     shifts.filter(s => s.status === 'en_turno').map(s => s.vehicleId)
-  );
+  ), [shifts]);
 
   const centeredDrivers = filterByCenter(drivers).filter(
     d => d.status === 'activo' && !driversInShift.has(d.id)
