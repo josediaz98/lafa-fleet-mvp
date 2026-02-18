@@ -12,5 +12,5 @@ fleet-intelligence/tsconfig.tsbuildinfo
 # Vercel build output
 .vercel
 
-# Personal course notes (not LAFA-specific)
-content/reforge/
+# Research & strategy content
+content/
