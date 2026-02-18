@@ -345,12 +345,12 @@ function mergeApexDefaults(opts) {
 
 // ---------- Sidebar Navigation ----------
 const SIDEBAR_PAGES = [
-  { id: 'roadmap', labelKey: 'shared.sidebar.roadmap', href: 'roadmap.html', icon: 'trending-up' },
-  { id: 'dashboard', labelKey: 'shared.sidebar.dashboard', href: 'dashboard.html', icon: 'layout-dashboard' },
-  { id: 'collections', labelKey: 'shared.sidebar.collections', href: 'collections.html', icon: 'message-square' },
-  { id: 'fleetmap', labelKey: 'shared.sidebar.fleetmap', href: 'fleetmap.html', icon: 'map-pin' },
-  { id: 'battery', labelKey: 'shared.sidebar.battery', href: 'battery.html', icon: 'battery-charging' },
-  { id: 'onboarding', labelKey: 'shared.sidebar.onboarding', href: 'onboarding.html', icon: 'user-plus' },
+  { id: 'roadmap', labelKey: 'shared.sidebar.roadmap', href: '../roadmap/', icon: 'trending-up' },
+  { id: 'dashboard', labelKey: 'shared.sidebar.dashboard', href: '../dashboard/', icon: 'layout-dashboard' },
+  { id: 'collections', labelKey: 'shared.sidebar.collections', href: '../collections/', icon: 'message-square' },
+  { id: 'fleetmap', labelKey: 'shared.sidebar.fleetmap', href: '../fleetmap/', icon: 'map-pin' },
+  { id: 'battery', labelKey: 'shared.sidebar.battery', href: '../battery/', icon: 'battery-charging' },
+  { id: 'onboarding', labelKey: 'shared.sidebar.onboarding', href: '../onboarding/', icon: 'user-plus' },
 ];
 
 function sidebarLabel(page) {
@@ -414,7 +414,7 @@ function initSidebar(currentPage) {
   sidebar.innerHTML = `
     <div class="flex flex-col h-full bg-[#16151E] border-r border-white/5 transition-all duration-300 sidebar-collapsed" id="sidebar-inner">
       <div class="flex items-center h-16 px-4 border-b border-white/5">
-        <a href="../index.html" class="sidebar-logo hidden">${logoSVG}</a>
+        <a href="../" class="sidebar-logo hidden">${logoSVG}</a>
         <button id="sidebar-toggle" class="p-1.5 rounded-lg hover:bg-white/5 text-gray-400 hover:text-white transition-colors ml-auto" aria-label="Toggle sidebar">
           ${lucideIcon('menu', 'w-5 h-5')}
         </button>
@@ -429,7 +429,7 @@ function initSidebar(currentPage) {
       </nav>
       <div class="px-3 pb-4">
         <div class="border-t border-white/5 pt-4">
-          <a href="../index.html" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">
+          <a href="../" class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-gray-500 hover:text-white hover:bg-white/5 transition-colors">
             ${lucideIcon('arrow-left', 'w-5 h-5 flex-shrink-0')}
             <span class="sidebar-label hidden whitespace-nowrap">${typeof t === 'function' ? t('shared.sidebar.back') : 'Volver a LAFA'}</span>
           </a>
@@ -521,7 +521,7 @@ function initSidebar(currentPage) {
 function createBottomNav(currentPage) {
   const homeLabel = typeof t === 'function' ? t('shared.nav.home') : 'Inicio';
   const NAV_ITEMS = [
-    { id: 'home', label: homeLabel, href: '../index.html', icon: 'home' },
+    { id: 'home', label: homeLabel, href: '../', icon: 'home' },
     ...SIDEBAR_PAGES.filter(p => p.id !== 'onboarding').map(p => ({ ...p, label: sidebarLabel(p) })),
   ];
   const nav = document.createElement('nav');
@@ -568,7 +568,7 @@ function getNotifications() {
       title: _t('shared.notif.fleet.title', { pct: FLEET_STATS.fleetUtilization }),
       desc: _t('shared.notif.fleet.desc', { n: FLEET_STATS.idleVehicles, total: FLEET_STATS.totalVehicles }),
       time: _t('shared.notif.fleet.time'),
-      link: 'dashboard.html',
+      link: '../dashboard/',
     },
     {
       id: 'payment',
@@ -576,7 +576,7 @@ function getNotifications() {
       title: _t('shared.notif.payment.title'),
       desc: _t('shared.notif.payment.desc'),
       time: _t('shared.notif.payment.time'),
-      link: 'collections.html',
+      link: '../collections/',
     },
     {
       id: 'alert',
@@ -584,7 +584,7 @@ function getNotifications() {
       title: _t('shared.notif.alert.title', { n: FLEET_STATS.anomalies }),
       desc: _t('shared.notif.alert.desc', { id: _worstBattery.vehicleId, soh: _worstBattery.soh.toFixed(1) }),
       time: _t('shared.notif.alert.time'),
-      link: 'battery.html',
+      link: '../battery/',
     },
     {
       id: 'onboarding',
@@ -592,7 +592,7 @@ function getNotifications() {
       title: _t('shared.notif.onboarding.title'),
       desc: _t('shared.notif.onboarding.desc', { name: DRIVERS[DRIVERS.length - 1].shortName }),
       time: _t('shared.notif.onboarding.time'),
-      link: 'onboarding.html',
+      link: '../onboarding/',
     },
   ];
 }
@@ -795,7 +795,7 @@ function initPage(pageId, title, subtitle, icons = {}) {
     // Re-render "Volver a LAFA"
     const backLabel = document.querySelector('#app-sidebar .sidebar-label:last-of-type');
     // Find the back link specifically
-    const backLink = document.querySelector('#app-sidebar a[href="../index.html"] .sidebar-label');
+    const backLink = document.querySelector('#app-sidebar a[href="../"] .sidebar-label');
     if (backLink) backLink.textContent = typeof t === 'function' ? t('shared.sidebar.back') : 'Volver a LAFA';
     // Re-render bottom nav
     const oldNav = document.getElementById('bottom-nav');

@@ -7,13 +7,12 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 
 | Area | Stack |
 |------|-------|
-| `prototypes/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
-| `index.html` | Same — marketing landing page |
+| `prototypes/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js (includes landing page) |
 | `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react + **Supabase** (PostgreSQL + Auth + RLS) |
 | `content/` | Markdown research files |
 | Technical challenge | Python (stdlib only for generator) |
 
-`prototypes/` and `index.html` have no build step (CDN only). `fleet-intelligence/` uses Vite.
+`prototypes/` has no build step (CDN only). `fleet-intelligence/` uses Vite.
 
 ## Commands
 
@@ -36,7 +35,7 @@ python content/hiring/technical-challenge/generate_didi_data.py
 
 - **IIFE per page:** Each `.js` file wraps in `(function () { ... })()`, accesses shared state via `window.LAFA`
 - **Tailwind + shared.css:** Utility classes first, custom components in `shared.css`
-- **Design tokens:** Colors in `COLORS` object (`shared.js:7-23`) and `tailwind.init.js` (`lafa.*` namespace)
+- **Design tokens:** Colors in `COLORS` object (`core/shared.js:7-23`) and `core/tailwind.init.js` (`lafa.*` namespace)
 - **Fonts:** Inter Tight (system-ui fallback)
 - **i18n:** `data-i18n` attributes on elements, ES/EN toggle via `L.setLang()`
 - **No frameworks:** Vanilla JS only. No React, no jQuery
@@ -83,20 +82,34 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   │       ├── supabase-schema.sql        ← DDL + RLS policies + seed data
 │   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
-├── prototypes/                            ← Working prototypes (HTML + JS + CSS)
-│   ├── landing.css                        ← Landing page styles (index.html)
-│   ├── tailwind.init.js                   ← Shared Tailwind config (all prototype pages)
-│   ├── i18n.js                            ← ES/EN internationalization
-│   ├── shared.css / shared.js             ← Shared styles, data, sidebar, utilities
-│   ├── dashboard.html / dashboard.js      ← Fleet operations dashboard
-│   ├── battery.html / battery.js          ← Battery health monitor
-│   ├── collections.html / collections.js  ← WhatsApp collections bot
-│   ├── onboarding.html / onboarding.js    ← Driver onboarding pipeline
-│   ├── roadmap.html / roadmap.js          ← AI roadmap interactive
-│   ├── roadmap-data.js                    ← Roadmap project data
-│   └── fleetmap.html / fleetmap.js        ← Real-time fleet map (Leaflet.js)
-├── images/                                ← Image assets
-└── index.html                             ← Marketing landing page
+├── prototypes/                            ← Working prototypes + landing page (HTML + JS + CSS)
+│   ├── index.html                         ← Marketing landing page (Vercel rewrites / to here)
+│   ├── core/                              ← Shared infrastructure
+│   │   ├── i18n.js                        ← ES/EN internationalization
+│   │   ├── shared.js                      ← Shared data, sidebar, utilities
+│   │   ├── shared.css                     ← Shared styles
+│   │   ├── tailwind.init.js               ← Shared Tailwind config
+│   │   └── landing.css                    ← Landing page styles (index.html)
+│   ├── dashboard/                         ← Fleet operations dashboard
+│   │   ├── index.html
+│   │   └── dashboard.js
+│   ├── battery/                           ← Battery health monitor
+│   │   ├── index.html
+│   │   └── battery.js
+│   ├── collections/                       ← WhatsApp collections bot
+│   │   ├── index.html
+│   │   └── collections.js
+│   ├── fleetmap/                          ← Real-time fleet map (Leaflet.js)
+│   │   ├── index.html
+│   │   └── fleetmap.js
+│   ├── onboarding/                        ← Driver onboarding pipeline
+│   │   ├── index.html
+│   │   └── onboarding.js
+│   └── roadmap/                           ← AI roadmap interactive
+│       ├── index.html
+│       ├── roadmap.js
+│       └── roadmap-data.js
+└── images/                                ← Image assets
 ```
 
 ## Conventions
