@@ -2,14 +2,14 @@ import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatTime, getElapsedTime, MOCK_CENTERS } from '../data/mockData';
+import { MOCK_CENTERS } from '../data/mockData';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
-import SearchableSelect from '../components/ui/SearchableSelect';
-import StatusBadge from '../components/ui/StatusBadge';
 import EmptyState from '../components/ui/EmptyState';
+import ShiftCard from '../components/shifts/ShiftCard';
+import ShiftCheckInForm from '../components/shifts/ShiftCheckInForm';
 
 type ShiftTab = 'activos' | 'completados' | 'pendientes';
 
@@ -21,10 +21,6 @@ export default function ShiftsPage() {
   const { confirm } = useConfirmDialog();
   const [tab, setTab] = useState<ShiftTab>('activos');
   const [, setTick] = useState(0);
-
-  const [selectedDriverId, setSelectedDriverId] = useState('');
-  const [selectedVehicleId, setSelectedVehicleId] = useState('');
-  const [formError, setFormError] = useState('');
 
   useEffect(() => {
     const id = setInterval(() => setTick(t => t + 1), REFRESH_INTERVAL);
@@ -47,41 +43,12 @@ export default function ShiftsPage() {
     shifts.filter(s => s.status === 'en_turno').map(s => s.vehicleId)
   ), [shifts]);
 
-  const centeredDrivers = filterByCenter(drivers).filter(
+  const availableDrivers = filterByCenter(drivers).filter(
     d => d.status === 'activo' && !driversInShift.has(d.id)
   );
-  const centeredVehicles = filterByCenter(vehicles).filter(
+  const availableVehicles = filterByCenter(vehicles).filter(
     v => v.status === 'disponible' && !vehiclesInShift.has(v.id)
   );
-
-  const driverOptions = useMemo(() => centeredDrivers.map(d => {
-    const center = MOCK_CENTERS.find(c => c.id === d.centerId)?.name ?? '';
-    return {
-      value: d.id,
-      label: d.fullName,
-      sublabel: `${center} \u00b7 ${d.defaultShift === 'diurno' ? 'Diurno' : 'Nocturno'}`,
-    };
-  }), [centeredDrivers]);
-
-  const vehicleOptions = useMemo(() => centeredVehicles.map(v => {
-    const center = MOCK_CENTERS.find(c => c.id === v.centerId)?.name ?? '';
-    return {
-      value: v.id,
-      label: `${v.plate} \u00b7 ${v.model}`,
-      sublabel: `${center} \u00b7 ${v.oem}`,
-    };
-  }), [centeredVehicles]);
-
-  const selectedDriver = drivers.find(d => d.id === selectedDriverId);
-  const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
-
-  const centerMismatch = selectedDriver && selectedVehicle && selectedDriver.centerId !== selectedVehicle.centerId;
-
-  const driverHadShiftToday = useMemo(() => {
-    if (!selectedDriver) return false;
-    const today = new Date().toISOString().slice(0, 10);
-    return shifts.some(s => s.driverId === selectedDriver.id && s.checkIn.startsWith(today) && s.status === 'completado');
-  }, [selectedDriver, shifts]);
 
   const tabs: { key: ShiftTab; label: string; count: number }[] = [
     { key: 'activos', label: 'Activos', count: activeShifts.length },
@@ -91,14 +58,9 @@ export default function ShiftsPage() {
 
   const completedTotalHours = completedShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0);
 
-  function handleCheckIn() {
-    setFormError('');
-    if (!selectedDriverId || !selectedVehicleId) {
-      setFormError('Selecciona conductor y veh\u00edculo.');
-      return;
-    }
-    const driver = drivers.find(d => d.id === selectedDriverId);
-    const vehicle = vehicles.find(v => v.id === selectedVehicleId);
+  function handleCheckIn(driverId: string, vehicleId: string) {
+    const driver = drivers.find(d => d.id === driverId);
+    const vehicle = vehicles.find(v => v.id === vehicleId);
     if (!driver || !vehicle) return;
 
     const center = MOCK_CENTERS.find(c => c.id === driver.centerId);
@@ -118,8 +80,6 @@ export default function ShiftsPage() {
     dispatch({ type: 'ADD_SHIFT', payload: newShift });
     dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: vehicle.id, status: 'en_turno' } });
     showToast('success', `Check-in registrado: ${driver.fullName} en ${vehicle.plate}`);
-    setSelectedDriverId('');
-    setSelectedVehicleId('');
   }
 
   async function handleCheckOut(shiftId: string) {
@@ -151,7 +111,7 @@ export default function ShiftsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">Gesti\u00f3n de Turnos</h1>
+        <h1 className="text-2xl font-bold text-lafa-text-primary">Gesti{'o\u0301'}n de Turnos</h1>
         <CenterFilterDropdown />
       </div>
 
@@ -178,45 +138,11 @@ export default function ShiftsPage() {
 
           <div className="space-y-3">
             {tab === 'activos' && activeShifts.map(shift => (
-              <div key={shift.id} className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <div>
-                    <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
-                    <span className="text-xs text-lafa-text-secondary ml-2">{shift.center}</span>
-                  </div>
-                  <StatusBadge status="en_turno" />
-                </div>
-                <p className="text-xs text-lafa-text-secondary mb-3">
-                  {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} Check-in: {formatTime(shift.checkIn)}
-                </p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-[#3B82F6]">{getElapsedTime(shift.checkIn)}</span>
-                  <button
-                    onClick={() => handleCheckOut(shift.id)}
-                    className="px-3 py-1.5 text-xs font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
-                  >
-                    Cerrar turno
-                  </button>
-                </div>
-              </div>
+              <ShiftCard key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
             ))}
 
             {tab === 'completados' && completedShifts.map(shift => (
-              <div key={shift.id} className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
-                  <StatusBadge status="completado" />
-                </div>
-                <p className="text-xs text-lafa-text-secondary mb-1">
-                  {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} {shift.center}
-                </p>
-                <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
-                  <span>{formatTime(shift.checkIn)} {shift.checkOut ? `\u2192 ${formatTime(shift.checkOut)}` : ''}</span>
-                  {shift.hoursWorked !== undefined && (
-                    <span className="font-medium text-[#22C55E]">{shift.hoursWorked}h</span>
-                  )}
-                </div>
-              </div>
+              <ShiftCard key={shift.id} shift={shift} variant="completed" />
             ))}
 
             {tab === 'completados' && completedShifts.length > 0 && (
@@ -227,26 +153,7 @@ export default function ShiftsPage() {
             )}
 
             {tab === 'pendientes' && pendingShifts.map(shift => (
-              <div key={shift.id} className="bg-[rgba(239,68,68,0.05)] border border-[rgba(239,68,68,0.2)] rounded-xl p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
-                  <StatusBadge status="alerta" label={`Abierto ${getElapsedTime(shift.checkIn)}`} />
-                </div>
-                <p className="text-xs text-lafa-text-secondary mb-3">
-                  {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} {shift.center}
-                </p>
-                <div className="flex items-center justify-between">
-                  <p className="text-xs text-lafa-text-secondary">
-                    Check-in: {formatTime(shift.checkIn)} \u2014 Sin check-out
-                  </p>
-                  <button
-                    onClick={() => handleCheckOut(shift.id)}
-                    className="px-3 py-1.5 text-xs font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
-                  >
-                    Cerrar turno
-                  </button>
-                </div>
-              </div>
+              <ShiftCard key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
             ))}
 
             {tab === 'activos' && activeShifts.length === 0 && (
@@ -262,77 +169,12 @@ export default function ShiftsPage() {
         </div>
 
         <div className="lg:w-[38%] shrink-0">
-          <div className="bg-lafa-surface border border-lafa-border rounded-xl p-5 sticky top-8">
-            <h3 className="text-base font-semibold text-lafa-text-primary mb-5">Nuevo check-in</h3>
-
-            <div className="space-y-4">
-              <SearchableSelect
-                label="Conductor"
-                options={driverOptions}
-                value={selectedDriverId}
-                onChange={setSelectedDriverId}
-                placeholder="Seleccionar conductor..."
-              />
-
-              {selectedDriver && (
-                <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-lafa-text-secondary">Centro</span>
-                    <span className="text-lafa-text-primary font-medium">{MOCK_CENTERS.find(c => c.id === selectedDriver.centerId)?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-lafa-text-secondary">Turno default</span>
-                    <StatusBadge status={selectedDriver.defaultShift} />
-                  </div>
-                  {driverHadShiftToday && (
-                    <div className="flex items-center gap-1.5 text-[#EAB308] pt-1">
-                      <AlertTriangle size={12} />
-                      <span>Ya tuvo un turno hoy</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <SearchableSelect
-                label="Veh\u00edculo"
-                options={vehicleOptions}
-                value={selectedVehicleId}
-                onChange={setSelectedVehicleId}
-                placeholder="Seleccionar veh\u00edculo..."
-              />
-
-              {selectedVehicle && (
-                <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
-                  <div className="flex justify-between">
-                    <span className="text-lafa-text-secondary">Centro</span>
-                    <span className="text-lafa-text-primary font-medium">{MOCK_CENTERS.find(c => c.id === selectedVehicle.centerId)?.name}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-lafa-text-secondary">OEM</span>
-                    <span className="text-lafa-text-primary">{selectedVehicle.oem}</span>
-                  </div>
-                </div>
-              )}
-
-              {centerMismatch && (
-                <div className="flex items-center gap-2 bg-[rgba(234,179,8,0.1)] border border-[rgba(234,179,8,0.2)] rounded-lg p-3 text-xs text-[#EAB308]">
-                  <AlertTriangle size={14} className="shrink-0" />
-                  <span>El conductor y el veh\u00edculo pertenecen a centros diferentes.</span>
-                </div>
-              )}
-
-              {formError && (
-                <p className="text-sm text-[#EF4444]">{formError}</p>
-              )}
-
-              <button
-                onClick={handleCheckIn}
-                className="w-full py-2.5 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-medium rounded text-sm transition-colors"
-              >
-                Registrar check-in
-              </button>
-            </div>
-          </div>
+          <ShiftCheckInForm
+            drivers={availableDrivers}
+            vehicles={availableVehicles}
+            shifts={shifts}
+            onCheckIn={handleCheckIn}
+          />
         </div>
       </div>
     </div>

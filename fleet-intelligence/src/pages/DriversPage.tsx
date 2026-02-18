@@ -10,6 +10,7 @@ import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
 import EmptyState from '../components/ui/EmptyState';
+import DriverCreateModal from '../components/drivers/DriverCreateModal';
 
 type DriverPanelTab = 'datos' | 'nomina' | 'turnos';
 type StatusFilter = 'todos' | 'activo' | 'inactivo';
@@ -22,14 +23,6 @@ interface DriverFormState {
   defaultShift: string;
   startDate: string;
 }
-
-const emptyForm: DriverFormState = {
-  fullName: '',
-  didiDriverId: '',
-  centerId: '',
-  defaultShift: 'diurno',
-  startDate: new Date().toISOString().slice(0, 10),
-};
 
 export default function DriversPage() {
   const { drivers, shifts, closedPayroll } = useAppState();
@@ -45,7 +38,7 @@ export default function DriversPage() {
   const [panelTab, setPanelTab] = useState<DriverPanelTab>('datos');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState<DriverFormState>(emptyForm);
+  const [form, setForm] = useState<DriverFormState>({ fullName: '', didiDriverId: '', centerId: '', defaultShift: 'diurno', startDate: new Date().toISOString().slice(0, 10) });
   const [formError, setFormError] = useState('');
 
   const centeredDrivers = filterByCenter(drivers);
@@ -85,28 +78,14 @@ export default function DriversPage() {
       .slice(0, 20);
   }, [selectedDriver, shifts]);
 
-  function openCreate() {
-    setForm({
-      ...emptyForm,
-      centerId: effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? '',
-    });
-    setFormError('');
-    setShowCreateModal(true);
-  }
-
-  function handleCreate() {
-    setFormError('');
-    if (!form.fullName.trim() || !form.didiDriverId || !form.centerId) {
-      setFormError('Todos los campos son obligatorios.');
-      return;
-    }
+  function handleCreateDriver(createForm: DriverFormState) {
     const newDriver: Driver = {
       id: `d-${Date.now()}`,
-      fullName: form.fullName.trim(),
-      didiDriverId: parseInt(form.didiDriverId, 10),
-      centerId: form.centerId,
-      defaultShift: form.defaultShift,
-      startDate: form.startDate,
+      fullName: createForm.fullName.trim(),
+      didiDriverId: parseInt(createForm.didiDriverId, 10),
+      centerId: createForm.centerId,
+      defaultShift: createForm.defaultShift,
+      startDate: createForm.startDate,
       status: 'activo',
     };
     dispatch({ type: 'ADD_DRIVER', payload: newDriver });
@@ -195,7 +174,7 @@ export default function DriversPage() {
           <CenterFilterDropdown />
           {isAdmin && (
             <button
-              onClick={openCreate}
+              onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
             >
               <Plus size={16} /> Nuevo conductor
@@ -496,80 +475,11 @@ export default function DriversPage() {
       </SlidePanel>
 
       {showCreateModal && (
-        <>
-          <div className="fixed inset-0 z-[80] bg-black/50" onClick={() => setShowCreateModal(false)} />
-          <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
-            <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-              <h3 className="text-lg font-semibold text-lafa-text-primary mb-5">Nuevo conductor</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre completo</label>
-                  <input
-                    value={form.fullName}
-                    onChange={e => setForm({ ...form, fullName: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">DiDi Driver ID</label>
-                  <input
-                    type="number"
-                    value={form.didiDriverId}
-                    onChange={e => setForm({ ...form, didiDriverId: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-                  <select
-                    value={form.centerId}
-                    onChange={e => setForm({ ...form, centerId: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    {MOCK_CENTERS.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Turno default</label>
-                  <select
-                    value={form.defaultShift}
-                    onChange={e => setForm({ ...form, defaultShift: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    <option value="diurno">Diurno</option>
-                    <option value="nocturno">Nocturno</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Fecha ingreso</label>
-                  <input
-                    type="date"
-                    value={form.startDate}
-                    onChange={e => setForm({ ...form, startDate: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleCreate}
-                    className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-                  >
-                    Crear conductor
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
+        <DriverCreateModal
+          defaultCenterId={effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? ''}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={handleCreateDriver}
+        />
       )}
     </div>
   );

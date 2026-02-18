@@ -3,6 +3,7 @@ import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter } from 'l
 import { useAppState, useAppDispatch, type Trip } from '../context/AppContext';
 import { MOCK_DRIVERS, formatMXN } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
+import EstadoIcon from '../components/ui/EstadoIcon';
 
 const STEPS = [
   { num: 1, label: 'Subir archivo' },
@@ -80,31 +81,6 @@ function parseCsvText(text: string): ParsedRow[] {
       estado: 'valido' as const,
     };
   });
-}
-
-function EstadoIcon({ estado, msg }: { estado: string; msg?: string }) {
-  switch (estado) {
-    case 'valido':
-      return (
-        <span className="inline-flex items-center gap-1 text-xs text-[#22C55E]">
-          <CheckCircle size={14} /> {'V\u00e1lido'}
-        </span>
-      );
-    case 'warning':
-      return (
-        <span className="inline-flex items-center gap-1 text-xs text-[#EAB308]" title={msg}>
-          <AlertTriangle size={14} /> {msg || 'Warning'}
-        </span>
-      );
-    case 'error':
-      return (
-        <span className="inline-flex items-center gap-1 text-xs text-[#EF4444]" title={msg}>
-          <XCircle size={14} /> {msg || 'Error'}
-        </span>
-      );
-    default:
-      return null;
-  }
 }
 
 export default function CsvUploadPage() {

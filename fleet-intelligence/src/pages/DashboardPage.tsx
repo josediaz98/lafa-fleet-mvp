@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatTime, getElapsedTime, formatMXN } from '../data/mockData';
+import { formatTime, formatMXN } from '../data/mockData';
 import { getWeekBounds } from '../lib/dateUtils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
-import StatusBadge from '../components/ui/StatusBadge';
+import ShiftCard from '../components/shifts/ShiftCard';
 import EmptyState from '../components/ui/EmptyState';
 
 export default function DashboardPage() {
@@ -127,19 +127,7 @@ export default function DashboardPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {enTurno.slice(0, 6).map(shift => (
-                <div key={shift.id} className="bg-lafa-surface border border-lafa-border rounded-xl p-4 hover:border-lafa-accent/30 transition-colors">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
-                    <StatusBadge status="en_turno" />
-                  </div>
-                  <p className="text-xs text-lafa-text-secondary mb-1">
-                    {shift.plate} {'\u00b7'} {shift.model}
-                  </p>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-lafa-text-secondary">Check-in: {formatTime(shift.checkIn)}</span>
-                    <span className="text-[#3B82F6] font-medium">{getElapsedTime(shift.checkIn)}</span>
-                  </div>
-                </div>
+                <ShiftCard key={shift.id} shift={shift} variant="active" />
               ))}
             </div>
           )}
