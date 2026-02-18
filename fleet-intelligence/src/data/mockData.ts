@@ -320,18 +320,4 @@ export const MOCK_PAYROLL = _closedPayrollBase.map(r => {
   };
 });
 
-// ---- Utility functions ----
-
-export function formatTime(isoString: string): string {
-  const d = new Date(isoString);
-  return d.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
-}
-
-export function getElapsedTime(isoString: string): string {
-  const diff = Date.now() - new Date(isoString).getTime();
-  const hours = Math.floor(diff / 3600000);
-  const minutes = Math.floor((diff % 3600000) / 60000);
-  if (hours > 0) return `${hours}h ${minutes}m`;
-  return `${minutes}m`;
-}
 

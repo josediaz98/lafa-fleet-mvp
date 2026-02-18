@@ -133,6 +133,10 @@ export async function persistTrips(
     upload_id: uploadId,
   })).filter(r => r.driver_id !== '');
 
+  if (rows.length === 0 && trips.length > 0) {
+    return { error: new Error(`0 de ${trips.length} viajes pudieron mapearse a conductores`) };
+  }
+
   if (rows.length > 0) {
     const { error } = await supabase.from('trips').insert(rows);
     if (error) return { error: new Error(error.message) };

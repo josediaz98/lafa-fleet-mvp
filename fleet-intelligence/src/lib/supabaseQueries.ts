@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type {
   DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
-} from './supabase-types';
+} from './supabaseTypes';
 import {
   setLookupMaps,
   mapCenter, mapDriver, mapVehicle, mapShift, mapTrip, mapProfile, mapPayroll,
@@ -27,10 +27,10 @@ export async function fetchAllData(): Promise<HydrateData> {
       supabase.from('centers').select('*'),
       supabase.from('drivers').select('*'),
       supabase.from('vehicles').select('*'),
-      supabase.from('shifts').select('*').order('check_in', { ascending: false }),
-      supabase.from('trips').select('*').order('date', { ascending: true }),
+      supabase.from('shifts').select('*').order('check_in', { ascending: false }).limit(10000),
+      supabase.from('trips').select('*').order('date', { ascending: true }).limit(10000),
       supabase.from('profiles').select('*'),
-      supabase.from('weekly_payroll').select('*').order('week_start', { ascending: true }),
+      supabase.from('weekly_payroll').select('*').order('week_start', { ascending: true }).limit(10000),
     ]);
 
   const centers = (centersRes.data ?? []) as DbCenter[];

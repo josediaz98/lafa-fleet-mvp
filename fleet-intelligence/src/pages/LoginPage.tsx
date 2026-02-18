@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { fetchAllData } from '../lib/supabaseQueries';
 import LafaLogo from '../components/ui/LafaLogo';
 
 export default function LoginPage() {
@@ -11,8 +12,8 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState('admin@lafa.mx');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@lafa.mx' : '');
+  const [password, setPassword] = useState(import.meta.env.DEV ? 'admin123' : '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -64,6 +65,15 @@ export default function LoginPage() {
 
         localStorage.setItem('lafa_session', JSON.stringify(session));
         dispatch({ type: 'LOGIN', payload: session });
+
+        // Re-hydrate from Supabase now that we're authenticated
+        try {
+          const data = await fetchAllData();
+          dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } });
+        } catch (err) {
+          console.error('Failed to hydrate after login:', err);
+        }
+
         showToast('success', `Bienvenido, ${profile.name}`);
         navigate('/dashboard');
       } else {

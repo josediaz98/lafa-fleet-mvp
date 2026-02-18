@@ -1,11 +1,11 @@
 import { CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
 
-interface EstadoIconProps {
+interface ValidationIconProps {
   estado: string;
   msg?: string;
 }
 
-export default function EstadoIcon({ estado, msg }: EstadoIconProps) {
+export default function ValidationIcon({ estado, msg }: ValidationIconProps) {
   switch (estado) {
     case 'valido':
       return (

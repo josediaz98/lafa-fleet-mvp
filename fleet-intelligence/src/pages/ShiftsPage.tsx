@@ -4,7 +4,7 @@ import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
 import { shiftHours } from '../lib/dateUtils';
 import { MOCK_CENTERS } from '../data/mockData';
-import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
+import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../lib/constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { actionCheckIn, actionCheckOut } from '../lib/actions';

@@ -1,19 +1,18 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Users, Clock } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch, type Driver } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { MOCK_CENTERS, formatTime } from '../data/mockData';
-import { formatMXN, getCenterName } from '../lib/dataUtils';
+import { MOCK_CENTERS } from '../data/mockData';
+import { getCenterName } from '../lib/format';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { actionAddDriver, actionUpdateDriver, actionDeactivateDriver } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
-import EmptyState from '../components/ui/EmptyState';
 import DriverCreateModal from '../components/drivers/DriverCreateModal';
+import DriverDetailPanel from '../components/drivers/DriverDetailPanel';
 
-type DriverPanelTab = 'datos' | 'nomina' | 'turnos';
 type StatusFilter = 'todos' | 'activo' | 'inactivo';
 type ShiftFilter = 'todos' | 'diurno' | 'nocturno';
 
@@ -36,11 +35,7 @@ export default function DriversPage() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
   const [shiftFilter, setShiftFilter] = useState<ShiftFilter>('todos');
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
-  const [panelTab, setPanelTab] = useState<DriverPanelTab>('datos');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState<DriverFormState>({ fullName: '', didiDriverId: '', centerId: '', defaultShift: 'diurno', startDate: new Date().toISOString().slice(0, 10) });
-  const [formError, setFormError] = useState('');
 
   const centeredDrivers = filterByCenter(drivers);
   const filtered = useMemo(() => {
@@ -93,42 +88,9 @@ export default function DriversPage() {
     setShowCreateModal(false);
   }
 
-  function openEdit() {
-    if (!selectedDriver) return;
-    setForm({
-      fullName: selectedDriver.fullName,
-      didiDriverId: String(selectedDriver.didiDriverId),
-      centerId: selectedDriver.centerId,
-      defaultShift: selectedDriver.defaultShift,
-      startDate: selectedDriver.startDate,
-    });
-    setFormError('');
-    setEditMode(true);
-  }
-
-  function handleSaveEdit() {
-    if (!selectedDriver) return;
-    setFormError('');
-    if (!form.fullName.trim()) {
-      setFormError('Nombre es obligatorio.');
-      return;
-    }
-    const newDidiId = parseInt(form.didiDriverId, 10);
-    if (newDidiId !== selectedDriver.didiDriverId && drivers.some(d => d.didiDriverId === newDidiId)) {
-      setFormError('Ya existe un conductor con ese DiDi ID.');
-      return;
-    }
-    const updated: Driver = {
-      ...selectedDriver,
-      fullName: form.fullName.trim(),
-      didiDriverId: parseInt(form.didiDriverId, 10),
-      centerId: form.centerId,
-      defaultShift: form.defaultShift,
-      startDate: form.startDate,
-    };
+  function handleEdit(updated: Driver) {
     actionUpdateDriver(updated, dispatch, showToast);
     setSelectedDriver(updated);
-    setEditMode(false);
   }
 
   async function handleDeactivate() {
@@ -161,12 +123,6 @@ export default function DriversPage() {
     { key: 'todos', label: 'Todos' },
     { key: 'diurno', label: 'Diurno' },
     { key: 'nocturno', label: 'Nocturno' },
-  ];
-
-  const panelTabs: { key: DriverPanelTab; label: string }[] = [
-    { key: 'datos', label: 'Datos' },
-    { key: 'nomina', label: 'N\u00f3mina' },
-    { key: 'turnos', label: 'Turnos' },
   ];
 
   return (
@@ -248,7 +204,7 @@ export default function DriversPage() {
               {filtered.map((driver, i) => (
                 <tr
                   key={driver.id}
-                  onClick={() => { setSelectedDriver(driver); setPanelTab('datos'); setEditMode(false); }}
+                  onClick={() => setSelectedDriver(driver)}
                   className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
                     i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                   }`}
@@ -281,199 +237,18 @@ export default function DriversPage() {
 
       <SlidePanel
         open={!!selectedDriver}
-        onClose={() => { setSelectedDriver(null); setEditMode(false); }}
+        onClose={() => setSelectedDriver(null)}
         title={selectedDriver?.fullName ?? ''}
       >
         {selectedDriver && (
-          <div>
-            <div className="flex gap-1 border-b border-lafa-border mb-5">
-              {panelTabs.map(t => (
-                <button
-                  key={t.key}
-                  onClick={() => { setPanelTab(t.key); setEditMode(false); }}
-                  className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
-                    panelTab === t.key ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
-                  }`}
-                >
-                  {t.label}
-                  {panelTab === t.key && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />}
-                </button>
-              ))}
-            </div>
-
-            {panelTab === 'datos' && !editMode && (
-              <>
-                <div className="grid grid-cols-2 gap-4 mb-6">
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">Nombre completo</p>
-                    <p className="text-sm font-medium text-lafa-text-primary">{selectedDriver.fullName}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">DiDi ID</p>
-                    <p className="text-sm font-medium text-lafa-text-primary font-mono">{selectedDriver.didiDriverId}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">Centro</p>
-                    <p className="text-sm font-medium text-lafa-text-primary">{getCenterName(selectedDriver.centerId)}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">Turno default</p>
-                    <StatusBadge status={selectedDriver.defaultShift} />
-                  </div>
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">Fecha ingreso</p>
-                    <p className="text-sm font-medium text-lafa-text-primary">{selectedDriver.startDate}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-lafa-text-secondary">Status</p>
-                    <StatusBadge status={selectedDriver.status} />
-                  </div>
-                </div>
-                {isAdmin && selectedDriver.status === 'activo' && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={openEdit}
-                      className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
-                    >
-                      Editar
-                    </button>
-                    <button
-                      onClick={handleDeactivate}
-                      className="px-4 py-2 text-sm font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
-                    >
-                      Desactivar
-                    </button>
-                  </div>
-                )}
-                {!isAdmin && (
-                  <p className="text-xs text-lafa-text-secondary italic">Solo lectura. Contacta a un administrador para hacer cambios.</p>
-                )}
-              </>
-            )}
-
-            {panelTab === 'datos' && editMode && (
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre completo</label>
-                  <input
-                    value={form.fullName}
-                    onChange={e => setForm({ ...form, fullName: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-                  <select
-                    value={form.centerId}
-                    onChange={e => setForm({ ...form, centerId: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    {MOCK_CENTERS.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Turno default</label>
-                  <select
-                    value={form.defaultShift}
-                    onChange={e => setForm({ ...form, defaultShift: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    <option value="diurno">Diurno</option>
-                    <option value="nocturno">Nocturno</option>
-                  </select>
-                </div>
-                {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-                <div className="flex gap-3">
-                  <button
-                    onClick={handleSaveEdit}
-                    className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-                  >
-                    Guardar
-                  </button>
-                  <button
-                    onClick={() => setEditMode(false)}
-                    className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {panelTab === 'nomina' && (
-              <>
-                {driverPayrollHistory.length === 0 ? (
-                  <EmptyState icon={Users} title="Sin historial de n\u00f3mina" description="A\u00fan no hay registros de n\u00f3mina cerrados para este conductor." />
-                ) : (
-                  <div className="bg-lafa-bg rounded-lg overflow-hidden">
-                    <table className="w-full text-sm">
-                      <thead>
-                        <tr className="border-b border-lafa-border">
-                          <th className="text-left px-3 py-2 text-xs font-medium text-lafa-text-secondary">Semana</th>
-                          <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Horas</th>
-                          <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Facturaci\u00f3n</th>
-                          <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Pago</th>
-                          <th className="text-center px-3 py-2 text-xs font-medium text-lafa-text-secondary">Meta</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {driverPayrollHistory.map(row => (
-                          <tr key={row.id} className="border-b border-lafa-border/50">
-                            <td className="px-3 py-2 text-lafa-text-primary text-xs">{row.weekLabel ?? '—'}</td>
-                            <td className="px-3 py-2 text-right text-lafa-text-secondary">{row.hoursWorked}h</td>
-                            <td className="px-3 py-2 text-right text-lafa-text-secondary">{formatMXN(row.totalBilled)}</td>
-                            <td className="px-3 py-2 text-right font-medium text-lafa-text-primary">{formatMXN(row.totalPay)}</td>
-                            <td className="px-3 py-2 text-center">
-                              {row.goalMet ? (
-                                <span className="text-[#22C55E] text-xs">{'S\u00ed'}</span>
-                              ) : (
-                                <span className="text-[#EF4444] text-xs">No</span>
-                              )}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-              </>
-            )}
-
-            {panelTab === 'turnos' && (
-              <>
-                {driverShiftHistory.length === 0 ? (
-                  <EmptyState icon={Clock} title="Sin historial de turnos" description="A\u00fan no hay turnos completados para este conductor." />
-                ) : (
-                  <div className="space-y-2">
-                    {driverShiftHistory.map(shift => (
-                      <div key={shift.id} className="bg-lafa-bg rounded-lg p-3">
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs font-medium text-lafa-text-primary">
-                            {new Date(shift.checkIn).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })}
-                          </span>
-                          {shift.hoursWorked !== undefined && (
-                            <span className="text-xs font-medium text-[#22C55E]">{shift.hoursWorked}h</span>
-                          )}
-                        </div>
-                        <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
-                          <span>{shift.plate} {'\u00b7'} {shift.model}</span>
-                          <span>
-                            {formatTime(shift.checkIn)}
-                            {shift.checkOut ? ` \u2192 ${formatTime(shift.checkOut)}` : ''}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                    <p className="text-xs text-lafa-text-secondary text-center pt-2">
-                      {'Mostrando los \u00faltimos '}{driverShiftHistory.length}{' turnos'}
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <DriverDetailPanel
+            driver={selectedDriver}
+            payrollHistory={driverPayrollHistory}
+            shiftHistory={driverShiftHistory}
+            isAdmin={isAdmin}
+            onEdit={handleEdit}
+            onDeactivate={handleDeactivate}
+          />
         )}
       </SlidePanel>
 

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Upload, Receipt } from 'lucide-react';
 import { useAppState, useAppDispatch, type PayrollRecord } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatMXN } from '../lib/dataUtils';
+import { formatMXN } from '../lib/format';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { calculateWeeklyPay, exportPayrollCsv } from '../lib/payroll';
@@ -11,6 +11,8 @@ import { actionClosePayroll, actionRerunPayroll } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import SlidePanel from '../components/ui/SlidePanel';
 import EmptyState from '../components/ui/EmptyState';
+import PayrollSummaryCards from '../components/payroll/PayrollSummaryCards';
+import PayrollDetailPanel from '../components/payroll/PayrollDetailPanel';
 
 type PayrollTab = 'actual' | 'cerradas';
 type SortKey = 'driverName' | 'hoursWorked' | 'totalBilled' | 'totalPay';
@@ -126,11 +128,14 @@ export default function PayrollPage() {
     });
     if (!ok) return;
 
-    const latestVersion = Math.max(...closedPayroll.filter(p => p.weekLabel === selectedWeek).map(p => p.version ?? 1), 0);
+    const closedForWeek = closedPayroll.filter(p => p.weekLabel === selectedWeek && p.status === 'cerrado');
+    const latestVersion = Math.max(...closedForWeek.map(p => p.version ?? 1), 0);
+    const rerunWeekStart = closedForWeek[0]?.weekStart ?? week.start;
+    const rerunWeekEnd = closedForWeek[0]?.weekEnd ?? week.end;
     const activeDrivers = drivers.filter(d => d.status === 'activo');
     const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
-    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, week.start, week.end, session?.name ?? '', latestVersion + 1, previousWeekHours);
-    await actionRerunPayroll(week.start, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast);
+    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
+    await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast);
   }
 
   function handleExport() {
@@ -244,27 +249,14 @@ export default function PayrollPage() {
       {(tab === 'cerradas' || trips.length > 0) && (
         <>
           {displayData.length > 0 && (
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-              <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <p className="text-xs text-lafa-text-secondary mb-1">{'Total n\u00f3mina'}</p>
-                <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalNomina)}</p>
-              </div>
-              <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <p className="text-xs text-lafa-text-secondary mb-1">Conductores con meta</p>
-                <p className="text-lg font-bold text-lafa-text-primary">
-                  {driversWithGoal}/{displayData.length}
-                  <span className="text-sm font-normal text-lafa-text-secondary ml-1">({goalPct}%)</span>
-                </p>
-              </div>
-              <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <p className="text-xs text-lafa-text-secondary mb-1">{'Facturaci\u00f3n total'}</p>
-                <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalBilled)}</p>
-              </div>
-              <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-                <p className="text-xs text-lafa-text-secondary mb-1">{'Prom. facturaci\u00f3n/hora'}</p>
-                <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(avgPerHour)}</p>
-              </div>
-            </div>
+            <PayrollSummaryCards
+              totalNomina={totalNomina}
+              driversWithGoal={driversWithGoal}
+              totalDrivers={displayData.length}
+              goalPct={goalPct}
+              totalBilled={totalBilled}
+              avgPerHour={avgPerHour}
+            />
           )}
 
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
@@ -349,126 +341,7 @@ export default function PayrollPage() {
         title={selectedRow ? `Detalle \u2014 ${selectedRow.driverName}` : ''}
       >
         {selectedRow && (
-          <div className="space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Centro</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedRow.center}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Horas trabajadas</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedRow.hoursWorked}h</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">{'Facturaci\u00f3n'}</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{formatMXN(selectedRow.totalBilled)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Meta alcanzada</p>
-                <p className={`text-sm font-medium ${selectedRow.goalMet ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
-                  {selectedRow.goalMet ? 'S\u00ed' : 'No'}
-                </p>
-              </div>
-              {selectedRow.version && selectedRow.version > 1 && (
-                <div>
-                  <p className="text-xs text-lafa-text-secondary">{'Versi\u00f3n'}</p>
-                  <p className="text-sm font-medium text-[#EAB308]">v{selectedRow.version} (recalculado)</p>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-lafa-border pt-4">
-              <h4 className="text-sm font-semibold text-lafa-text-primary mb-3">Desglose de pago</h4>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-lafa-text-secondary">Salario base</span>
-                  <span className="text-lafa-text-primary">{formatMXN(selectedRow.baseSalary)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-lafa-text-secondary">Bono productividad</span>
-                  <span className="text-lafa-text-primary">{formatMXN(selectedRow.productivityBonus)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-lafa-text-secondary">Overtime</span>
-                  <span className="text-lafa-text-primary">{formatMXN(selectedRow.overtimePay)}</span>
-                </div>
-                {!selectedRow.goalMet && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-lafa-text-secondary">{'Apoyo econ\u00f3mico'}</span>
-                    <span className="text-[#EF4444]">{formatMXN(1000)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm font-semibold border-t border-lafa-border pt-2">
-                  <span className="text-lafa-text-primary">Total</span>
-                  <span className="text-lafa-accent">{formatMXN(selectedRow.totalPay)}</span>
-                </div>
-              </div>
-              {selectedRow.totalPay > 0 && (() => {
-                const total = selectedRow.totalPay;
-                const basePct = Math.round((selectedRow.baseSalary / total) * 100);
-                const bonoPct = Math.round((selectedRow.productivityBonus / total) * 100);
-                const otPct = Math.round((selectedRow.overtimePay / total) * 100);
-                const supportAmt = selectedRow.goalMet ? 0 : 1000;
-                const supportPct = Math.round((supportAmt / total) * 100);
-                const items = [
-                  { label: 'Base', pct: basePct, color: '#3B82F6' },
-                  { label: 'Bono', pct: bonoPct, color: '#22C55E' },
-                  { label: 'Overtime', pct: otPct, color: '#EAB308' },
-                  ...(!selectedRow.goalMet ? [{ label: 'Apoyo', pct: supportPct, color: '#EF4444' }] : []),
-                ].filter(i => i.pct > 0);
-                return (
-                  <div className="mt-3">
-                    <div className="flex rounded-full overflow-hidden h-2 bg-lafa-bg">
-                      {items.map(i => (
-                        <div key={i.label} style={{ width: `${i.pct}%`, backgroundColor: i.color }} />
-                      ))}
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
-                      {items.map(i => (
-                        <span key={i.label} className="flex items-center gap-1.5 text-xs text-lafa-text-secondary">
-                          <span className="w-2 h-2 rounded-full" style={{ backgroundColor: i.color }} />
-                          {i.label} {i.pct}%
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })()}
-            </div>
-
-            {selectedRowTrips.length > 0 && (
-              <div className="border-t border-lafa-border pt-4">
-                <h4 className="text-sm font-semibold text-lafa-text-primary mb-3">Viajes ({selectedRowTrips.length})</h4>
-                <div className="bg-lafa-bg rounded-lg overflow-hidden max-h-48 overflow-y-auto">
-                  <table className="w-full text-xs">
-                    <thead className="sticky top-0 bg-lafa-bg">
-                      <tr className="border-b border-lafa-border">
-                        <th className="text-left px-3 py-2 text-lafa-text-secondary">Fecha</th>
-                        <th className="text-left px-3 py-2 text-lafa-text-secondary">Horario</th>
-                        <th className="text-right px-3 py-2 text-lafa-text-secondary">Costo</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {selectedRowTrips.map(t => (
-                        <tr key={t.id} className="border-b border-lafa-border/50">
-                          <td className="px-3 py-2 text-lafa-text-secondary">{t.fecha}</td>
-                          <td className="px-3 py-2 text-lafa-text-secondary">{t.horaInicio} {'\u2192'} {t.horaFin}</td>
-                          <td className="px-3 py-2 text-right text-lafa-text-primary">{formatMXN(t.costo)}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            <div className="border-t border-lafa-border pt-4">
-              <h4 className="text-sm font-semibold text-lafa-text-primary mb-3">Resumen AI</h4>
-              <div className="bg-lafa-bg rounded-lg p-4 text-sm text-lafa-text-secondary leading-relaxed">
-                {selectedRow.aiExplanation || 'Sin resumen disponible.'}
-              </div>
-            </div>
-          </div>
+          <PayrollDetailPanel record={selectedRow} trips={selectedRowTrips} />
         )}
       </SlidePanel>
     </div>

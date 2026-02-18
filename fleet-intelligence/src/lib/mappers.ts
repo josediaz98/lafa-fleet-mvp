@@ -2,7 +2,7 @@ import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '../conte
 import type { Center } from '../data/mockData';
 import type {
   DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
-} from './supabase-types';
+} from './supabaseTypes';
 
 // Lookup maps built once per HYDRATE
 let centersMap: Map<string, DbCenter> = new Map();

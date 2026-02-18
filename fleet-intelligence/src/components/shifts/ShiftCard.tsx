@@ -1,4 +1,4 @@
-import { formatTime, getElapsedTime } from '../../data/mockData';
+import { formatTime, getElapsedTime } from '../../lib/dateUtils';
 import StatusBadge from '../ui/StatusBadge';
 
 interface ShiftCardProps {

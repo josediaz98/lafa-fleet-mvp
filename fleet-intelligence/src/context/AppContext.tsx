@@ -12,7 +12,7 @@ import {
   type MockUser,
 } from '../data/mockData';
 import { isSupabaseConfigured } from '../lib/supabase';
-import { fetchAllData } from '../lib/supabase-queries';
+import { fetchAllData } from '../lib/supabaseQueries';
 
 // ---- Types ----
 
@@ -73,6 +73,7 @@ export interface AppState {
   closedPayroll: PayrollRecord[];
   session: Session | null;
   hydrated: boolean;
+  dataSource: 'supabase' | 'mock';
 }
 
 // ---- Actions ----
@@ -213,6 +214,7 @@ const initialState: AppState = {
   closedPayroll: MOCK_PAYROLL as PayrollRecord[],
   session: loadSession(),
   hydrated: !isSupabaseConfigured,
+  dataSource: 'mock',
 };
 
 // ---- Context ----
@@ -226,7 +228,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isSupabaseConfigured) return;
     fetchAllData()
-      .then(data => dispatch({ type: 'HYDRATE', payload: data }))
+      .then(data => dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } }))
       .catch(err => {
         console.error('Failed to load from Supabase, using mock data:', err);
         dispatch({ type: 'HYDRATE', payload: {
@@ -236,6 +238,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
           users: MOCK_USERS as User[],
           trips: MOCK_TRIPS as Trip[],
           closedPayroll: MOCK_PAYROLL as PayrollRecord[],
+          dataSource: 'mock' as const,
         }});
       });
   }, []);

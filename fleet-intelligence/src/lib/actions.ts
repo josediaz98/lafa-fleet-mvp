@@ -19,7 +19,7 @@ import {
   persistNewUser,
   persistUpdateUser,
   persistDeactivateUser,
-} from './supabase-mutations';
+} from './supabaseMutations';
 
 type AppDispatch = Dispatch<Action>;
 type ShowToast = (type: 'success' | 'error' | 'warning', message: string) => void;

@@ -4,12 +4,12 @@ import { generateExplanation } from './explanation';
 import { parseFechaToISO } from './dateUtils';
 
 const BASE_SALARY = 2500;
-const GOAL_THRESHOLD = 6000;
+export const GOAL_THRESHOLD = 6000;
 const SUPPORT_AMOUNT = 1000;
 const PRODUCTIVITY_UNIT = 500;
 const PRODUCTIVITY_BONUS_PER_UNIT = 100;
-const OVERTIME_THRESHOLD_HOURS = 40;
-const OVERTIME_RATE_PER_HOUR = 50;
+export const OVERTIME_THRESHOLD_HOURS = 40;
+export const OVERTIME_RATE_PER_HOUR = 50;
 const OVERTIME_CAP_HOURS = 8;
 const WORKING_DAYS_PER_WEEK = 5;
 
@@ -42,7 +42,8 @@ export function calculateWeeklyPay(
   weekEnd: string,
   closedBy: string,
   version: number,
-  previousWeekHours?: Map<string, number>
+  previousWeekHours?: Map<string, number>,
+  centers?: { id: string; name: string }[]
 ): PayrollRecord[] {
   const weekStartDate = new Date(weekStart);
   const weekEndDate = new Date(weekEnd);
@@ -96,7 +97,7 @@ export function calculateWeeklyPay(
       }
 
       const totalPay = goalMet ? baseSalary + productivityBonus + overtimePay : SUPPORT_AMOUNT;
-      const center = MOCK_CENTERS.find(c => c.id === driver.centerId);
+      const center = (centers ?? MOCK_CENTERS).find(c => c.id === driver.centerId);
 
       const record = {
         id: `pr-${driver.id}-${Date.now()}`,

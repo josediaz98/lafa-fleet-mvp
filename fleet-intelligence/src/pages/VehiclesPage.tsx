@@ -10,7 +10,7 @@ import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
 import Modal from '../components/ui/Modal';
-import { getCenterName } from '../lib/dataUtils';
+import { getCenterName } from '../lib/format';
 import { STATUS_LABELS } from '../lib/statusMap';
 
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];

@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatTime } from '../data/mockData';
-import { formatMXN } from '../lib/dataUtils';
+import { formatTime } from '../lib/dateUtils';
+import { formatMXN } from '../lib/format';
 import { getWeekBounds, shiftHours } from '../lib/dateUtils';
-import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
+import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../lib/constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { actionCheckOut } from '../lib/actions';
@@ -76,7 +76,7 @@ export default function DashboardPage() {
     { label: 'Conductores en turno', value: `${driversInShift} / ${activeDriversCount}`, icon: Users, color: 'text-[#8B5CF6]', bg: 'bg-[rgba(139,92,246,0.15)]' },
     { label: 'Veh\u00edculos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-[#22C55E]', bg: 'bg-[rgba(34,197,94,0.15)]' },
     { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-[#EF4444]', bg: 'bg-[rgba(239,68,68,0.15)]' },
-    { label: 'Facturaci\u00f3n semana', value: weekBilling > 0 ? formatMXN(weekBilling) : '$54,330 MXN', icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
+    { label: 'Facturaci\u00f3n semana', value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
   ];
 
   async function handleCloseShift(shiftId: string) {

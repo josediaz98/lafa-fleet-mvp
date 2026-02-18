@@ -2,10 +2,10 @@ import { useState, useRef } from 'react';
 import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter } from 'lucide-react';
 import { useAppState, useAppDispatch, type Trip } from '../context/AppContext';
 import { MOCK_DRIVERS } from '../data/mockData';
-import { formatMXN } from '../lib/dataUtils';
+import { formatMXN } from '../lib/format';
 import { useToast } from '../context/ToastContext';
 import { actionImportTrips } from '../lib/actions';
-import EstadoIcon from '../components/ui/EstadoIcon';
+import ValidationIcon from '../components/ui/ValidationIcon';
 
 const STEPS = [
   { num: 1, label: 'Subir archivo' },
@@ -182,6 +182,12 @@ export default function CsvUploadPage() {
   function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (file.size > 20 * 1024 * 1024) {
+      showToast('error', 'Archivo muy grande (máx 20MB)');
+      return;
+    }
+
     setFileName(file.name);
 
     const reader = new FileReader();
@@ -387,7 +393,7 @@ export default function CsvUploadPage() {
                       <td className="px-4 py-3 text-lafa-text-secondary">{row.horaFin}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-primary">${row.costo.toFixed(2)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary">${row.propina.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-center"><EstadoIcon estado={row.estado} msg={row.errorMsg} /></td>
+                      <td className="px-4 py-3 text-center"><ValidationIcon estado={row.estado} msg={row.errorMsg} /></td>
                     </tr>
                   ))}
                 </tbody>

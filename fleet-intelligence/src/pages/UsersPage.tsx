@@ -3,7 +3,7 @@ import { Plus, Search, Shield } from 'lucide-react';
 import { useAppState, useAppDispatch, type User } from '../context/AppContext';
 import { MOCK_CENTERS } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
-import { getCenterName } from '../lib/dataUtils';
+import { getCenterName } from '../lib/format';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '../lib/actions';
 import StatusBadge from '../components/ui/StatusBadge';
