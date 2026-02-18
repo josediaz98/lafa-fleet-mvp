@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LAFA | Internal Tools Proposal</title>
   <meta name="description" content="Roadmap to scale LAFA 15x by year-end — 16 projects, 5 prototypes ready.">
-  <link rel="icon" type="image/svg+xml" href="../images/favicon.svg">
-  <link rel="icon" type="image/png" sizes="32x32" href="../images/favicon-32.png">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32.png">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -27,8 +27,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="core/tailwind.init.js"></script>
-  <link rel="stylesheet" href="core/landing.css">
+  <script src="/prototypes/core/tailwind.init.js"></script>
+  <link rel="stylesheet" href="/prototypes/core/landing.css">
 </head>
 
 <body class="bg-lafa-dark text-white font-sans antialiased">
@@ -73,7 +73,7 @@
 
         <!-- CTA -->
         <div class="hidden md:block">
-          <a href="roadmap/" class="btn-primary text-sm font-semibold px-5 py-2.5 rounded-lg" data-i18n="landing.nav.cta">
+          <a href="/prototypes/roadmap/" class="btn-primary text-sm font-semibold px-5 py-2.5 rounded-lg" data-i18n="landing.nav.cta">
             Ver Roadmap
           </a>
         </div>
@@ -118,7 +118,7 @@
             LAFA gestiona 150 EVs con hojas de cálculo. Escalar a 2,000 requiere una capa tecnológica que hoy no existe. Diseñé un roadmap de 16 proyectos en 3 tracks — y construí 6 prototipos funcionales para demostrarlo.
           </p>
           <div class="mt-10 flex flex-col sm:flex-row gap-4">
-            <a href="roadmap/" class="btn-primary inline-flex items-center justify-center font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg text-base w-full sm:w-auto" data-i18n="landing.hero.ctaPrimary">
+            <a href="/prototypes/roadmap/" class="btn-primary inline-flex items-center justify-center font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg text-base w-full sm:w-auto" data-i18n="landing.hero.ctaPrimary">
               Ver el Roadmap
             </a>
             <a href="#tools" class="btn-secondary inline-flex items-center justify-center font-semibold px-6 py-3 sm:px-8 sm:py-3.5 rounded-lg text-base w-full sm:w-auto" data-i18n="landing.hero.ctaSecondary">
@@ -129,7 +129,7 @@
 
         <!-- Right: EV image + stats overlay -->
         <div class="hidden lg:flex flex-col items-center justify-center relative">
-          <img src="../images/car.jpg" alt="Vehículo eléctrico LAFA" class="w-full max-w-lg object-contain drop-shadow-2xl">
+          <img src="/images/car.jpg" alt="Vehículo eléctrico LAFA" class="w-full max-w-lg object-contain drop-shadow-2xl">
         </div>
       </div>
 
@@ -371,7 +371,7 @@
 
       <!-- CTA -->
       <div class="text-center mt-8">
-        <a href="roadmap/" class="inline-flex items-center text-lafa-orange font-semibold hover:underline">
+        <a href="/prototypes/roadmap/" class="inline-flex items-center text-lafa-orange font-semibold hover:underline">
           <span data-i18n="landing.roadmap.cta">Explorar el Roadmap Interactivo</span>
           <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
         </a>
@@ -393,7 +393,7 @@
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 stagger-fade">
 
         <!-- Tool 1: AI Roadmap -->
-        <a href="roadmap/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/roadmap/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-lafa-orange/10 to-purple-500/10 p-6 flex flex-col justify-center gap-3">
             <div class="h-3 rounded-full bg-lafa-orange/30 w-[85%]"></div>
             <div class="h-3 rounded-full bg-teal-400/30 w-[60%]"></div>
@@ -419,7 +419,7 @@
         </a>
 
         <!-- Tool 2: Fleet Dashboard -->
-        <a href="dashboard/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/dashboard/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-blue-500/10 to-lafa-orange/10 p-6 flex flex-col justify-center">
             <div class="grid grid-cols-4 gap-2 mb-3">
               <div class="h-10 rounded bg-lafa-orange/20 flex items-center justify-center text-[10px] text-lafa-orange font-bold">150</div>
@@ -450,7 +450,7 @@
         </a>
 
         <!-- Tool 3: Collections Bot -->
-        <a href="collections/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/collections/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-green-500/10 to-emerald-500/10 p-6 flex flex-col justify-end gap-3">
             <div class="flex justify-end">
               <div class="bg-green-500/20 text-green-400 text-[10px] px-3 py-2 rounded-xl rounded-br-none max-w-[70%]">Hola! Tu pago de $2,400 vence hoy...</div>
@@ -476,7 +476,7 @@
         </a>
 
         <!-- Tool 4: Battery Monitor -->
-        <a href="battery/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/battery/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-yellow-500/10 to-red-500/10 p-6 flex items-center justify-center">
             <div class="grid grid-cols-5 gap-1.5">
               <div class="w-5 h-5 rounded-sm bg-green-500/40"></div>
@@ -520,7 +520,7 @@
         </a>
 
         <!-- Tool 5: Onboarding -->
-        <a href="onboarding/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/onboarding/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-indigo-500/10 to-cyan-500/10 p-6 flex items-end gap-3 justify-center">
             <div class="flex flex-col gap-1 items-center w-14">
               <div class="text-[8px] text-gray-500 mb-1">Docs</div>
@@ -559,7 +559,7 @@
         </a>
 
         <!-- Tool 6: Fleet Map -->
-        <a href="fleetmap/" class="group card gradient-border overflow-hidden block">
+        <a href="/prototypes/fleetmap/" class="group card gradient-border overflow-hidden block">
           <div class="preview-area bg-gradient-to-br from-green-500/10 to-cyan-500/10 p-6 flex items-center justify-center relative">
             <!-- Mini map preview with dots -->
             <div class="relative w-full h-full" style="min-height:100px;">
@@ -612,7 +612,7 @@
           <!-- Yape -->
           <div class="credential-block">
             <div class="flex items-center gap-3 mb-2">
-              <img src="../images/yape-logo.png" alt="Yape" class="h-7 w-7 rounded-md object-cover shrink-0">
+              <img src="/images/yape-logo.png" alt="Yape" class="h-7 w-7 rounded-md object-cover shrink-0">
               <h3 class="text-lg font-bold" data-i18n="landing.about.yape.title">Yape — AI a Escala</h3>
             </div>
             <p class="text-gray-400 text-sm leading-relaxed mb-3" data-i18n="landing.about.yape.desc">
@@ -627,7 +627,7 @@
           <!-- JOKR -->
           <div class="credential-block">
             <div class="flex items-center gap-3 mb-2">
-              <img src="../images/jokr-logo.png" alt="JOKR" class="h-7 rounded-md shrink-0" style="width:auto">
+              <img src="/images/jokr-logo.png" alt="JOKR" class="h-7 rounded-md shrink-0" style="width:auto">
               <h3 class="text-lg font-bold" data-i18n="landing.about.jokr.title">JOKR — Internal Tools & Data</h3>
             </div>
             <p class="text-gray-400 text-sm leading-relaxed mb-3" data-i18n="landing.about.jokr.desc">
@@ -642,7 +642,7 @@
           <!-- NUMA -->
           <div class="credential-block">
             <div class="flex items-center gap-3 mb-2">
-              <img src="../images/numa-logo-green.svg" alt="NUMA" class="h-5 shrink-0">
+              <img src="/images/numa-logo-green.svg" alt="NUMA" class="h-5 shrink-0">
               <h3 class="text-lg font-bold" data-i18n="landing.about.numa.title">NUMA — Builder Full-Stack</h3>
             </div>
             <p class="text-gray-400 text-sm leading-relaxed mb-3" data-i18n="landing.about.numa.desc">
@@ -698,7 +698,7 @@
         Explora el roadmap, prueba los prototipos, o hablemos.
       </p>
       <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center">
-        <a href="roadmap/" class="inline-flex items-center justify-center bg-white text-lafa-orange font-bold px-6 py-3 sm:px-8 sm:py-3.5 md:px-10 md:py-4 rounded-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 text-base w-full sm:w-auto">
+        <a href="/prototypes/roadmap/" class="inline-flex items-center justify-center bg-white text-lafa-orange font-bold px-6 py-3 sm:px-8 sm:py-3.5 md:px-10 md:py-4 rounded-lg hover:bg-gray-100 transition-all hover:-translate-y-0.5 text-base w-full sm:w-auto">
           <span data-i18n="landing.cta.primary">Ver el Roadmap</span>
           <svg class="w-5 h-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"/></svg>
         </a>
@@ -738,11 +738,11 @@
 
         <!-- Center: Tool links -->
         <div class="flex flex-wrap justify-center gap-2 md:gap-4">
-          <a href="roadmap/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Roadmap</a>
-          <a href="dashboard/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Dashboard</a>
-          <a href="collections/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Cobranza</a>
-          <a href="battery/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Baterías</a>
-          <a href="onboarding/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Onboarding</a>
+          <a href="/prototypes/roadmap/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Roadmap</a>
+          <a href="/prototypes/dashboard/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Dashboard</a>
+          <a href="/prototypes/collections/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Cobranza</a>
+          <a href="/prototypes/battery/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Baterías</a>
+          <a href="/prototypes/onboarding/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Onboarding</a>
         </div>
 
         <!-- Right: Subtle context -->
@@ -754,7 +754,7 @@
   </footer>
 
   <!-- ========== JS ========== -->
-  <script src="core/i18n.js"></script>
+  <script src="/prototypes/core/i18n.js"></script>
   <script>
     // Init language toggles (desktop + mobile)
     if (typeof initLangToggle === 'function') {
