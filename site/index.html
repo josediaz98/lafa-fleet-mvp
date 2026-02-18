@@ -67,6 +67,7 @@
           <a href="#problema" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-i18n="landing.nav.problem">El Problema</a>
           <a href="#roadmap" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-i18n="landing.nav.roadmap">Roadmap</a>
           <a href="#tools" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-i18n="landing.nav.prototypes">Prototipos</a>
+          <a href="#fleet-intelligence" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-i18n="landing.nav.fleetIntel">Fleet Intelligence</a>
           <a href="#about" class="nav-link text-sm text-gray-300 hover:text-white transition-colors" data-i18n="landing.nav.about">Sobre Jose</a>
           <div id="landing-lang-toggle"></div>
         </div>
@@ -91,6 +92,7 @@
         <a href="#problema" class="block py-3 text-sm text-gray-300 hover:text-white" data-i18n="landing.nav.problem">El Problema</a>
         <a href="#roadmap" class="block py-3 text-sm text-gray-300 hover:text-white" data-i18n="landing.nav.roadmap">Roadmap</a>
         <a href="#tools" class="block py-3 text-sm text-gray-300 hover:text-white" data-i18n="landing.nav.prototypes">Prototipos</a>
+        <a href="#fleet-intelligence" class="block py-3 text-sm text-gray-300 hover:text-white" data-i18n="landing.nav.fleetIntel">Fleet Intelligence</a>
         <a href="#about" class="block py-3 text-sm text-gray-300 hover:text-white" data-i18n="landing.nav.about">Sobre Jose</a>
         <div id="mobile-lang-toggle" class="py-3"></div>
         <a href="#tools" class="inline-block mt-3 btn-primary text-sm font-semibold px-5 py-2.5 rounded-lg" data-i18n="landing.nav.mobileCta">
@@ -597,6 +599,244 @@
     </div>
   </section>
 
+  <!-- ========== 4b. FLEET INTELLIGENCE ========== -->
+  <section id="fleet-intelligence" class="bg-lafa-dark py-20 lg:py-28 fade-in-section relative overflow-hidden">
+    <div class="fi-glow"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <!-- Header -->
+      <div class="text-center max-w-3xl mx-auto mb-14">
+        <p class="eyebrow" data-i18n="landing.fi.eyebrow">Producto Funcional</p>
+        <h2 class="text-3xl sm:text-4xl font-bold" data-i18n="landing.fi.title">Fleet Intelligence MVP</h2>
+        <p class="mt-4 text-gray-400 text-lg" data-i18n="landing.fi.subtitle">App de gestión de flota en producción: turnos, nómina, conductores, vehículos, RBAC — construida con React, TypeScript y Supabase.</p>
+      </div>
+
+      <!-- Showcase Card -->
+      <div class="fi-showcase card gradient-border p-6 sm:p-8 lg:p-10">
+        <div class="grid lg:grid-cols-5 gap-8 lg:gap-10">
+
+          <!-- Left Column (2/5): Stats + Features + CTA -->
+          <div class="lg:col-span-2 flex flex-col gap-6">
+            <!-- Stats Row -->
+            <div class="flex justify-around">
+              <div class="fi-stat">
+                <div class="fi-stat-value" data-count="30">0</div>
+                <div class="fi-stat-label" data-i18n="landing.fi.stat.drivers">conductores</div>
+              </div>
+              <div class="fi-stat">
+                <div class="fi-stat-value" data-count="12">0</div>
+                <div class="fi-stat-label" data-i18n="landing.fi.stat.vehicles">vehículos</div>
+              </div>
+              <div class="fi-stat">
+                <div class="fi-stat-value" data-count="3">0</div>
+                <div class="fi-stat-label" data-i18n="landing.fi.stat.centers">centros</div>
+              </div>
+            </div>
+
+            <!-- Feature List -->
+            <div class="space-y-3">
+              <div class="fi-feature">
+                <svg class="fi-feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <span data-i18n="landing.fi.feat.dashboard">Dashboard operativo en tiempo real</span>
+              </div>
+              <div class="fi-feature">
+                <svg class="fi-feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <span data-i18n="landing.fi.feat.payroll">Cálculo de nómina automatizado</span>
+              </div>
+              <div class="fi-feature">
+                <svg class="fi-feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <span data-i18n="landing.fi.feat.shifts">Gestión de turnos con check-in/out</span>
+              </div>
+              <div class="fi-feature">
+                <svg class="fi-feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <span data-i18n="landing.fi.feat.rbac">Control de acceso por roles (RBAC)</span>
+              </div>
+              <div class="fi-feature">
+                <svg class="fi-feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                <span data-i18n="landing.fi.feat.csv">Importación masiva por CSV</span>
+              </div>
+            </div>
+
+            <!-- CTA + Credentials -->
+            <div class="mt-auto space-y-3">
+              <a href="/app/login" class="btn-primary inline-block text-sm font-semibold px-6 py-3 rounded-lg text-center w-full sm:w-auto" data-i18n="landing.fi.cta">
+                Probar Demo en Vivo
+              </a>
+              <div class="fi-credentials" data-i18n="landing.fi.credentials">admin@lafa.mx / admin123</div>
+            </div>
+          </div>
+
+          <!-- Right Column (3/5): Tabbed Preview -->
+          <div class="lg:col-span-3">
+            <!-- Tab Bar -->
+            <div class="flex border-b border-white/10 mb-4">
+              <button class="fi-tab fi-tab-active" data-fi-tab="dashboard" data-i18n="landing.fi.tab.dashboard">Dashboard</button>
+              <button class="fi-tab" data-fi-tab="shifts" data-i18n="landing.fi.tab.shifts">Turnos</button>
+              <button class="fi-tab" data-fi-tab="payroll" data-i18n="landing.fi.tab.payroll">Nómina</button>
+            </div>
+
+            <!-- Preview Area -->
+            <div style="min-height: 380px;">
+
+              <!-- Dashboard Panel -->
+              <div class="fi-panel fi-panel-active" data-fi-panel="dashboard">
+                <div class="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-4">
+                  <div class="fi-kpi">
+                    <div class="fi-kpi-value fi-count" data-fi-count="142">0</div>
+                    <div class="fi-kpi-label">Vehículos</div>
+                  </div>
+                  <div class="fi-kpi">
+                    <div class="fi-kpi-value">87%</div>
+                    <div class="fi-kpi-label">Utilización</div>
+                  </div>
+                  <div class="fi-kpi">
+                    <div class="fi-kpi-value">$1.2M</div>
+                    <div class="fi-kpi-label">Ingreso/Sem</div>
+                  </div>
+                  <div class="fi-kpi hidden sm:block">
+                    <div class="fi-kpi-value">94%</div>
+                    <div class="fi-kpi-label">Pagos</div>
+                  </div>
+                  <div class="fi-kpi hidden sm:block">
+                    <div class="fi-kpi-value">91%</div>
+                    <div class="fi-kpi-label">SOH Prom</div>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <div class="fi-shift-row">
+                    <span class="text-gray-300">Geely EX5 — #LAF-042</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Activo</span>
+                  </div>
+                  <div class="fi-shift-row">
+                    <span class="text-gray-300">JAC E10X — #LAF-087</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Activo</span>
+                  </div>
+                  <div class="fi-shift-row fi-shift-alert">
+                    <span class="text-gray-300">GAC Aion S — #LAF-115</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">SOH 72%</span>
+                  </div>
+                  <div class="fi-shift-row">
+                    <span class="text-gray-300">Geely EX5 — #LAF-023</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">Cargando</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Shifts Panel -->
+              <div class="fi-panel" data-fi-panel="shifts">
+                <div class="flex gap-2 mb-4">
+                  <span class="text-xs px-3 py-1 rounded-full bg-lafa-orange/20 text-lafa-orange font-semibold">Turno A (6:00–14:00)</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-white/5 text-gray-400 font-semibold">Turno B (14:00–22:00)</span>
+                  <span class="text-xs px-3 py-1 rounded-full bg-white/5 text-gray-400 font-semibold">Turno C (22:00–6:00)</span>
+                </div>
+                <div class="bg-white/[0.03] rounded-lg p-4 mb-4 border border-white/5">
+                  <div class="flex items-center gap-3 mb-3">
+                    <div class="w-8 h-8 rounded-full bg-lafa-orange/20 flex items-center justify-center text-lafa-orange text-xs font-bold">CM</div>
+                    <div>
+                      <div class="text-sm text-white font-medium">Carlos Mendoza</div>
+                      <div class="text-xs text-gray-500">Geely EX5 — #LAF-042</div>
+                    </div>
+                    <span class="ml-auto text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Check-in 06:02</span>
+                  </div>
+                  <div class="flex gap-4 text-xs text-gray-500">
+                    <span>Km inicio: 12,847</span>
+                    <span>Batería: 94%</span>
+                    <span>Centro: Vallejo</span>
+                  </div>
+                </div>
+                <div class="space-y-2">
+                  <div class="fi-shift-row">
+                    <span class="text-gray-300">Ana García — JAC E10X</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">Check-in 06:05</span>
+                  </div>
+                  <div class="fi-shift-row">
+                    <span class="text-gray-300">Luis Ramírez — GAC Aion S</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400">Pendiente</span>
+                  </div>
+                  <div class="fi-shift-row fi-shift-alert">
+                    <span class="text-gray-300">Roberto Flores — Geely EX5</span>
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-red-500/15 text-red-400">No show</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Payroll Panel -->
+              <div class="fi-panel" data-fi-panel="payroll">
+                <div class="flex items-center justify-between mb-4">
+                  <span class="text-sm text-gray-300 font-medium">Semana 7 — Feb 10–16, 2026</span>
+                  <span class="text-xs px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-400">Calculado</span>
+                </div>
+                <div class="overflow-x-auto">
+                  <table class="w-full text-xs">
+                    <thead>
+                      <tr class="text-gray-500 border-b border-white/5">
+                        <th class="text-left py-2 pr-3 font-medium">Conductor</th>
+                        <th class="text-right py-2 px-2 font-medium">Turnos</th>
+                        <th class="text-right py-2 px-2 font-medium">Horas</th>
+                        <th class="text-right py-2 px-2 font-medium">Billing</th>
+                        <th class="text-right py-2 px-2 font-medium">Bono</th>
+                        <th class="text-right py-2 pl-2 font-medium">Neto</th>
+                      </tr>
+                    </thead>
+                    <tbody class="text-gray-300">
+                      <tr class="border-b border-white/[0.03]">
+                        <td class="py-2 pr-3">Carlos Mendoza</td>
+                        <td class="text-right py-2 px-2">6</td>
+                        <td class="text-right py-2 px-2">48.2</td>
+                        <td class="text-right py-2 px-2">$8,450</td>
+                        <td class="text-right py-2 px-2 text-emerald-400">$500</td>
+                        <td class="text-right py-2 pl-2 font-semibold text-white">$2,890</td>
+                      </tr>
+                      <tr class="border-b border-white/[0.03]">
+                        <td class="py-2 pr-3">Ana García</td>
+                        <td class="text-right py-2 px-2">5</td>
+                        <td class="text-right py-2 px-2">40.0</td>
+                        <td class="text-right py-2 px-2">$7,200</td>
+                        <td class="text-right py-2 px-2 text-emerald-400">$350</td>
+                        <td class="text-right py-2 pl-2 font-semibold text-white">$2,450</td>
+                      </tr>
+                      <tr class="border-b border-white/[0.03]">
+                        <td class="py-2 pr-3">Luis Ramírez</td>
+                        <td class="text-right py-2 px-2">6</td>
+                        <td class="text-right py-2 px-2">46.5</td>
+                        <td class="text-right py-2 px-2">$9,100</td>
+                        <td class="text-right py-2 px-2 text-emerald-400">$500</td>
+                        <td class="text-right py-2 pl-2 font-semibold text-white">$3,120</td>
+                      </tr>
+                      <tr class="border-b border-white/[0.03]">
+                        <td class="py-2 pr-3">Roberto Flores</td>
+                        <td class="text-right py-2 px-2">4</td>
+                        <td class="text-right py-2 px-2">32.0</td>
+                        <td class="text-right py-2 px-2 text-red-400">$5,800</td>
+                        <td class="text-right py-2 px-2 text-gray-600">$0</td>
+                        <td class="text-right py-2 pl-2 font-semibold text-white">$1,780</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="flex justify-between items-center mt-4 pt-3 border-t border-white/5 text-sm">
+                  <span class="text-gray-500">4 conductores · 6 turnos promedio</span>
+                  <span class="text-white font-bold">Total: $10,240 MXN</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech Stack Badges -->
+      <div class="flex flex-wrap justify-center gap-3 mt-8">
+        <span class="fi-tech-badge">React</span>
+        <span class="fi-tech-badge">TypeScript</span>
+        <span class="fi-tech-badge">Vite</span>
+        <span class="fi-tech-badge">Supabase</span>
+        <span class="fi-tech-badge">Tailwind CSS</span>
+        <span class="fi-tech-badge">Vercel</span>
+      </div>
+    </div>
+  </section>
+
   <!-- ========== 5. SOBRE JOSE ========== -->
   <section id="about" class="bg-lafa-card py-20 lg:py-28 fade-in-section">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -743,6 +983,7 @@
           <a href="/site/collections/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Cobranza</a>
           <a href="/site/battery/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Baterías</a>
           <a href="/site/onboarding/" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Onboarding</a>
+          <a href="/app/login" class="text-xs text-gray-500 hover:text-white transition-colors py-2">Fleet Intelligence</a>
         </div>
 
         <!-- Right: Subtle context -->
@@ -810,6 +1051,43 @@
 
     document.querySelectorAll('[data-count]').forEach(el => {
       counterObserver.observe(el);
+    });
+
+    // Fleet Intelligence tab switching
+    document.querySelectorAll('.fi-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.fi-tab').forEach(t => t.classList.remove('fi-tab-active'));
+        document.querySelectorAll('.fi-panel').forEach(p => p.classList.remove('fi-panel-active'));
+        tab.classList.add('fi-tab-active');
+        const panel = document.querySelector('[data-fi-panel="' + tab.dataset.fiTab + '"]');
+        if (panel) panel.classList.add('fi-panel-active');
+      });
+    });
+
+    // Fleet Intelligence preview KPI counter animation
+    const fiCounterObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const el = entry.target;
+          const target = parseInt(el.dataset.fiCount);
+          if (!target || el.dataset.animated) return;
+          el.dataset.animated = 'true';
+          let current = 0;
+          const step = Math.max(1, Math.floor(target / 20));
+          const interval = setInterval(() => {
+            current += step;
+            if (current >= target) {
+              current = target;
+              clearInterval(interval);
+            }
+            el.textContent = current;
+          }, 40);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('[data-fi-count]').forEach(el => {
+      fiCounterObserver.observe(el);
     });
   </script>
 

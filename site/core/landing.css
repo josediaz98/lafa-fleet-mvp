@@ -239,3 +239,151 @@ html { scroll-behavior: smooth; }
   }
   #tools .stagger-fade > * { width: calc(33.333% - 22px); }
 }
+
+/* ============================================================
+   Fleet Intelligence Section
+   ============================================================ */
+
+/* ---------- Glow Background ---------- */
+.fi-glow {
+  position: absolute;
+  width: 600px; height: 600px;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 90, 0, 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ---------- Showcase Card ---------- */
+.fi-showcase {
+  border: 1px solid rgba(255, 90, 0, 0.2);
+  box-shadow: 0 0 40px rgba(255, 90, 0, 0.06);
+}
+.fi-showcase:hover {
+  border-color: rgba(255, 90, 0, 0.35);
+  box-shadow: 0 0 60px rgba(255, 90, 0, 0.1);
+  transform: none;
+}
+
+/* ---------- Stat Counters ---------- */
+.fi-stat {
+  text-align: center;
+  padding: 0.75rem 1rem;
+}
+.fi-stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--orange-500);
+  line-height: 1;
+}
+.fi-stat-label {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  margin-top: 0.25rem;
+}
+
+/* ---------- Tabs ---------- */
+.fi-tab {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+  background: none;
+  border-top: none; border-left: none; border-right: none;
+}
+.fi-tab:hover { color: #d1d5db; }
+.fi-tab-active {
+  color: var(--orange-500);
+  border-bottom-color: var(--orange-500);
+}
+
+/* ---------- Panels ---------- */
+.fi-panel { display: none; }
+.fi-panel-active { display: block; }
+
+/* ---------- Preview KPI Box ---------- */
+.fi-kpi {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 0.75rem;
+  text-align: center;
+}
+.fi-kpi-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+}
+.fi-kpi-label {
+  font-size: 0.65rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* ---------- Shift Rows ---------- */
+.fi-shift-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+}
+.fi-shift-alert {
+  border-color: rgba(239, 68, 68, 0.3);
+  background: rgba(239, 68, 68, 0.06);
+}
+
+/* ---------- Tech Badges ---------- */
+.fi-tech-badge {
+  display: inline-block;
+  padding: 0.3rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  color: #9ca3af;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Credentials ---------- */
+.fi-credentials {
+  background: rgba(255, 90, 0, 0.08);
+  border: 1px solid rgba(255, 90, 0, 0.15);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  color: #d1d5db;
+}
+
+/* ---------- Feature List ---------- */
+.fi-feature {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #d1d5db;
+}
+.fi-feature-icon {
+  width: 18px; height: 18px;
+  flex-shrink: 0;
+  color: var(--orange-500);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1024px) {
+  .fi-glow { width: 400px; height: 400px; }
+  .fi-stat-value { font-size: 1.5rem; }
+}
+@media (max-width: 768px) {
+  .fi-glow { width: 300px; height: 300px; }
+  .fi-stat-value { font-size: 1.25rem; }
+  .fi-kpi { padding: 0.5rem; }
+  .fi-kpi-value { font-size: 0.9rem; }
+}
