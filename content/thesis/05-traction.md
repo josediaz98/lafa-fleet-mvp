@@ -66,7 +66,7 @@ Geely is a confirmed partner (Levi, Feb 2026) but these critical questions remai
 
 **Impact:** If Geely is fully imported without local assembly, each vehicle costs MXN $87,000-116,000 more than a JAC. If Geely represents >30% of the planned 2,000, this adds MXN $52M-70M in unplanned cost.
 
-*-> Questions covered in [jj-interview-prep.md](../hiring/jj-interview-prep.md) Q1-Q2.*
+*-> Questions covered in [jj-interview-prep.md](../hiring/interviews/jj-interview-prep.md) Q1-Q2.*
 
 ---
 

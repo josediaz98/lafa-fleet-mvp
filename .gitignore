@@ -12,3 +12,4 @@ fleet-intelligence/tsconfig.tsbuildinfo
 
 # Vercel build output
 app/
+.vercel

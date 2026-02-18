@@ -70,16 +70,16 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   ├── vemo-benchmark/                    ← Vemo competitive intel (7 topic files + README)
 │   ├── hiring/                            ← Hiring process
 │   │   ├── README.md                      ← Timeline, job description, Jose's CV
-│   │   ├── interview-levi-2026-02-06.md   ← Full interview transcript
-│   │   ├── interview-levi-feedback.md     ← Post-interview feedback
-│   │   ├── jj-interview-prep.md           ← CEO interview prep
+│   │   ├── interviews/                    ← Interview transcripts & prep
+│   │   │   ├── interview-levi-2026-02-06.md ← Full interview transcript
+│   │   │   ├── interview-levi-feedback.md   ← Post-interview feedback
+│   │   │   └── jj-interview-prep.md         ← CEO interview prep
 │   │   └── technical-challenge/           ← Fleet Intelligence & Payroll MVP
 │   │       ├── CLAUDE.md                  ← Challenge-specific instructions
 │   │       ├── brief.md                   ← Challenge spec + payroll pseudocode
 │   │       ├── assumptions-qa.md          ← 25 resolved ambiguities
-│   │       ├── data-generation-plan.md    ← Generator design doc
-│   │       ├── generate_didi_data.py      ← DiDi trip CSV generator
-│   │       └── presentation-strategy.md  ← Reforge frameworks × challenge presentation
+│   │       ├── prd.md                     ← Product requirements document
+│   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
 ├── tools/                                 ← Internal tools app (HTML + JS + CSS)
 │   ├── tailwind.init.js                   ← Shared Tailwind config (all tool pages)
@@ -112,3 +112,4 @@ python content/hiring/technical-challenge/generate_didi_data.py
 - **Tech status:** Stage 0 — everything is spreadsheets
 - **Platform partner:** DiDi (Premier launched Oct 2025)
 - **Hiring:** Jose would report to Levi Garcia (Head of Product). Next interview: JJ (CEO)
+- **Fleet Intelligence demo:** admin@lafa.mx / admin123

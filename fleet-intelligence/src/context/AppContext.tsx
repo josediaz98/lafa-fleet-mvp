@@ -50,6 +50,7 @@ export interface PayrollRecord {
   closedBy?: string;
   closedAt?: string;
   version?: number;
+  aiExplanation?: string;
 }
 
 export interface Session {

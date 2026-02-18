@@ -7,9 +7,9 @@
 | Date | Event | File |
 |------|-------|------|
 | Jan 2026 | Job posting found, research begins | -- |
-| Feb 6, 2026 | First interview with Levi Garcia (Head of Product) | [interview-levi-2026-02-06.md](interview-levi-2026-02-06.md) |
-| Feb 6, 2026 | Post-interview feedback and lessons | [interview-levi-feedback.md](interview-levi-feedback.md) |
-| TBD | Second interview with JJ (CEO) | [jj-interview-prep.md](jj-interview-prep.md) |
+| Feb 6, 2026 | First interview with Levi Garcia (Head of Product) | [interview-levi-2026-02-06.md](interviews/interview-levi-2026-02-06.md) |
+| Feb 6, 2026 | Post-interview feedback and lessons | [interview-levi-feedback.md](interviews/interview-levi-feedback.md) |
+| TBD | Second interview with JJ (CEO) | [jj-interview-prep.md](interviews/jj-interview-prep.md) |
 
 ---
 

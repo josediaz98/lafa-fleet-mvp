@@ -75,9 +75,9 @@ Jose's strategic contribution -- what he would build. See [content/strategy/READ
 ## Hiring
 
 Hiring process. See [content/hiring/README.md](content/hiring/README.md) for timeline, job description, and Jose's CV.
-- [Interview with Levi](content/hiring/interview-levi-2026-02-06.md) -- Full transcript, Feb 6, 2026
-- [Interview Levi Feedback](content/hiring/interview-levi-feedback.md) -- Post-interview feedback and lessons
-- [JJ Interview Prep](content/hiring/jj-interview-prep.md) -- 14 questions + roadmap summary + talking points
+- [Interview with Levi](content/hiring/interviews/interview-levi-2026-02-06.md) -- Full transcript, Feb 6, 2026
+- [Interview Levi Feedback](content/hiring/interviews/interview-levi-feedback.md) -- Post-interview feedback and lessons
+- [JJ Interview Prep](content/hiring/interviews/jj-interview-prep.md) -- 14 questions + roadmap summary + talking points
 
 ---
 

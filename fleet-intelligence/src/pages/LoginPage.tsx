@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
+import LafaLogo from '../components/ui/LafaLogo';
 
 export default function LoginPage() {
   const { users } = useAppState();
@@ -44,46 +45,49 @@ export default function LoginPage() {
     navigate('/dashboard');
   }
 
+  function fillDemo() {
+    setEmail('admin@lafa.mx');
+    setPassword('admin123');
+  }
+
   return (
     <div className="min-h-screen bg-lafa-bg flex items-center justify-center p-4">
-      <div className="w-full max-w-sm">
-        <div className="flex flex-col items-center mb-8">
-          <img src="/lafa-logo.svg" alt="LAFA" className="h-8 w-auto mb-4" />
-          <p className="text-sm text-lafa-text-secondary mt-1">Fleet Intelligence</p>
+      <div className="fixed top-0 left-0 right-0 h-0.5 bg-lafa-accent" />
+      <div className="w-full max-w-xs">
+        <div className="flex justify-center mb-10">
+          <LafaLogo className="h-10 w-auto" />
         </div>
 
-        <form onSubmit={handleLogin} className="bg-lafa-surface border border-lafa-border rounded-xl p-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="admin@lafa.mx"
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Contraseña</label>
-            <input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••"
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          {error && <p className="text-sm text-[#EF4444]">{error}</p>}
+        <form onSubmit={handleLogin} className="space-y-3">
+          <input
+            type="email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+            placeholder="correo@ejemplo.com"
+            className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:bg-lafa-surface transition-colors"
+          />
+          <input
+            type="password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+            placeholder="Contraseña"
+            className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:bg-lafa-surface transition-colors"
+          />
+          {error && <p className="text-sm text-status-danger">{error}</p>}
           <button
             type="submit"
-            className="w-full py-2.5 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-medium rounded text-sm transition-colors"
+            className="w-full py-3 mt-2 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-semibold rounded-lg text-sm transition-colors"
           >
             Iniciar sesión
           </button>
-          <div className="text-center">
-            <p className="text-xs text-lafa-text-secondary">
-              Demo: admin@lafa.mx / admin123
-            </p>
+          <div className="text-center pt-4">
+            <button
+              type="button"
+              onClick={fillDemo}
+              className="text-xs text-lafa-text-secondary/60 hover:text-lafa-accent transition-colors"
+            >
+              Usar credenciales de demo
+            </button>
           </div>
         </form>
       </div>

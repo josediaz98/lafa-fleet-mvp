@@ -11,15 +11,16 @@ import {
   X,
 } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
+import LafaLogo from '../ui/LafaLogo';
 import { useAppState, useAppDispatch } from '../../context/AppContext';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
-  { to: '/shifts', label: 'Gesti\u00f3n de Turnos', icon: Clock, adminOnly: false },
+  { to: '/shifts', label: 'Gestión de Turnos', icon: Clock, adminOnly: false },
   { to: '/csv-upload', label: 'Carga CSV', icon: Upload, adminOnly: true },
-  { to: '/payroll', label: 'N\u00f3mina', icon: Receipt, adminOnly: false },
+  { to: '/payroll', label: 'Nómina', icon: Receipt, adminOnly: false },
   { to: '/drivers', label: 'Conductores', icon: Users, adminOnly: false },
-  { to: '/vehicles', label: 'Veh\u00edculos', icon: Car, adminOnly: false },
+  { to: '/vehicles', label: 'Vehículos', icon: Car, adminOnly: false },
   { to: '/users', label: 'Usuarios', icon: UserCog, adminOnly: true },
 ];
 
@@ -49,14 +50,13 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
         <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={onClose} />
       )}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-lafa-surface border-r border-lafa-border flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed left-0 top-0 h-screen w-64 bg-lafa-sidebar border-r border-lafa-border flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
           mobileOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/lafa-logo.svg" alt="LAFA" className="h-5 w-auto" />
-            <p className="text-[10px] text-lafa-text-secondary leading-none tracking-wider uppercase">Fleet Intelligence</p>
+            <LafaLogo className="h-5 w-auto" />
           </div>
           <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-lafa-border transition-colors">
             <X size={18} className="text-lafa-text-secondary" />
@@ -98,7 +98,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
             className="flex items-center gap-2 text-sm text-lafa-text-secondary hover:text-red-400 transition-colors w-full"
           >
             <LogOut size={16} />
-            <span>{'Cerrar sesi\u00f3n'}</span>
+            <span>{'Cerrar sesión'}</span>
           </button>
         </div>
       </aside>

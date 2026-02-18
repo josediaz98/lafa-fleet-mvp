@@ -71,7 +71,7 @@ Consolidation of all unanswered questions from the research, prioritized for the
 | 9 | Relationship with OCN Holdings? | If connected, LAFA could access OCN's tech/data/capital | [06-competition](06-competition.md) |
 | 10 | Ecosystem vision 2-3 years: build vs partner? | Reveals capital allocation priorities | [05-traction](05-traction.md) |
 
-*→ Full detail of JJ prep in [jj-interview-prep.md](../hiring/jj-interview-prep.md).*
+*→ Full detail of JJ prep in [jj-interview-prep.md](../hiring/interviews/jj-interview-prep.md).*
 
 ---
 

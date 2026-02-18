@@ -344,4 +344,4 @@ HORIZON 3 (Mo 24+): ECOSYSTEM
 
 ---
 
-*Analysis based on: [AI Roadmap](ai-roadmap.md), [Investment Thesis](../thesis/), [Interview with Levi](../hiring/interview-levi-2026-02-06.md), [Hiring README](../hiring/README.md), [Team Assessment](../thesis/07-team.md). February 2026.*
+*Analysis based on: [AI Roadmap](ai-roadmap.md), [Investment Thesis](../thesis/), [Interview with Levi](../hiring/interviews/interview-levi-2026-02-06.md), [Hiring README](../hiring/README.md), [Team Assessment](../thesis/07-team.md). February 2026.*

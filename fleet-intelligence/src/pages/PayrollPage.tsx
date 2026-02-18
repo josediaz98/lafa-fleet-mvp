@@ -44,6 +44,17 @@ export default function PayrollPage() {
 
   const week = getWeekBounds();
 
+  const previousWeekHours = useMemo(() => {
+    const map = new Map<string, number>();
+    closedPayroll
+      .filter(p => p.status === 'cerrado')
+      .forEach(p => {
+        const existing = map.get(p.driverId) ?? 0;
+        if (p.hoursWorked > existing) map.set(p.driverId, p.hoursWorked);
+      });
+    return map;
+  }, [closedPayroll]);
+
   const livePayroll = useMemo(() => {
     const filteredDrivers = filterByCenter(drivers);
     const shiftSummaries = filteredDrivers.map(driver => {
@@ -55,8 +66,8 @@ export default function PayrollPage() {
         totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0),
       };
     });
-    return calculateWeeklyPay(filteredDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1);
-  }, [drivers, trips, shifts, filterByCenter, week.label, week.start, week.end, session?.name]);
+    return calculateWeeklyPay(filteredDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
+  }, [drivers, trips, shifts, filterByCenter, week.label, week.start, week.end, session?.name, previousWeekHours]);
 
   const closedWeeks = useMemo(() => {
     const weeks = new Map<string, PayrollRecord[]>();
@@ -120,7 +131,7 @@ export default function PayrollPage() {
       const driverShifts = shifts.filter(s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked);
       return { driverId: driver.id, totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0) };
     });
-    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1);
+    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
     dispatch({ type: 'CLOSE_PAYROLL_WEEK', payload: records });
     showToast('success', `Semana ${week.label} cerrada exitosamente.`);
     setTab('cerradas');
@@ -141,7 +152,7 @@ export default function PayrollPage() {
       const driverShifts = shifts.filter(s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked);
       return { driverId: driver.id, totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0) };
     });
-    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, selectedWeek, week.start, week.end, session?.name ?? '', latestVersion + 1);
+    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, selectedWeek, week.start, week.end, session?.name ?? '', latestVersion + 1, previousWeekHours);
     dispatch({ type: 'RERUN_PAYROLL_CLOSE', payload: { weekLabel: selectedWeek, newRecords: records } });
     showToast('success', `N\u00f3mina re-ejecutada (v${latestVersion + 1}).`);
   }
@@ -437,28 +448,7 @@ export default function PayrollPage() {
             <div className="border-t border-lafa-border pt-4">
               <h4 className="text-sm font-semibold text-lafa-text-primary mb-3">Resumen AI</h4>
               <div className="bg-lafa-bg rounded-lg p-4 text-sm text-lafa-text-secondary leading-relaxed">
-                {selectedRow.goalMet ? (
-                  <>
-                    <strong className="text-lafa-text-primary">{selectedRow.driverName}</strong>
-                    {' alcanz\u00f3 la meta semanal de $6,000 MXN con una facturaci\u00f3n total de '}
-                    {formatMXN(selectedRow.totalBilled)}.
-                    {' Trabaj\u00f3 '}{selectedRow.hoursWorked}{' horas durante la semana, lo cual indica una buena productividad promedio de '}
-                    {formatMXN(selectedRow.hoursWorked > 0 ? Math.round(selectedRow.totalBilled / selectedRow.hoursWorked) : 0)}/hora.
-                    {selectedRow.productivityBonus > 0 && (
-                      <>{' Gan\u00f3 un bono de productividad de '}{formatMXN(selectedRow.productivityBonus)}{' por superar la meta.'}</>
-                    )}
-                    {selectedRow.overtimePay > 0 && (
-                      <>{' Incluye pago de overtime por '}{formatMXN(selectedRow.overtimePay)}.</>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <strong className="text-lafa-text-primary">{selectedRow.driverName}</strong>
-                    {' no alcanz\u00f3 la meta semanal de $6,000 MXN. Su facturaci\u00f3n fue de '}
-                    {formatMXN(selectedRow.totalBilled)}{' en '}
-                    {selectedRow.hoursWorked}{' horas trabajadas. Se le aplica el apoyo econ\u00f3mico de $1,000 MXN en lugar del salario base. Se recomienda revisar si hay factores externos que afectaron su rendimiento (rutas, horarios, disponibilidad del veh\u00edculo).'}
-                  </>
-                )}
+                {selectedRow.aiExplanation || 'Sin resumen disponible.'}
               </div>
             </div>
           </div>

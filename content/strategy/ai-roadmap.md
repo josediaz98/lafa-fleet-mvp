@@ -985,7 +985,7 @@ This roadmap is supported by the research documented in:
 - `analysis/fintech/repossession-collections.md` — Arrendamiento financiero (financial lease), GPS/kill switch, default economics
 - `analysis/market/competitive-landscape.md` — VEMO, OCN, Kovi/Moove, Splend, BYD, threats
 - `hiring/README.md` — Job description, Jose's CV, timeline
-- `hiring/interview-levi-2026-02-06.md` — Full transcript of interview with Levi Garcia
+- `hiring/interviews/interview-levi-2026-02-06.md` — Full transcript of interview with Levi Garcia
 
 ---
 
