@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Zap } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useToast } from '../context/ToastContext';
 
@@ -49,10 +48,7 @@ export default function LoginPage() {
     <div className="min-h-screen bg-lafa-bg flex items-center justify-center p-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-lafa-accent flex items-center justify-center mb-4">
-            <Zap size={28} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-lafa-accent tracking-tight">LAFA</h1>
+          <img src="/lafa-logo.svg" alt="LAFA" className="h-8 w-auto mb-4" />
           <p className="text-sm text-lafa-text-secondary mt-1">Fleet Intelligence</p>
         </div>
 

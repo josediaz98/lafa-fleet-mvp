@@ -8,7 +8,6 @@ import {
   Car,
   UserCog,
   LogOut,
-  Zap,
   X,
 } from 'lucide-react';
 import StatusBadge from '../ui/StatusBadge';
@@ -56,13 +55,8 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       >
         <div className="p-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-lafa-accent flex items-center justify-center">
-              <Zap size={20} className="text-white" />
-            </div>
-            <div>
-              <span className="text-lg font-bold text-lafa-accent tracking-tight">LAFA</span>
-              <p className="text-[10px] text-lafa-text-secondary leading-none tracking-wider uppercase">Fleet Intelligence</p>
-            </div>
+            <img src="/lafa-logo.svg" alt="LAFA" className="h-5 w-auto" />
+            <p className="text-[10px] text-lafa-text-secondary leading-none tracking-wider uppercase">Fleet Intelligence</p>
           </div>
           <button onClick={onClose} className="lg:hidden p-1 rounded hover:bg-lafa-border transition-colors">
             <X size={18} className="text-lafa-text-secondary" />
