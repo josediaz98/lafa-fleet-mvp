@@ -244,47 +244,84 @@ html { scroll-behavior: smooth; }
    Fleet Intelligence Section
    ============================================================ */
 
+/* ---------- Section Divider ---------- */
+.fi-divider {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 10%, rgba(255, 90, 0, 0.4) 50%, transparent 90%);
+}
+
 /* ---------- Glow Background ---------- */
 .fi-glow {
   position: absolute;
-  width: 600px; height: 600px;
+  width: 700px; height: 700px;
   top: 50%; left: 50%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255, 90, 0, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 90, 0, 0.15) 0%, transparent 70%);
   pointer-events: none;
 }
 
-/* ---------- Showcase Card ---------- */
-.fi-showcase {
-  border: 1px solid rgba(255, 90, 0, 0.2);
-  box-shadow: 0 0 40px rgba(255, 90, 0, 0.06);
+/* ---------- Browser Chrome Frame ---------- */
+.fi-chrome {
+  background: var(--surface-card);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4), 0 0 60px rgba(255, 90, 0, 0.06);
+  transition: box-shadow 0.3s ease;
 }
-.fi-showcase:hover {
-  border-color: rgba(255, 90, 0, 0.35);
-  box-shadow: 0 0 60px rgba(255, 90, 0, 0.1);
-  transform: none;
+.fi-chrome:hover {
+  box-shadow: 0 8px 50px rgba(0, 0, 0, 0.5), 0 0 80px rgba(255, 90, 0, 0.1);
 }
 
-/* ---------- Stat Counters ---------- */
-.fi-stat {
+.fi-chrome-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.fi-chrome-dots {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.fi-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+.fi-dot-red { background: #ff5f57; }
+.fi-dot-yellow { background: #febc2e; }
+.fi-dot-green { background: #28c840; }
+
+.fi-chrome-title {
+  font-size: 0.7rem;
+  color: #6b7280;
+  font-weight: 500;
+  flex: 1;
   text-align: center;
-  padding: 0.75rem 1rem;
+  padding-right: 42px; /* offset for dots to center text */
 }
-.fi-stat-value {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--orange-500);
-  line-height: 1;
+
+.fi-chrome-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0 16px;
+  background: rgba(255, 255, 255, 0.02);
 }
-.fi-stat-label {
-  font-size: 0.75rem;
-  color: #9ca3af;
-  margin-top: 0.25rem;
+
+.fi-chrome-body {
+  padding: 20px;
+  min-height: 360px;
+  position: relative;
 }
 
 /* ---------- Tabs ---------- */
 .fi-tab {
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.25rem;
   font-size: 0.8rem;
   font-weight: 600;
   color: #6b7280;
@@ -300,9 +337,40 @@ html { scroll-behavior: smooth; }
   border-bottom-color: var(--orange-500);
 }
 
-/* ---------- Panels ---------- */
-.fi-panel { display: none; }
+/* ---------- Panels (with fade transition) ---------- */
+.fi-panel {
+  display: none;
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
 .fi-panel-active { display: block; }
+.fi-panel-in {
+  opacity: 0;
+  transform: translateY(6px);
+}
+.fi-panel-out {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* ---------- Feature Pills ---------- */
+.fi-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #d1d5db;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.fi-pill svg {
+  color: var(--orange-500);
+  flex-shrink: 0;
+}
 
 /* ---------- Preview KPI Box ---------- */
 .fi-kpi {
@@ -342,48 +410,25 @@ html { scroll-behavior: smooth; }
 /* ---------- Tech Badges ---------- */
 .fi-tech-badge {
   display: inline-block;
-  padding: 0.3rem 0.75rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 9999px;
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  color: #9ca3af;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* ---------- Credentials ---------- */
-.fi-credentials {
-  background: rgba(255, 90, 0, 0.08);
-  border: 1px solid rgba(255, 90, 0, 0.15);
-  border-radius: 8px;
-  padding: 0.5rem 0.75rem;
-  font-family: monospace;
-  font-size: 0.75rem;
-  color: #d1d5db;
-}
-
-/* ---------- Feature List ---------- */
-.fi-feature {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
-  color: #d1d5db;
-}
-.fi-feature-icon {
-  width: 18px; height: 18px;
-  flex-shrink: 0;
-  color: var(--orange-500);
+  background: rgba(255, 255, 255, 0.04);
+  color: #6b7280;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 1024px) {
   .fi-glow { width: 400px; height: 400px; }
-  .fi-stat-value { font-size: 1.5rem; }
 }
 @media (max-width: 768px) {
   .fi-glow { width: 300px; height: 300px; }
-  .fi-stat-value { font-size: 1.25rem; }
+  .fi-chrome-body { padding: 14px; min-height: 320px; }
+  .fi-chrome-titlebar { padding: 8px 12px; }
+  .fi-chrome-tabs { padding: 0 12px; }
   .fi-kpi { padding: 0.5rem; }
   .fi-kpi-value { font-size: 0.9rem; }
+  .fi-dot { width: 8px; height: 8px; }
 }
