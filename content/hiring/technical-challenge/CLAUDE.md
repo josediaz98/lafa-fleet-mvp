@@ -29,11 +29,27 @@ python generate_didi_data.py    # stdlib only, zero deps
 
 Produces `data/` with 3 weekly CSVs + combined + driver manifest. 30 drivers across 3 centers (Vallejo, Granada, Roma), 3 weeks of trips. See [data-generation-plan.md](data-generation-plan.md) for the full algorithm.
 
-## Tech Constraints
+## Tech Stack
 
+- **Frontend:** React 18 + TypeScript + Vite + Tailwind CSS + lucide-react
+- **Backend:** Supabase (PostgreSQL + Auth + Row Level Security)
 - **Generator:** Python stdlib only (`csv`, `random`, `math`, `datetime`)
-- **Solution stack:** Flexible — brief suggests v0.dev, Retool, BuildShip, n8n, Python
 - **Design for:** 150 vehicles now, architecture for 2,000
+
+### Supabase Setup
+
+```bash
+cd fleet-intelligence
+cp .env.example .env.local
+# Edit .env.local with your Supabase project URL and anon key:
+# VITE_SUPABASE_URL=https://your-project.supabase.co
+# VITE_SUPABASE_ANON_KEY=eyJ...your-anon-key
+```
+
+Then run the schema SQL in Supabase SQL Editor:
+- [`supabase-schema.sql`](supabase-schema.sql) — DDL, RLS policies, and seed data
+
+**Note:** `npm run dev` requires an active Supabase project with the schema applied.
 
 ## Critical Edge Cases (of [22 total](data-generation-plan.md#deliberate-edge-cases-22-total))
 
@@ -55,6 +71,7 @@ Produces `data/` with 3 weekly CSVs + combined + driver manifest. 30 drivers acr
 | `prd.md` | **Executable PRD** — 8 screens, specs, data model, payroll logic, AI integration, out-of-scope |
 | `data-generation-plan.md` | Generator algorithm, driver pool design, edge case catalog |
 | `generate_didi_data.py` | The actual data generator implementation |
+| `supabase-schema.sql` | DDL (CREATE TABLE), RLS policies, indexes, seed data — copy-paste into Supabase SQL Editor |
 | `presentation-strategy.md` | Reforge frameworks mapped to challenge presentation — strategic framing, demo structure, design rationale |
 
 ## Cross-References

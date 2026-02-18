@@ -588,6 +588,108 @@ El AI actúa como **copilot del Admin** — no es una feature principal, es un m
 - `trips.driver_id` + `trips.cost` (donde `trips.date` está en la semana) → `weekly_payroll.total_billed`
 - `weekly_payroll.version` — permite re-ejecución de cierre sin perder histórico
 
+### 7.4 Schema SQL (Supabase PostgreSQL)
+
+The complete DDL, RLS policies, and seed data are in [`supabase-schema.sql`](supabase-schema.sql). Copy-paste the entire file into the Supabase SQL Editor to set up the database.
+
+**Key design decisions:**
+- UUIDs as primary keys (Supabase convention, compatible with `auth.users.id`)
+- `profiles` table linked to `auth.users` via FK — Supabase Auth handles authentication; `profiles` stores role + center assignment
+- `drivers.didi_driver_id` has UNIQUE index for CSV matching
+- `trips.didi_trip_id` has UNIQUE index to prevent duplicate imports
+- `shifts` indexed on `(driver_id, check_in)` for payroll aggregation
+- `trips` indexed on `(driver_id, date)` for weekly billing aggregation
+- `weekly_payroll` has UNIQUE constraint on `(driver_id, week_start, version)` for idempotent re-execution
+
+### 7.5 Supabase Setup
+
+**Proyecto Supabase:**
+1. Crear proyecto en [supabase.com](https://supabase.com) (free tier)
+2. Copiar `Project URL` y `anon public key` desde Settings → API
+3. Configurar environment variables:
+
+```bash
+cp .env.example .env.local
+# Edit .env.local:
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...your-anon-key
+```
+
+**Auth setup — 4 demo users:**
+
+Pre-seed users via Supabase Dashboard (Authentication → Users → Add User) or via API:
+
+| Email | Password | Role | Centro |
+|-------|----------|------|--------|
+| `admin@lafa.mx` | `admin123` | admin | Global |
+| `vallejo@lafa.mx` | `super123` | supervisor | Vallejo |
+| `granada@lafa.mx` | `super123` | supervisor | Granada |
+| `roma@lafa.mx` | `super123` | supervisor | Roma |
+
+After creating auth users, run the seed SQL from `supabase-schema.sql` to populate the `profiles` table with the matching UUIDs.
+
+**RLS (Row Level Security):**
+
+Enabled on all tables. Two policy patterns:
+
+| Tabla | Admin | Supervisor |
+|-------|-------|------------|
+| `centers` | Full access | SELECT only |
+| `profiles` | Full access | Own profile only |
+| `drivers` | Full access | SELECT where `center_id` matches |
+| `vehicles` | Full access | SELECT + UPDATE where `center_id` matches |
+| `shifts` | Full access | SELECT + INSERT where driver's `center_id` matches |
+| `trips` | Full access | SELECT where driver's `center_id` matches |
+| `csv_uploads` | Full access (INSERT + SELECT) | No access |
+| `weekly_payroll` | Full access | SELECT where driver's `center_id` matches |
+
+### 7.6 Arquitectura Backend
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    Frontend (React/Vite)                  │
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐   │
+│  │LoginPage │ │ShiftsPage│ │CsvUpload │ │PayrollPg │   │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘   │
+│       │             │            │             │          │
+│  ┌────▼─────────────▼────────────▼─────────────▼──────┐  │
+│  │              AppContext (React State)               │  │
+│  │    Local cache — syncs with Supabase on mutations   │  │
+│  └────────────────────┬───────────────────────────────┘  │
+│                       │                                   │
+│  ┌────────────────────▼───────────────────────────────┐  │
+│  │           Supabase Client (supabase-js)            │  │
+│  │  • supabase.auth.signInWithPassword()              │  │
+│  │  • supabase.from('table').select/insert/update     │  │
+│  └────────────────────┬───────────────────────────────┘  │
+└───────────────────────┼───────────────────────────────────┘
+                        │ HTTPS (PostgREST API)
+┌───────────────────────▼───────────────────────────────────┐
+│                    Supabase (Cloud)                        │
+│  ┌──────────────┐  ┌──────────────┐  ┌────────────────┐  │
+│  │  Auth Service │  │  PostgREST   │  │  PostgreSQL    │  │
+│  │  (JWT tokens) │  │  (REST API)  │  │  (8 tables)    │  │
+│  └──────┬───────┘  └──────┬───────┘  └────────┬───────┘  │
+│         │                 │                    │           │
+│         │         ┌───────▼────────┐           │           │
+│         └────────►│  RLS Policies  │◄──────────┘           │
+│                   │ (per-request)  │                       │
+│                   └────────────────┘                       │
+└───────────────────────────────────────────────────────────┘
+```
+
+**Flujo de datos (ejemplo: Payroll):**
+1. Admin sube CSV DiDi → frontend parsea y valida (client-side)
+2. Filas válidas → `supabase.from('trips').insert(rows)`
+3. Al consultar nómina → `supabase.from('trips').select()` + `supabase.from('shifts').select()` filtrados por semana
+4. Cálculo de payroll ejecutado client-side (`lib/payroll.ts` — idéntico)
+5. "Cerrar semana" → `supabase.from('weekly_payroll').insert(records)` con status `cerrado`
+
+**Lo que NO pasa por el backend:**
+- Cálculo de payroll (determinístico, client-side)
+- Parsing de CSV (client-side)
+- AI explanation generation (template-based, client-side)
+
 ---
 
 ## 8. Fuera de Scope
@@ -612,7 +714,7 @@ Explícitamente **NO** se construye en este MVP:
 
 ## Datos de Prueba
 
-El generator (`generate_didi_data.py`) produce 3 semanas de datos con 30 conductores y 22 edge cases deliberados. Ver [data-generation-plan.md](data-generation-plan.md) para el catálogo completo.
+El generator (`generate_didi_data.py`) produce 3 semanas de datos con 30 conductores y 22 edge cases deliberados. Ver [data-generation-plan.md](data-generation-plan.md) para el catálogo completo. El seed SQL en [`supabase-schema.sql`](supabase-schema.sql) contiene INSERTs equivalentes para poblar la base de datos directamente.
 
 | Semana | Rango | Nota |
 |--------|-------|------|
@@ -623,4 +725,5 @@ El generator (`generate_didi_data.py`) produce 3 semanas de datos con 30 conduct
 ---
 
 *Documento creado: Feb 17, 2026*
-*Próximo paso: Implementar el MVP siguiendo este PRD*
+*Última actualización: Feb 17, 2026 — Migración a Supabase backend*
+*Próximo paso: Configurar proyecto Supabase y ejecutar `supabase-schema.sql`*

@@ -207,6 +207,39 @@ Driver ID,Date,Trip ID,Initial time,Final time,Cost,Tip,Initial coordinates,Fina
 
 ---
 
+## Supabase Seed
+
+The generator output (`data/*.csv`) can be converted to seed SQL for Supabase:
+
+| CSV File | Target Table | Notes |
+|----------|-------------|-------|
+| `driver_manifest.csv` | `drivers` | INSERT INTO drivers — map driver_id, name, center, shift, tier |
+| `didi_week_*.csv` | `trips` | INSERT INTO trips — parse CSV format to SQL columns |
+| (derived) | `shifts` | Generate shift records from trip time ranges per driver per day |
+| (derived) | `weekly_payroll` | Calculate via `payroll.ts` logic, INSERT with status `cerrado` |
+
+The base seed data (centers, profiles, drivers, vehicles) is already in [`supabase-schema.sql`](supabase-schema.sql). For generated trip data, use the Supabase client or `psql` directly:
+
+```bash
+# Option 1: Via Supabase SQL Editor (paste INSERT statements)
+# Option 2: Via psql
+psql $DATABASE_URL -f seed_trips.sql
+```
+
+---
+
+## Supabase Tier Capacity
+
+| Metric | Per Week | Supabase Free (500MB) | Supabase Pro (8GB) |
+|--------|----------|----------------------|-------------------|
+| Trips (demo, 30 drivers) | ~2,100-2,800 | OK | OK |
+| Trips (150 vehicles) | ~21,000 | ~1 year before limit | OK |
+| Trips (2,000 vehicles) | ~280,000 | Insufficient | OK (~2 years) |
+| Payroll records | ~30-2,000/week | OK | OK |
+| Total DB size (1 year, 150 veh) | — | ~300-400MB | OK |
+
+---
+
 ## Verification Checklist
 
 After running `python generate_didi_data.py`:
@@ -222,3 +255,6 @@ After running `python generate_didi_data.py`:
 - [ ] Average fare in $170-$220 range
 - [ ] driver_manifest.csv maps all 30 drivers correctly
 - [ ] Script runs with zero external dependencies (stdlib only)
+- [ ] `supabase-schema.sql` seed data produces the same 30 drivers, 12 vehicles as mockData.ts
+- [ ] RLS policies enforce supervisor center-scoping (test with Supabase Auth)
+- [ ] Schema is copy-pasteable into Supabase SQL Editor without errors

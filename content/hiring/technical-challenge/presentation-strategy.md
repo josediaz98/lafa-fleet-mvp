@@ -212,6 +212,8 @@ Instead of "I built everything at once," structure delivery:
 | **Partial** | All 3 supervisors | Full operation, Admin still runs parallel spreadsheet | 2 weeks |
 | **GA** | Everyone | Spreadsheet retired | After 4 weeks |
 
+**Infrastructure:** Alpha deploys with Supabase Free tier (500MB, sufficient for ~1 year of 150-vehicle data). Upgrade to Pro tier ($25/mo, 8GB) before scaling to 2,000 vehicles.
+
 **Where to use:** When asked "how would you roll this out?" Shows deployment maturity.
 
 ### 15. DRI Framework — Ownership model
@@ -260,11 +262,11 @@ Design the Admin dashboard as a **lever dashboard**, not a vanity metrics board:
 
 Prepare all three:
 
-1. **Layered Architecture:** Frontend / API / Business Logic / Database
-2. **System Overview:** Auth service, Shift module, Payroll engine, CSV parser, Dashboard aggregator
-3. **Data Flow (Payroll):** CSV upload / Parse / Match driver IDs / Aggregate by week / Apply business rules / Calculate pay / Store / Close
+1. **Layered Architecture:** React Frontend → Supabase Client (supabase-js) → PostgREST API → PostgreSQL + RLS Policies
+2. **System Overview:** Supabase Auth (JWT) → Shift module → Payroll engine (client-side) → CSV parser (client-side) → Dashboard aggregator → PostgreSQL (8 tables)
+3. **Data Flow (Payroll):** CSV upload → Client-side parse → `trips` table INSERT → Shift data from `shifts` table → Client-side payroll calculation (`lib/payroll.ts`) → `weekly_payroll` INSERT with status `cerrado`
 
-**Where to use:** Technical panel. Each diagram answers a different question.
+**Where to use:** Technical panel. Each diagram answers a different question. The Supabase architecture diagram is in [prd.md §7.6](prd.md#76-arquitectura-backend).
 
 ### 19. Technical Concept X-Ray — Explain key technical choices
 
@@ -276,7 +278,7 @@ Apply to the **Payroll Engine**:
 |----------|--------|
 | What does it do? | Calculates weekly driver compensation from shift hours + DiDi billing |
 | Type of technology? | Business rules engine (deterministic calculation) |
-| Where does it run? | Server-side (never client-side — security + auditability) |
+| Where does it run? | Client-side calculation, server-side persistence (Supabase PostgreSQL). Calculation is deterministic and auditable via `weekly_payroll` table with versioning |
 | What problem does it solve? | Eliminates 2h/week of error-prone manual spreadsheet calculation |
 | Inputs/outputs? | IN: shifts + trips aggregated by driver/week. OUT: payroll record with breakdown |
 | Limitations? | Depends on correct CSV data; no real-time validation against DiDi API |

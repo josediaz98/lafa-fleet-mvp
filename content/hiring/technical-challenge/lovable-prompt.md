@@ -2,7 +2,7 @@
 
 > **Usage:** Copy this entire file into Lovable, Replit Agent, or v0.dev as a single prompt. It is fully self-contained — no external files needed.
 
-> **⚠️ PRIORITY: Render ALL 8 screens first.** This is a UI-first prototype. Build every screen with hardcoded mock data visible on page load. Do NOT spend time wiring auth, state management, or CRUD logic — just render the layouts, tables, cards, forms, and charts with static data. No backend, no database, no Supabase. After all screens render correctly, we will add interactivity in a second pass.
+> **⚠️ PRIORITY: Render ALL 8 screens first.** This is a UI-first prototype. Build every screen with hardcoded mock data visible on page load. Do NOT spend time wiring auth, state management, or CRUD logic — just render the layouts, tables, cards, forms, and charts with static data. After all screens render correctly, we will wire Supabase (PostgreSQL + Auth + RLS) as the persistence layer in a second pass.
 
 ---
 
@@ -21,7 +21,9 @@ Build a **Fleet Intelligence & Payroll MVP** — an internal operations tool for
 
 **Tech Stack:**
 - React + TypeScript + Tailwind CSS + shadcn/ui
-- No backend — all data is hardcoded mock data in TypeScript. Auth is client-side only.
+- **Backend:** Supabase (PostgreSQL + Auth + Row Level Security)
+- Supabase handles auth (email/password), data persistence, and RBAC via RLS policies
+- Mock data available for initial scaffolding; Supabase seed SQL for full stack
 - Dark theme by default (internal tool aesthetic)
 
 **One-shot goal:** Scaffold ALL 8 screens (Login, Dashboard, Shifts, CSV Upload, Payroll, Drivers, Vehicles, Users) in a single generation. Each screen should render with visible mock data (tables populated, cards with numbers, forms with dropdowns pre-filled). Prioritize visual completeness over working logic.
@@ -633,9 +635,9 @@ function calculateWeeklyPay(input: PayrollInput): PayrollOutput {
 
 ---
 
-## 6. Data Model (TypeScript Interfaces)
+## 6. Data Model (TypeScript Interfaces + Supabase Schema)
 
-All data lives in memory as TypeScript objects. No database, no Supabase. Use these interfaces for type safety:
+TypeScript interfaces define the client-side data shapes. The corresponding SQL schema lives in [`supabase-schema.sql`](supabase-schema.sql). Use these interfaces for type safety; Supabase tables mirror them exactly:
 
 ```typescript
 // --- Types ---
@@ -751,13 +753,42 @@ interface WeeklyPayroll {
 ### Data Filtering by Role
 
 - **Admin:** Can read/write all data across all centers.
-- **Supervisor:** Can only see records where `centerId` matches their assigned center. Enforce this in the React hooks/context — filter arrays before rendering.
+- **Supervisor:** Can only see records where `centerId` matches their assigned center.
+- **Enforcement:** Supabase RLS policies enforce this at the database level. The frontend also filters for UX responsiveness, but security is server-side.
+
+### Supabase Client Setup
+
+```typescript
+// src/lib/supabase.ts
+import { createClient } from '@supabase/supabase-js';
+
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+```
+
+**Environment variables (`.env.local`):**
+```
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJ...your-anon-key
+```
+
+### Auth Flow (Supabase Auth)
+
+| Step | Current (mock) | New (Supabase) |
+|------|---------------|----------------|
+| Login | `simpleHash()` + compare with MOCK_USERS | `supabase.auth.signInWithPassword({ email, password })` |
+| Session | localStorage manual | Supabase Auth session (automatic, JWT-based) |
+| Route guard | Check localStorage | `supabase.auth.getSession()` |
+| Role/center | Hardcoded in session object | Query `profiles` table: `supabase.from('profiles').select('role, center_id').eq('id', user.id)` |
+| Logout | Clear localStorage | `supabase.auth.signOut()` |
 
 ---
 
 ## 7. Mock Data (Hardcoded TypeScript Constants)
 
-All data below should be defined in a `mockData.ts` file as typed constants. The app initializes React state from these constants on first load.
+All data below should be defined in a `mockData.ts` file as typed constants. The app initializes React state from these constants on first load. The equivalent seed SQL is in [`supabase-schema.sql`](supabase-schema.sql) — run it in the Supabase SQL Editor to populate the database with the same data.
 
 ### 7.1 Centers
 
@@ -1098,7 +1129,7 @@ Every table should be populated. Every card should show numbers. No empty states
 
 ## 11. Key Business Context
 
-- **Architecture:** This is a **frontend-only prototype**. All data is hardcoded. There is no backend or database. Auth is simulated client-side. CRUD operations update React state in memory.
+- **Architecture:** Full-stack MVP with **Supabase backend** (PostgreSQL + Auth + RLS). Auth via Supabase Auth (email/password). Data persisted in PostgreSQL. RBAC enforced via Row Level Security policies. Business logic (payroll calculation, CSV parsing, AI explanation) runs client-side.
 - **Company:** LAFA (Latin America Future Automobile) — EV fleet operator in Mexico City
 - **Fleet:** ~150 electric vehicles (Geely, JAC, GAC OEMs), targeting 2,000 by end 2026
 - **Model:** Driver-as-Employee (DaE) — LAFA owns vehicles, hires drivers, partners with DiDi

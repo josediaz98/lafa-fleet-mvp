@@ -9,7 +9,7 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 |------|-------|
 | `prototypes/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
 | `index.html` | Same — marketing landing page |
-| `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react |
+| `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react + **Supabase** (PostgreSQL + Auth + RLS) |
 | `content/` | Markdown research files |
 | Technical challenge | Python (stdlib only for generator) |
 
@@ -24,7 +24,8 @@ npx serve .
 
 # Fleet Intelligence MVP (React/Vite)
 cd fleet-intelligence && npm install   # first time only
-cd fleet-intelligence && npm run dev   # dev server (localhost:5173)
+cd fleet-intelligence && cp .env.example .env.local  # then edit with your Supabase keys
+cd fleet-intelligence && npm run dev   # dev server (localhost:5173) — requires Supabase project
 cd fleet-intelligence && npm run build # production build → dist/
 
 # Generate DiDi test data (stdlib only — no pip install)
@@ -79,6 +80,7 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   │       ├── brief.md                   ← Challenge spec + payroll pseudocode
 │   │       ├── assumptions-qa.md          ← 25 resolved ambiguities
 │   │       ├── prd.md                     ← Product requirements document
+│   │       ├── supabase-schema.sql        ← DDL + RLS policies + seed data
 │   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
 ├── prototypes/                            ← Working prototypes (HTML + JS + CSS)
