@@ -29,6 +29,23 @@
      oem      = rounded-full, px-2.5 py-1
    ---------- */
 
+/* ---------- CSS Custom Properties ---------- */
+:root {
+  --lafa-orange: #FF5A00;
+  --lafa-orange-hover: #E54E00;
+  --lafa-dark: #1B1A23;
+  --lafa-card: #252B37;
+  --lafa-sidebar: #16151E;
+  --lafa-border: rgba(255,255,255,0.06);
+  --lafa-green: #22C55E;
+  --lafa-yellow: #EAB308;
+  --lafa-red: #EF4444;
+  --lafa-blue: #3B82F6;
+  --lafa-transition-micro: 150ms;
+  --lafa-transition-standard: 200ms;
+  --lafa-transition-modal: 250ms;
+}
+
 /* Smooth scroll */
 html { scroll-behavior: smooth; }
 
@@ -71,7 +88,7 @@ html { scroll-behavior: smooth; }
   height: 16px;
   padding: 0 4px;
   border-radius: 9999px;
-  background: #EF4444;
+  background: var(--lafa-red);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -228,7 +245,7 @@ html { scroll-behavior: smooth; }
   cursor: pointer; transition: all 0.2s ease; border: 1px solid transparent;
 }
 .filter-pill:hover { color: #fff; background: rgba(255,255,255,0.08); }
-.filter-pill.active { background: #FF5A00; color: #fff; border-color: #FF5A00; }
+.filter-pill.active { background: var(--lafa-orange); color: #fff; border-color: var(--lafa-orange); }
 .filter-pill.amber.active { background: #F59E0B; color: #111827; border-color: #F59E0B; }
 .filter-pill.amber.active:hover { background: #D97706; }
 
@@ -304,7 +321,7 @@ body { padding-bottom: env(safe-area-inset-bottom); }
   position: fixed;
   bottom: 0; left: 0; right: 0;
   z-index: 40;
-  background: #16151E;
+  background: var(--lafa-sidebar);
   border-top: 1px solid rgba(255,255,255,0.06);
   padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
   display: none;
@@ -320,7 +337,7 @@ body { padding-bottom: env(safe-area-inset-bottom); }
   text-decoration: none; transition: color 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
-#bottom-nav a.active { color: #FF5A00; }
+#bottom-nav a.active { color: var(--lafa-orange); }
 
 @media (max-width: 767px) {
   #app-sidebar { display: none !important; }
@@ -337,7 +354,7 @@ main { overflow-x: hidden; }
   background: rgba(255,255,255,0.1); cursor: pointer; transition: background 0.2s ease;
   flex-shrink: 0;
 }
-.toggle-switch.active { background: #FF5A00; }
+.toggle-switch.active { background: var(--lafa-orange); }
 .toggle-switch::after {
   content: ''; position: absolute; top: 2px; left: 2px;
   width: 16px; height: 16px; border-radius: 50%; background: #fff;
@@ -361,7 +378,7 @@ main { overflow-x: hidden; }
   position: relative;
 }
 .custom-checkbox:checked {
-  background: #FF5A00; border-color: #FF5A00;
+  background: var(--lafa-orange); border-color: var(--lafa-orange);
 }
 .custom-checkbox:checked::after {
   content: ''; position: absolute;
@@ -371,7 +388,7 @@ main { overflow-x: hidden; }
   transform: rotate(45deg);
 }
 .custom-checkbox:hover { border-color: rgba(255,255,255,0.4); }
-.custom-checkbox:focus-visible { outline: 2px solid #FF5A00; outline-offset: 2px; }
+.custom-checkbox:focus-visible { outline: 2px solid var(--lafa-orange); outline-offset: 2px; }
 
 /* ---------- Filter Row Hover ---------- */
 .filter-row {

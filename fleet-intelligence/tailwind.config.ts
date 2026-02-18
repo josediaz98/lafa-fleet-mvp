@@ -16,6 +16,14 @@ export default {
           'text-primary': '#F5F5F5',
           'text-secondary': '#9CA3AF',
         },
+        status: {
+          active: '#3B82F6',
+          success: '#22C55E',
+          warning: '#F59E0B',
+          danger: '#EF4444',
+          info: '#8B5CF6',
+          alert: '#EAB308',
+        },
       },
       fontFamily: {
         sans: ['Inter Tight', 'system-ui', 'sans-serif'],
