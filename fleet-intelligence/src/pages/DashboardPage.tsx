@@ -4,7 +4,7 @@ import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
 import { formatTime, formatMXN } from '../data/mockData';
-import { getWeekBounds } from '../lib/dateUtils';
+import { getWeekBounds, shiftHours } from '../lib/dateUtils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
@@ -81,7 +81,7 @@ export default function DashboardPage() {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return;
 
-    const hours = Math.round(((Date.now() - new Date(shift.checkIn).getTime()) / 3600000) * 10) / 10;
+    const hours = shiftHours(shift.checkIn);
 
     if (hours < 1) {
       const ok = await confirm({
@@ -158,7 +158,7 @@ export default function DashboardPage() {
               <div key={shift.id} className="bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
                   <AlertTriangle size={16} className="text-[#EF4444]" />
-                  <span className="text-sm font-semibold text-[#EF4444]">Turno abierto +{Math.floor((Date.now() - new Date(shift.checkIn).getTime()) / 3600000)}h</span>
+                  <span className="text-sm font-semibold text-[#EF4444]">Turno abierto +{Math.floor(shiftHours(shift.checkIn))}h</span>
                 </div>
                 <p className="text-xs text-lafa-text-secondary mb-3">
                   {shift.driverName} - {shift.plate} {'\u00b7'} Check-in: {formatTime(shift.checkIn)}.

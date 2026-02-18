@@ -14,8 +14,6 @@ function simpleHash(s: string): string {
   return '#' + Math.abs(h).toString(36);
 }
 
-export { simpleHash };
-
 export default function LoginPage() {
   const { users } = useAppState();
   const dispatch = useAppDispatch();

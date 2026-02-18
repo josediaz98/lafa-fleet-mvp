@@ -1,3 +1,9 @@
+/** Hours between check-in and check-out (or now), rounded to 1 decimal. */
+export function shiftHours(checkIn: string, checkOut?: string): number {
+  const end = checkOut ? new Date(checkOut).getTime() : Date.now();
+  return Math.round(((end - new Date(checkIn).getTime()) / 3600000) * 10) / 10;
+}
+
 export function getWeekBounds() {
   const now = new Date();
   const day = now.getDay();

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
+import { shiftHours } from '../lib/dateUtils';
 import { MOCK_CENTERS } from '../data/mockData';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
@@ -85,8 +86,7 @@ export default function ShiftsPage() {
   async function handleCheckOut(shiftId: string) {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return;
-    const now = new Date();
-    const hours = Math.round(((now.getTime() - new Date(shift.checkIn).getTime()) / 3600000) * 10) / 10;
+    const hours = shiftHours(shift.checkIn);
 
     if (hours < 1) {
       const ok = await confirm({
@@ -100,7 +100,7 @@ export default function ShiftsPage() {
 
     dispatch({
       type: 'CLOSE_SHIFT',
-      payload: { shiftId, checkOut: now.toISOString(), hoursWorked: hours },
+      payload: { shiftId, checkOut: new Date().toISOString(), hoursWorked: hours },
     });
     if (shift.vehicleId) {
       dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: shift.vehicleId, status: 'disponible' } });
