@@ -67,6 +67,8 @@ CREATE TABLE drivers (
   created_at      TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+CREATE INDEX idx_drivers_center ON drivers(center_id);
+
 
 -- 1.4 Vehicles
 -- EV fleet: Geely Geometry C, JAC E10X, GAC Aion S.
@@ -80,6 +82,8 @@ CREATE TABLE vehicles (
              CHECK (status IN ('disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
+
+CREATE INDEX idx_vehicles_center ON vehicles(center_id);
 
 
 -- 1.5 Shifts
@@ -99,6 +103,7 @@ CREATE TABLE shifts (
 );
 
 CREATE INDEX idx_shifts_driver_checkin ON shifts(driver_id, check_in);
+CREATE INDEX idx_shifts_vehicle_active ON shifts(vehicle_id) WHERE status = 'en_turno';
 
 
 -- 1.6 CSV Uploads
@@ -139,6 +144,7 @@ CREATE TABLE trips (
 );
 
 CREATE INDEX idx_trips_driver_date ON trips(driver_id, date);
+CREATE INDEX idx_trips_date ON trips(date);
 
 
 -- 1.8 Weekly Payroll
@@ -171,6 +177,7 @@ CREATE TABLE weekly_payroll (
 );
 
 CREATE INDEX idx_payroll_driver_week ON weekly_payroll(driver_id, week_start);
+CREATE INDEX idx_payroll_week_status ON weekly_payroll(week_start, status);
 
 
 -- ============================================================
@@ -310,7 +317,8 @@ CREATE POLICY "drivers: admin delete"
 -- ----------------------------------------------------------
 -- 2.4 vehicles — Policies
 -- ----------------------------------------------------------
--- Same pattern as drivers: admin full, supervisor read own center.
+-- Admin: full CRUD. Supervisor: SELECT + UPDATE scoped to their center
+-- (supervisors change operational status: disponible/cargando/mantenimiento).
 
 CREATE POLICY "vehicles: read by role"
   ON vehicles FOR SELECT
@@ -325,11 +333,17 @@ CREATE POLICY "vehicles: admin insert"
   TO authenticated
   WITH CHECK (get_user_role() = 'admin');
 
-CREATE POLICY "vehicles: admin update"
+CREATE POLICY "vehicles: admin or supervisor update"
   ON vehicles FOR UPDATE
   TO authenticated
-  USING (get_user_role() = 'admin')
-  WITH CHECK (get_user_role() = 'admin');
+  USING (
+    get_user_role() = 'admin'
+    OR center_id = get_user_center_id()
+  )
+  WITH CHECK (
+    get_user_role() = 'admin'
+    OR center_id = get_user_center_id()
+  );
 
 CREATE POLICY "vehicles: admin delete"
   ON vehicles FOR DELETE
@@ -496,6 +510,12 @@ CREATE POLICY "payroll: admin delete"
 -- 4. SEED DATA
 -- ============================================================
 --
+-- SCALE CONTEXT:
+--   This seed data contains 30 drivers and 12 vehicles for demo/edge-case testing.
+--   Production scale: 150 vehicles (~300 drivers) today → 2,000 vehicles (~4,000 drivers) by end of 2026.
+--   At 2K scale: ~144K trips/week, ~24K shifts/week, ~4K payroll records/week.
+--   See prd.md §7.7 for full capacity planning.
+--
 -- IMPORTANT: Auth users must be created FIRST via one of:
 --   a) Supabase Dashboard → Authentication → Users → Add User
 --   b) supabase.auth.admin.createUser() from a server script
@@ -609,15 +629,27 @@ INSERT INTO vehicles (id, plate, model, oem, center_id, status) VALUES
 
 
 -- ----------------------------------------------------------
--- 4.5 Trips (60 records — current week: 16–22 Feb 2026)
+-- 4.5 Trips (68 records — current week: 16–22 Feb 2026)
 -- ----------------------------------------------------------
 -- Maps exactly to MOCK_TRIPS in mockData.ts.
--- Each row is a daily billing aggregate from DiDi.
+-- Mixed format: d1 Feb 16 uses individual ride-level records (9 trips);
+-- all other entries are daily billing aggregates from DiDi.
 -- driver_id references the drivers table UUID (resolved via didi_driver_id).
 
 -- d1 — Carlos Mendoza (114958, Vallejo) — High earner ~$9,500
+-- Feb 16: INDIVIDUAL TRIPS (9 rides, total $1,520, tips $80) — matches brief CSV format
 INSERT INTO trips (driver_id, didi_trip_id, date, initial_time, final_time, cost, tip) VALUES
-  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n2', '2026-02-16', '05:30', '17:30', 1520.00, 80.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n1', '2026-02-16', '05:32', '06:18', 185.50, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n2', '2026-02-16', '06:30', '07:15', 195.00, 30.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n3', '2026-02-16', '07:35', '08:10', 142.80, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n4', '2026-02-16', '08:25', '09:15', 188.20, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n5', '2026-02-16', '09:30', '10:20', 210.50, 50.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n6', '2026-02-16', '10:40', '11:15', 125.36, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n7', '2026-02-16', '12:00', '12:45', 178.64, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n8', '2026-02-16', '13:05', '13:50', 155.00, 0.00),
+  ('00000000-0000-0000-0000-0000000d0001', 'k3m8n9', '2026-02-16', '14:10', '15:00', 139.00, 0.00);
+-- Feb 17–21: DAILY AGGREGATES (remaining days)
+INSERT INTO trips (driver_id, didi_trip_id, date, initial_time, final_time, cost, tip) VALUES
   ('00000000-0000-0000-0000-0000000d0001', 'p4q9r1', '2026-02-17', '05:15', '17:00', 1680.00, 120.00),
   ('00000000-0000-0000-0000-0000000d0001', 'v2w7x5', '2026-02-18', '05:45', '17:15', 1450.00, 0.00),
   ('00000000-0000-0000-0000-0000000d0001', 'b6c1d8', '2026-02-19', '05:30', '17:30', 1590.00, 60.00),
@@ -781,5 +813,5 @@ INSERT INTO weekly_payroll (driver_id, week_start, week_end, hours_worked, total
 --   UNION ALL SELECT 'weekly_payroll', count(*) FROM weekly_payroll;
 --
 -- Expected: centers=3, profiles=4, drivers=30, vehicles=12,
---           trips=60, weekly_payroll=30
+--           trips=68, weekly_payroll=30
 -- ============================================================

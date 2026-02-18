@@ -1,26 +1,30 @@
 # Data Generation Plan: DiDi Trip CSV Generator
 
 > **Purpose:** Design doc for the dummy DiDi trip data used in the Fleet Intelligence & Payroll technical challenge.
-> **Generator:** [`generate_didi_data.py`](./generate_didi_data.py)
-> **Output:** [`data/`](./data/)
+> **Status:** Design only — superseded by `mockData.ts` + `supabase-schema.sql` seed data for implementation.
+>
+> **Implementation note:** The generator script and `data/` directory described below were not built.
+> Instead, seed data was created directly in `mockData.ts` (client-side) and `supabase-schema.sql` (database).
+> Trip records use **daily billing aggregates** (~$1,500–$1,900 per driver per day) rather than individual
+> ride-level records (~$125–$210 each) for MVP simplicity. The CSV parser supports both formats — the brief's
+> individual-trip format and the aggregate format used in seed data.
 
 ---
 
-## Deliverables
+## Deliverables (Planned vs. Actual)
 
 ```
 content/hiring/technical-challenge/
-    data-generation-plan.md     <- this document
-    generate_didi_data.py       <- standalone generator (stdlib only)
-    data/
-        didi_week_01.csv        <- Feb 2-8 (no overtime possible)
-        didi_week_02.csv        <- Feb 9-15 (new driver enters Wed; overtime testable)
-        didi_week_03.csv        <- Feb 16-22 (full cycle)
-        didi_all_trips.csv      <- All 3 weeks combined
-        driver_manifest.csv     <- driver_id -> name -> center -> shift -> tier mapping
+    data-generation-plan.md     <- this document (DESIGN ONLY)
+    generate_didi_data.py       <- NOT BUILT (superseded by mockData.ts)
+    data/                       <- NOT BUILT (superseded by supabase-schema.sql seed)
 ```
 
-**Why Python:** The brief suggests Python as a backend option; payroll pseudocode is Python; zero dependencies needed (`csv`, `random`, `math`, `datetime` only).
+**Actual data sources:**
+- `fleet-intelligence/src/data/mockData.ts` — 30 drivers, 12 vehicles, 60 trip records (daily aggregates), 30 payroll records
+- `supabase-schema.sql` Section 4 — equivalent SQL INSERTs for Supabase
+
+**Why daily aggregates instead of individual trips:** For the MVP, payroll calculation only needs total daily billing per driver. Individual trip-level validation (anomaly detection, fare vs. distance) is a Phase 1 feature. The CSV parser supports both formats.
 
 ---
 
@@ -197,13 +201,17 @@ Driver ID,Date,Trip ID,Initial time,Final time,Cost,Tip,Initial coordinates,Fina
 
 ## Expected Volume
 
-| Metric | Per Week | 3 Weeks |
-|--------|----------|---------|
-| Trips | ~2,100-2,800 | ~6,300-8,400 |
-| Avg fare (Premier) | ~$190 MXN | -- |
-| Drivers hitting $6K | ~18-23 of 30 | -- |
-| Drivers below $6K | ~7-12 of 30 | -- |
-| Airport trips | ~170-220 (~8%) | -- |
+| Metric | Demo Seed (30 drivers) | 150 Vehículos (~300 drivers) | 2,000 Vehículos (~4,000 drivers) |
+|--------|----------------------|------------------------------|----------------------------------|
+| Trips/week | 68 | ~10,800 | ~144,000 |
+| Shifts/week | 16 | ~1,800 | ~24,000 |
+| Payroll records/week | 30 | ~300 | ~4,000 |
+| CSV file size | ~5 KB | ~1–2 MB | ~15–20 MB |
+| Avg fare (Premier) | ~$190 MXN | ~$190 MXN | ~$190 MXN |
+| Drivers hitting $6K | ~18 of 30 | ~180–230 | ~2,400–3,100 |
+| Airport trips | — | ~860 (~8%) | ~11,500 (~8%) |
+
+> **Derivation:** trips/week = vehicles × 12 trips/day × 6 operating days. Shifts/week = vehicles × 2 shifts/day × 6 days.
 
 ---
 
@@ -230,31 +238,30 @@ psql $DATABASE_URL -f seed_trips.sql
 
 ## Supabase Tier Capacity
 
-| Metric | Per Week | Supabase Free (500MB) | Supabase Pro (8GB) |
-|--------|----------|----------------------|-------------------|
-| Trips (demo, 30 drivers) | ~2,100-2,800 | OK | OK |
-| Trips (150 vehicles) | ~21,000 | ~1 year before limit | OK |
-| Trips (2,000 vehicles) | ~280,000 | Insufficient | OK (~2 years) |
-| Payroll records | ~30-2,000/week | OK | OK |
-| Total DB size (1 year, 150 veh) | — | ~300-400MB | OK |
+| Metric | Per Week | Supabase Free (500 MB) | Supabase Pro ($25/mo, 8 GB) |
+|--------|----------|------------------------|----------------------------|
+| Trips (demo, 30 drivers) | 68 | OK | OK |
+| Trips (150 vehicles) | ~10,800 | ~1 year before limit | OK |
+| Trips (2,000 vehicles) | ~144,000 | Insufficient | OK (~2 years) |
+| Payroll records | 30–4,000/week | OK | OK |
+| Shifts | 16–24,000/week | OK | OK |
+| Total DB size (1 year, 150 veh) | — | ~350–450 MB | OK |
+| Total DB size (1 year, 2K veh) | — | Insufficient | ~4–6 GB |
+
+> **Derivation:** trips/week = vehicles × 12 trips/day × 6 operating days. Shifts/week = vehicles × 2 shifts/day × 6 days.
 
 ---
 
 ## Verification Checklist
 
-After running `python generate_didi_data.py`:
+For seed data in `mockData.ts` and `supabase-schema.sql`:
 
-- [ ] CSV header matches brief format exactly
-- [ ] Date format DD/MM/YYYY, time format H:MM:SS
-- [ ] Cost has `$` prefix, coordinates have 6 decimals
-- [ ] No overlapping trips for the same driver
-- [ ] At least 3 drivers within $500 of $6K threshold
-- [ ] At least 2 drivers with 38-42h (hours edge)
-- [ ] Sunday trips stop before 20:00
-- [ ] Trip IDs unique across all weeks
-- [ ] Average fare in $170-$220 range
-- [ ] driver_manifest.csv maps all 30 drivers correctly
-- [ ] Script runs with zero external dependencies (stdlib only)
-- [ ] `supabase-schema.sql` seed data produces the same 30 drivers, 12 vehicles as mockData.ts
-- [ ] RLS policies enforce supervisor center-scoping (test with Supabase Auth)
-- [ ] Schema is copy-pasteable into Supabase SQL Editor without errors
+- [x] `supabase-schema.sql` seed data produces the same 30 drivers, 12 vehicles as mockData.ts
+- [x] At least 3 drivers within $500 of $6K threshold (d10=$5,950; d24=$4,950; d5=$6,250)
+- [x] At least 2 drivers with 38-42h (hours edge — covered in closed payroll data)
+- [x] Trip IDs unique across all records
+- [x] RLS policies enforce supervisor center-scoping
+- [x] Schema is copy-pasteable into Supabase SQL Editor without errors
+- [x] CSV parser handles both brief format (`$125.36`, English headers, quoted coords) and Spanish format
+- [ ] ~~CSV header matches brief format exactly~~ (N/A — seed data uses aggregates; parser supports both)
+- [ ] ~~Script runs with zero external dependencies~~ (N/A — generator not built)

@@ -104,9 +104,9 @@ Patterns compartidos en todas las pantallas. Inspirados en Shipday dispatch UX, 
 | Email | Rol | Centro |
 |-------|-----|--------|
 | `admin@lafa.mx` | Admin | Global |
-| `vallejo@lafa.mx` | Supervisor | Vallejo |
-| `granada@lafa.mx` | Supervisor | Granada |
-| `roma@lafa.mx` | Supervisor | Roma |
+| `maria@lafa.mx` | Supervisor | Vallejo |
+| `carlos@lafa.mx` | Supervisor | Granada |
+| `ana@lafa.mx` | Supervisor | Roma |
 
 ---
 
@@ -426,7 +426,7 @@ def calculate_weekly_pay(driver, current_week, previous_week):
     # Primera semana del conductor = no eligible (previous_week.hours defaults a 0)
     prev_hours = previous_week.hours_worked if previous_week else 0
     if prev_hours >= 40:
-        overtime_hours = min(hours - hours_threshold, 8)  # cap a 8h
+        overtime_hours = min(hours - 40, 8)  # cap a 8h — always 40h, not prorated
         if overtime_hours > 0:
             pay += overtime_hours * 50
 
@@ -568,18 +568,18 @@ El AI actúa como **copilot del Admin** — no es una feature principal, es un m
 
 ### 7.2 Descripción de tablas
 
-| Tabla | Propósito | Registros MVP |
-|-------|-----------|---------------|
-| `centers` | 3 centros operativos (Vallejo, Granada, Roma) | 3 |
-| `users` | Admin + Supervisores — cuentas del sistema | 4 |
-| `drivers` | Conductores DaE — registros, no usuarios | 30 |
-| `vehicles` | Flota de vehículos eléctricos | 15 |
-| `shifts` | Turnos registrados (check-in/check-out) | ~2,100/sem |
-| `trips` | Viajes parseados del CSV de DiDi | ~2,100-2,800/sem |
-| `csv_uploads` | Registro de cada carga CSV (quién, cuándo, cuántos registros, status) | ~1/sem |
-| `weekly_payroll` | Cálculos de nómina por conductor por semana | ~30/sem |
+| Tabla | Propósito | Demo Seed | 150 Vehículos | 2,000 Vehículos |
+|-------|-----------|-----------|---------------|-----------------|
+| `centers` | Centros operativos | 3 | 3 | 10–20 |
+| `profiles` | Admin + Supervisores — cuentas del sistema | 4 | ~6–10 | ~25–45 |
+| `drivers` | Conductores DaE — registros, no usuarios | 30 | ~300 | ~4,000 |
+| `vehicles` | Flota de vehículos eléctricos | 12 | 150 | 2,000 |
+| `shifts` | Turnos registrados (check-in/check-out) | 16 | ~1,800/sem | ~24,000/sem |
+| `trips` | Viajes parseados del CSV de DiDi | 68 | ~10,800/sem | ~144,000/sem |
+| `csv_uploads` | Registro de cada carga CSV | 0 | ~1/sem | ~1–3/sem |
+| `weekly_payroll` | Cálculos de nómina por conductor por semana | 30 | ~300/sem | ~4,000/sem |
 
-> **Ref:** [data-generation-plan.md](data-generation-plan.md) — 30 drivers, 15 vehículos, 3 semanas de datos
+> **Ref:** [data-generation-plan.md](data-generation-plan.md) — Demo seed: 30 drivers, 12 vehículos. Estimaciones de producción en §7.7.
 
 ### 7.3 Relaciones clave
 
@@ -604,7 +604,7 @@ The complete DDL, RLS policies, and seed data are in [`supabase-schema.sql`](sup
 ### 7.5 Supabase Setup
 
 **Proyecto Supabase:**
-1. Crear proyecto en [supabase.com](https://supabase.com) (free tier)
+1. Crear proyecto en [supabase.com](https://supabase.com) (free tier — ver nota de capacidad abajo)
 2. Copiar `Project URL` y `anon public key` desde Settings → API
 3. Configurar environment variables:
 
@@ -615,6 +615,8 @@ VITE_SUPABASE_URL=https://your-project.supabase.co
 VITE_SUPABASE_ANON_KEY=eyJ...your-anon-key
 ```
 
+> **Nota de capacidad:** El free tier (500 MB) soporta ~150 vehículos por ~1 año (~620K filas/año). Para 2,000 vehículos (~8.3M filas/año), se requiere Pro tier ($25/mo, 8 GB). Ver §7.7.
+
 **Auth setup — 4 demo users:**
 
 Pre-seed users via Supabase Dashboard (Authentication → Users → Add User) or via API:
@@ -622,9 +624,9 @@ Pre-seed users via Supabase Dashboard (Authentication → Users → Add User) or
 | Email | Password | Role | Centro |
 |-------|----------|------|--------|
 | `admin@lafa.mx` | `admin123` | admin | Global |
-| `vallejo@lafa.mx` | `super123` | supervisor | Vallejo |
-| `granada@lafa.mx` | `super123` | supervisor | Granada |
-| `roma@lafa.mx` | `super123` | supervisor | Roma |
+| `maria@lafa.mx` | `super123` | supervisor | Vallejo |
+| `carlos@lafa.mx` | `super123` | supervisor | Granada |
+| `ana@lafa.mx` | `super123` | supervisor | Roma |
 
 After creating auth users, run the seed SQL from `supabase-schema.sql` to populate the `profiles` table with the matching UUIDs.
 
@@ -689,6 +691,49 @@ Enabled on all tables. Two policy patterns:
 - Cálculo de payroll (determinístico, client-side)
 - Parsing de CSV (client-side)
 - AI explanation generation (template-based, client-side)
+
+> **Nota de escala:** Estos 3 items (payroll, CSV, AI) funcionan client-side a 150 vehículos. A 2,000 vehículos, los 3 migran a server-side (Edge Functions o pg functions). Ver §7.7.
+
+---
+
+### 7.7 Capacidad y Escala
+
+LAFA opera ~150 vehículos hoy y apunta a 2,000 para fin de 2026 (13× crecimiento). Esta sección documenta las implicaciones de volumen en la arquitectura.
+
+**Supuestos:** ~2 conductores/vehículo, 6 días operativos/semana, ~12 viajes DiDi/vehículo/día, 2 turnos/vehículo/día.
+
+**Volúmenes estimados por escala:**
+
+| Métrica | Demo Seed | 150 Vehículos | 2,000 Vehículos |
+|---------|-----------|---------------|-----------------|
+| Conductores | 30 | ~300 | ~4,000 |
+| Viajes/semana | 68 | ~10,800 | ~144,000 |
+| Turnos/semana | 16 | ~1,800 | ~24,000 |
+| Registros payroll/semana | 30 | ~300 | ~4,000 |
+| Tamaño CSV DiDi | ~5 KB | ~1–2 MB | ~15–20 MB |
+| Filas anuales (todas las tablas) | — | ~620K | ~8.3M |
+| Centros operativos | 3 | 3 | 10–20 |
+
+> **Derivación:** `viajes/semana = vehículos × 12 viajes/día × 6 días`. `turnos/semana = vehículos × 2 turnos/día × 6 días`.
+
+**Infraestructura por escala:**
+
+| Aspecto | 150 Vehículos | 2,000 Vehículos |
+|---------|---------------|-----------------|
+| Supabase tier | Free (500 MB) — ~1 año | Pro ($25/mo, 8 GB) — ~2 años |
+| CSV upload | Client-side parsing OK | Chunked upload o server-side parsing |
+| Payroll compute | Client-side OK (~300 registros) | Server-side (Edge Function o pg function) |
+| Dashboard queries | Sin paginación | Paginación + filtros server-side |
+| Tablas con paginación | No necesario | `trips`, `shifts`, `weekly_payroll` |
+
+**Limitaciones conocidas a 2K vehículos (migración requerida):**
+
+1. **`fetchAllData()` en AppContext** — Carga todas las tablas al iniciar sesión. A 2K vehículos (~4K conductores, ~24K turnos/semana), esto sería ~500ms–2s. Solución: lazy loading por pantalla + paginación server-side.
+2. **CSV parsing client-side** — Un CSV de 144K filas (~15–20 MB) puede causar lag en el navegador. Solución: streaming parser o Edge Function.
+3. **Payroll compute client-side** — Calcular 4,000 registros de nómina con joins a turnos y viajes es O(n²) en el peor caso. Solución: pg function o Edge Function.
+4. **Dashboard queries sin índices de fecha** — Las queries de KPI agregan sobre `shifts` y `trips` sin filtro de fecha eficiente. Los índices en §7.4 mitigan esto.
+5. **RLS subquery performance** — Las policies de supervisor hacen `EXISTS (SELECT 1 FROM drivers WHERE center_id = ...)`. Los índices `idx_drivers_center` y `idx_vehicles_center` aseguran que estos subqueries usen index scan, no seq scan.
+6. **Supabase 1K default row limit** — PostgREST retorna max 1,000 filas por default. Sin `.limit()` explícito, queries de `trips` y `shifts` se truncarían silenciosamente a ~150 vehículos. Mitigado con `.limit(10000)` en `supabase-queries.ts`.
 
 ---
 
