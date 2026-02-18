@@ -134,7 +134,7 @@
 
   // ---------- Build Popup Content ----------
   function buildPopupContent(v) {
-    const initials = v.firstName[0] + v.lastName[0];
+    const initials = L_LAFA.getInitials(v.firstName, v.lastName);
     const avatarBg = v.product === 'DaE' ? 'background:#14B8A6' : 'background:#F59E0B';
     return `
       <div style="font-family:'Inter Tight',system-ui,sans-serif;">
@@ -276,37 +276,29 @@
 
   // ---------- Wire Filter Controls ----------
   // Toggle switches
-  document.querySelectorAll('.toggle-switch[data-layer]').forEach(toggle => {
-    toggle.addEventListener('click', () => {
-      const layer = toggle.dataset.layer;
-      filters.layers[layer] = !filters.layers[layer];
-      toggle.classList.toggle('active', filters.layers[layer]);
-      applyFilters();
-    });
+  L_LAFA.bindAll('.toggle-switch[data-layer]', 'click', function () {
+    const layer = this.dataset.layer;
+    filters.layers[layer] = !filters.layers[layer];
+    this.classList.toggle('active', filters.layers[layer]);
+    applyFilters();
   });
 
   // Status checkboxes
-  document.querySelectorAll('input[data-status]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      filters.status[cb.dataset.status] = cb.checked;
-      applyFilters();
-    });
+  L_LAFA.bindAll('input[data-status]', 'change', function () {
+    filters.status[this.dataset.status] = this.checked;
+    applyFilters();
   });
 
   // OEM checkboxes
-  document.querySelectorAll('input[data-oem]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      filters.oem[cb.dataset.oem] = cb.checked;
-      applyFilters();
-    });
+  L_LAFA.bindAll('input[data-oem]', 'change', function () {
+    filters.oem[this.dataset.oem] = this.checked;
+    applyFilters();
   });
 
   // SOH range checkboxes
-  document.querySelectorAll('input[data-soh]').forEach(cb => {
-    cb.addEventListener('change', () => {
-      filters.sohRange[cb.dataset.soh] = cb.checked;
-      applyFilters();
-    });
+  L_LAFA.bindAll('input[data-soh]', 'change', function () {
+    filters.sohRange[this.dataset.soh] = this.checked;
+    applyFilters();
   });
 
   // ---------- Reset Filters ----------

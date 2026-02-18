@@ -8,10 +8,12 @@
   L.initPage('battery', t('battery.title'), '');
 
   // ---------- KPIs ----------
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-soh'), L.FLEET_STATS.avgSOH, 800, '', '%'), 100);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-anomalies'), L.FLEET_STATS.anomalies, 600), 200);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-temp'), L.FLEET_STATS.avgTemp, 800, '', '°C'), 300);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-cycles'), L.FLEET_STATS.avgCycles, 800), 400);
+  L.animateKPIs([
+    { id: 'kpi-soh', value: L.FLEET_STATS.avgSOH, suffix: '%' },
+    { id: 'kpi-anomalies', value: L.FLEET_STATS.anomalies, duration: 600 },
+    { id: 'kpi-temp', value: L.FLEET_STATS.avgTemp, suffix: '°C' },
+    { id: 'kpi-cycles', value: L.FLEET_STATS.avgCycles },
+  ]);
 
   // ---------- Heatmap ----------
   let selectedVehicle = null;

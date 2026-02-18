@@ -287,6 +287,30 @@ function animateCounter(el, target, duration = 800, prefix = '', suffix = '') {
   requestAnimationFrame(update);
 }
 
+function animateKPIs(configs, stagger = 100) {
+  configs.forEach((cfg, i) => {
+    setTimeout(() => {
+      const el = document.getElementById(cfg.id);
+      if (el) animateCounter(el, cfg.value, cfg.duration || 800, cfg.prefix || '', cfg.suffix || '');
+    }, (i + 1) * stagger);
+  });
+}
+
+// ---------- Event Binding Helper ----------
+function bindAll(selector, event, handler) {
+  document.querySelectorAll(selector).forEach(el => el.addEventListener(event, handler));
+}
+
+// ---------- Text Utilities ----------
+function getInitials(firstName, lastName) {
+  return ((firstName?.[0] || '') + (lastName?.[0] || '')).toUpperCase();
+}
+
+function maskPhone(phone) {
+  if (!phone || phone.length < 6) return phone;
+  return phone.substring(0, 2) + '** *** **' + phone.substring(phone.length - 2);
+}
+
 // ---------- ApexCharts Defaults ----------
 const APEX_DEFAULTS = {
   chart: {
@@ -891,11 +915,12 @@ function createModal(containerId, opts = {}) {
 window.LAFA = {
   COLORS, DRIVERS, FLEET_STATS, WEEKLY_REVENUE, PAYMENT_STATUS_WEEKS,
   formatMXN, formatNumber, timeAgo, statusBadge, productBadge, oemBadge,
-  sohColor, sohBgClass, animateCounter, lucideIcon,
+  sohColor, sohBgClass, animateCounter, animateKPIs, lucideIcon,
   mergeApexDefaults, APEX_DEFAULTS,
   initSidebar, createPageHeader, initNotifications, NOTIFICATIONS, NOTIF_ICON_MAP,
   getNotifications, sidebarLabel,
-  initPage, createChart, exportCSV, bindFilters, normalize, createModal,
+  initPage, createChart, exportCSV, bindFilters, bindAll, normalize, createModal,
+  getInitials, maskPhone,
   rand, randInt, randFloat, pick, shuffle, seededRandom,
   localField: typeof localField === 'function' ? localField : function(obj, field) { return obj[field]; },
 };

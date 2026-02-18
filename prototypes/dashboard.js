@@ -9,10 +9,12 @@
     { 'search-icon': 'search', 'download-icon': 'download' });
 
   // ---------- Animate KPIs ----------
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-vehicles'), L.FLEET_STATS.activeVehicles, 800), 100);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-revenue'), L.FLEET_STATS.weeklyRevenue, 800, '$', ''), 200);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-utilization'), L.FLEET_STATS.fleetUtilization, 800, '', ''), 300);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-payments'), L.FLEET_STATS.paymentsOnTime, 800, '', ''), 400);
+  L.animateKPIs([
+    { id: 'kpi-vehicles', value: L.FLEET_STATS.activeVehicles },
+    { id: 'kpi-revenue', value: L.FLEET_STATS.weeklyRevenue, prefix: '$' },
+    { id: 'kpi-utilization', value: L.FLEET_STATS.fleetUtilization },
+    { id: 'kpi-payments', value: L.FLEET_STATS.paymentsOnTime },
+  ]);
 
   // ---------- Revenue Area Chart ----------
   function revenueOpts() {
@@ -190,13 +192,11 @@
   }
 
   // Sort headers
-  document.querySelectorAll('th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
-      const col = th.dataset.sort;
-      if (sortCol === col) sortAsc = !sortAsc;
-      else { sortCol = col; sortAsc = true; }
-      filterAndRender();
-    });
+  L.bindAll('th[data-sort]', 'click', function () {
+    const col = this.dataset.sort;
+    if (sortCol === col) sortAsc = !sortAsc;
+    else { sortCol = col; sortAsc = true; }
+    filterAndRender();
   });
 
   // Filters
@@ -219,7 +219,7 @@
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-3">
             <div class="w-11 h-11 rounded-full bg-[#FF5A00]/20 flex items-center justify-center text-sm font-bold text-[#FF5A00]">
-              ${d.firstName[0]}${d.lastName[0]}
+              ${L.getInitials(d.firstName, d.lastName)}
             </div>
             <div>
               <h2 class="text-lg font-bold">${d.fullName}</h2>

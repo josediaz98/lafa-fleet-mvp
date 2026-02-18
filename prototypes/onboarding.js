@@ -101,10 +101,12 @@
   }
 
   // ---------- KPIs ----------
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-apps'), 23, 800), 100);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-time'), 4.2, 800, '', 'h'), 200);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-auto'), 78, 800, '', '%'), 300);
-  setTimeout(() => L.animateCounter(document.getElementById('kpi-pending'), 12, 600), 400);
+  L.animateKPIs([
+    { id: 'kpi-apps', value: 23 },
+    { id: 'kpi-time', value: 4.2, suffix: 'h' },
+    { id: 'kpi-auto', value: 78, suffix: '%' },
+    { id: 'kpi-pending', value: 12, duration: 600 },
+  ]);
 
   // ---------- KPI Sparklines ----------
   function renderSparkline(containerId, dataPoints, color) {
@@ -131,17 +133,7 @@
   document.getElementById('kpi-auto-trend').textContent = t('onboarding.trend.auto');
   document.getElementById('kpi-pending-trend').innerHTML = `<span class="text-green-400">${t('onboarding.trend.pending')}</span>`;
 
-  // ---------- Truncate Phone ----------
-  function truncatePhone(phone) {
-    if (!phone || phone.length < 6) return phone;
-    return phone.substring(0, 2) + '** *** **' + phone.substring(phone.length - 2);
-  }
-
-  // ---------- Initials ----------
-  function getInitials(name) {
-    const parts = name.split(' ');
-    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
-  }
+  // Use shared L.maskPhone and L.getInitials
 
   // ---------- Render Kanban ----------
   function renderKanban() {
@@ -174,13 +166,13 @@
         <div class="kanban-card bg-lafa-card rounded-lg p-3 border border-white/5 ${selectedApplicant && selectedApplicant.id === a.id ? 'border-[#FF5A00]/50' : ''}"
              draggable="true" data-id="${a.id}">
           <div class="flex items-center gap-2.5 mb-2">
-            <div class="avatar-initials" style="${avatarBg};color:#fff">${getInitials(a.fullName)}</div>
+            <div class="avatar-initials" style="${avatarBg};color:#fff">${L.getInitials(a.firstName, a.lastName)}</div>
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-1.5">
                 <span class="text-sm font-medium text-white truncate">${a.fullName}</span>
                 <span class="risk-dot risk-${a.riskLevel}"></span>
               </div>
-              <div class="text-xs text-gray-500">${truncatePhone(a.phone)}</div>
+              <div class="text-xs text-gray-500">${L.maskPhone(a.phone)}</div>
             </div>
             ${L.productBadge(a.product)}
           </div>
@@ -234,13 +226,11 @@
   }
 
   // ---------- Filter Controls ----------
-  document.querySelectorAll('.filter-pill').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      activeProductFilter = pill.dataset.filter;
-      renderKanban();
-    });
+  L.bindAll('.filter-pill', 'click', function () {
+    document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+    this.classList.add('active');
+    activeProductFilter = this.dataset.filter;
+    renderKanban();
   });
 
   document.getElementById('onboard-search').addEventListener('input', (e) => {
@@ -261,7 +251,7 @@
     const avatarBg = app.product === 'DaE' ? '#14B8A6' : '#F59E0B';
     document.getElementById('modal-avatar').style.background = avatarBg;
     document.getElementById('modal-avatar').style.color = '#fff';
-    document.getElementById('modal-avatar').textContent = getInitials(app.fullName);
+    document.getElementById('modal-avatar').textContent = L.getInitials(app.firstName, app.lastName);
     document.getElementById('modal-name').textContent = app.fullName;
     document.getElementById('modal-product-badge').innerHTML = L.productBadge(app.product);
     document.getElementById('modal-phone').textContent = `+52 ${app.phone.substring(0,2)} ${app.phone.substring(2,6)} ${app.phone.substring(6)}`;
