@@ -9,3 +9,6 @@ fleet-intelligence/dist/
 fleet-intelligence/.env
 fleet-intelligence/.env.local
 fleet-intelligence/tsconfig.tsbuildinfo
+
+# Vercel build output
+app/

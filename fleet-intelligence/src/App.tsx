@@ -51,7 +51,7 @@ function AppRoutes() {
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/app">
       <AppProvider>
         <ToastProvider>
           <ConfirmDialogProvider>
