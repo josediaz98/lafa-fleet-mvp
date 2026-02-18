@@ -82,6 +82,7 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
 ├── prototypes/                            ← Working prototypes (HTML + JS + CSS)
+│   ├── landing.css                        ← Landing page styles (index.html)
 │   ├── tailwind.init.js                   ← Shared Tailwind config (all prototype pages)
 │   ├── i18n.js                            ← ES/EN internationalization
 │   ├── shared.css / shared.js             ← Shared styles, data, sidebar, utilities
