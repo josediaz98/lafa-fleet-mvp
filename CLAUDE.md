@@ -7,18 +7,18 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 
 | Area | Stack |
 |------|-------|
-| `tools/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
+| `prototypes/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
 | `index.html` | Same — marketing landing page |
 | `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react |
 | `content/` | Markdown research files |
 | Technical challenge | Python (stdlib only for generator) |
 
-`tools/` and `index.html` have no build step (CDN only). `fleet-intelligence/` uses Vite.
+`prototypes/` and `index.html` have no build step (CDN only). `fleet-intelligence/` uses Vite.
 
 ## Commands
 
 ```bash
-# Marketing site + tools (static, no build)
+# Marketing site + prototypes (static, no build)
 python -m http.server 8000
 npx serve .
 
@@ -31,7 +31,7 @@ cd fleet-intelligence && npm run build # production build → dist/
 python content/hiring/technical-challenge/generate_didi_data.py
 ```
 
-## Code Style (tools/)
+## Code Style (prototypes/)
 
 - **IIFE per page:** Each `.js` file wraps in `(function () { ... })()`, accesses shared state via `window.LAFA`
 - **Tailwind + shared.css:** Utility classes first, custom components in `shared.css`
@@ -81,8 +81,9 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   │       ├── prd.md                     ← Product requirements document
 │   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
-├── tools/                                 ← Internal tools app (HTML + JS + CSS)
-│   ├── tailwind.init.js                   ← Shared Tailwind config (all tool pages)
+├── prototypes/                            ← Working prototypes (HTML + JS + CSS)
+│   ├── tailwind.init.js                   ← Shared Tailwind config (all prototype pages)
+│   ├── i18n.js                            ← ES/EN internationalization
 │   ├── shared.css / shared.js             ← Shared styles, data, sidebar, utilities
 │   ├── dashboard.html / dashboard.js      ← Fleet operations dashboard
 │   ├── battery.html / battery.js          ← Battery health monitor
