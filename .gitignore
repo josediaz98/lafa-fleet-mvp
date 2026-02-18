@@ -11,6 +11,3 @@ fleet-intelligence/tsconfig.tsbuildinfo
 
 # Vercel build output
 .vercel
-
-# Research & strategy content
-content/
