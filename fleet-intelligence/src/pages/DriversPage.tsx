@@ -6,6 +6,7 @@ import { MOCK_CENTERS, formatMXN, formatTime } from '../data/mockData';
 import { getCenterName } from '../lib/dataUtils';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { persistNewDriver, persistUpdateDriver, persistDeactivateDriver } from '../lib/supabase-mutations';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
@@ -89,6 +90,7 @@ export default function DriversPage() {
       status: 'activo',
     };
     dispatch({ type: 'ADD_DRIVER', payload: newDriver });
+    persistNewDriver(newDriver);
     showToast('success', `Conductor ${newDriver.fullName} creado.`);
     setShowCreateModal(false);
   }
@@ -127,6 +129,7 @@ export default function DriversPage() {
       startDate: form.startDate,
     };
     dispatch({ type: 'UPDATE_DRIVER', payload: updated });
+    persistUpdateDriver(updated);
     setSelectedDriver(updated);
     showToast('success', `Conductor ${updated.fullName} actualizado.`);
     setEditMode(false);
@@ -149,6 +152,7 @@ export default function DriversPage() {
     });
     if (!ok) return;
     dispatch({ type: 'DEACTIVATE_DRIVER', payload: selectedDriver.id });
+    persistDeactivateDriver(selectedDriver.id);
     showToast('success', `${selectedDriver.fullName} desactivado.`);
     setSelectedDriver(null);
   }

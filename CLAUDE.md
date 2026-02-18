@@ -1,125 +1,80 @@
 # LAFA Project Instructions
 
-## What This Is
-Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin America Future Automobile). Organized as a VC investment thesis. Also includes a web app (replica of LAFA's site + internal tools prototypes) and a technical challenge MVP.
+Research + strategy repo for evaluating the AI Product Engineer role at LAFA (Latin America Future Automobile). Contains a VC investment thesis, a marketing site with interactive prototypes, and a Fleet Intelligence MVP.
 
 ## Tech Stack
 
 | Area | Stack |
 |------|-------|
-| `site/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js (includes landing page) |
-| `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react + **Supabase** (PostgreSQL + Auth + RLS) |
+| `site/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
+| `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react + Supabase |
 | `content/` | Markdown research files |
-| Technical challenge | Python (stdlib only for generator) |
 
 `site/` has no build step (CDN only). `fleet-intelligence/` uses Vite.
 
 ## Commands
 
 ```bash
-# Marketing site + prototypes (static, no build)
-python -m http.server 8000
+# Static site (no build step)
 npx serve .
 
-# Fleet Intelligence MVP (React/Vite)
+# Fleet Intelligence MVP
 cd fleet-intelligence && npm install   # first time only
-cd fleet-intelligence && cp .env.example .env.local  # then edit with your Supabase keys
-cd fleet-intelligence && npm run dev   # dev server (localhost:5173) — requires Supabase project
-cd fleet-intelligence && npm run build # production build → dist/
-
-# Generate DiDi test data (stdlib only — no pip install)
-python content/hiring/technical-challenge/generate_didi_data.py
+cd fleet-intelligence && cp .env.example .env.local  # edit with Supabase keys
+cd fleet-intelligence && npm run dev   # localhost:5173 — requires Supabase
+cd fleet-intelligence && npm run build # production → dist/
 ```
 
-## Code Style (site/ prototypes)
+## Deployment (Vercel)
 
-- **IIFE per page:** Each `.js` file wraps in `(function () { ... })()`, accesses shared state via `window.LAFA`
-- **Tailwind + shared.css:** Utility classes first, custom components in `shared.css`
-- **Design tokens:** Colors in `COLORS` object (`core/shared.js:7-23`) and `core/tailwind.init.js` (`lafa.*` namespace)
-- **Fonts:** Inter Tight (system-ui fallback)
-- **i18n:** `data-i18n` attributes on elements, ES/EN toggle via `L.setLang()`
-- **No frameworks:** Vanilla JS only. No React, no jQuery
+Single Vercel project orchestrates both apps. Root `vercel.json`:
+- `/` → `site/index.html` (marketing landing page)
+- `/app/*` → Fleet Intelligence SPA (React, built to `/app/`)
+- `/site/<prototype>/` → Static prototypes (dashboard, battery, etc.)
 
-## File Structure
+Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/ && cp -r dist ../app`
+
+## Directory Layout
+
 ```
 /Lafa/
-├── README.md                              ← Executive summary + VC thesis navigation
-├── CLAUDE.md                              ← This file
-├── fleet-intelligence/                    ← Fleet Intelligence MVP (React + TS + Vite)
-│   ├── package.json                       ← Dependencies & scripts
-│   ├── vite.config.ts / tsconfig.json     ← Build config
-│   ├── tailwind.config.ts                 ← Tailwind with lafa.* color tokens
-│   ├── index.html                         ← Vite entry point
-│   └── src/
-│       ├── main.tsx / App.tsx             ← Entry + router
-│       ├── context/                       ← AppContext (state) + ToastContext
-│       ├── hooks/                         ← useCenterFilter
-│       ├── data/mockData.ts              ← Mock fleet data + utilities
-│       ├── lib/payroll.ts                ← Payroll calculation engine
-│       ├── components/                   ← Layout + UI components
-│       └── pages/                        ← 8 pages (Login, Dashboard, Shifts, CSV, Payroll, Drivers, Vehicles, Users)
-├── content/                               ← All research & strategy content
-│   ├── thesis/                            ← VC investment thesis (8 chapters)
-│   │   ├── 01-problem.md … 08-risks.md
-│   ├── analysis/                          ← Deep-dive evidence (detail behind thesis/)
-│   │   ├── fleet/                         ← 6 files (tariff, charging, battery, tech, route, maintenance)
-│   │   ├── fintech/                       ← 3 files (credit, repossession, insurance)
-│   │   └── market/                        ← 4 files (competitive, ev-market, gig-driver, biz-model)
-│   ├── team/                              ← Individual team profiles (6 people)
-│   ├── strategy/                          ← Jose's strategic contribution (4 files + README)
-│   ├── vemo-benchmark/                    ← Vemo competitive intel (7 topic files + README)
-│   ├── hiring/                            ← Hiring process
-│   │   ├── README.md                      ← Timeline, job description, Jose's CV
-│   │   ├── interviews/                    ← Interview transcripts & prep
-│   │   │   ├── interview-levi-2026-02-06.md ← Full interview transcript
-│   │   │   ├── interview-levi-feedback.md   ← Post-interview feedback
-│   │   │   └── jj-interview-prep.md         ← CEO interview prep
-│   │   └── technical-challenge/           ← Fleet Intelligence & Payroll MVP
-│   │       ├── CLAUDE.md                  ← Challenge-specific instructions
-│   │       ├── brief.md                   ← Challenge spec + payroll pseudocode
-│   │       ├── assumptions-qa.md          ← 25 resolved ambiguities
-│   │       ├── prd.md                     ← Product requirements document
-│   │       ├── supabase-schema.sql        ← DDL + RLS policies + seed data
-│   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
-│   └── reference/                         ← Brand assets
-├── site/                                  ← Landing page + working prototypes (HTML + JS + CSS)
-│   ├── index.html                         ← Marketing landing page (Vercel rewrites / to here)
-│   ├── core/                              ← Shared infrastructure
-│   │   ├── i18n.js                        ← ES/EN internationalization
-│   │   ├── shared.js                      ← Shared data, sidebar, utilities
-│   │   ├── shared.css                     ← Shared styles
-│   │   ├── tailwind.init.js               ← Shared Tailwind config
-│   │   └── landing.css                    ← Landing page styles (index.html)
-│   ├── dashboard/                         ← Fleet operations dashboard
-│   │   ├── index.html
-│   │   └── dashboard.js
-│   ├── battery/                           ← Battery health monitor
-│   │   ├── index.html
-│   │   └── battery.js
-│   ├── collections/                       ← WhatsApp collections bot
-│   │   ├── index.html
-│   │   └── collections.js
-│   ├── fleetmap/                          ← Real-time fleet map (Leaflet.js)
-│   │   ├── index.html
-│   │   └── fleetmap.js
-│   ├── onboarding/                        ← Driver onboarding pipeline
-│   │   ├── index.html
-│   │   └── onboarding.js
-│   └── roadmap/                           ← AI roadmap interactive
-│       ├── index.html
-│       ├── roadmap.js
-│       └── roadmap-data.js
-└── images/                                ← Image assets
+├── site/                    ← Landing page + 6 prototypes (static HTML/JS)
+│   ├── index.html           ← Marketing landing page
+│   ├── core/                ← Shared: i18n, shared.js/css, tailwind config
+│   └── {dashboard,battery,collections,fleetmap,onboarding,roadmap}/
+├── fleet-intelligence/      ← Fleet Intelligence MVP (React + TS + Vite)
+│   └── src/                 ← pages/, components/, context/, hooks/, lib/
+├── content/                 ← Research & strategy (Markdown)
+│   ├── thesis/              ← 8-chapter VC thesis (summary layer)
+│   ├── analysis/            ← Evidence layer (fleet/, fintech/, market/)
+│   ├── strategy/            ← Product strategy proposals
+│   ├── hiring/              ← Interviews + technical challenge (has its own CLAUDE.md)
+│   └── vemo-benchmark/      ← Competitive intel
+└── images/
 ```
 
-## Conventions
+## Code Style (site/)
 
-- **All content files are in English.** Interview transcripts may contain Spanish quotes.
-- **MECE data ownership:** Each data point lives in exactly one file. Other files cross-reference via relative links. See the Data Ownership table in README.md.
-- **Cross-references:** Key files have navigation headers (blockquotes) linking to related files. When adding new content, place it in the owner file and add cross-reference links from related files.
-- **content/thesis/ is the summary layer.** It references content/analysis/ for detail. Never duplicate data — link instead.
-- **content/analysis/ is the evidence layer.** Each file supports specific thesis chapters (see content/analysis/README.md for the mapping).
-- **content/strategy/ is Jose's contribution.** These files represent what he would build at LAFA. See content/strategy/README.md for how the 4 files connect.
+- **IIFE per page:** `(function () { ... })()`, shared state via `window.LAFA`
+- **Tailwind + shared.css:** Utility classes first, custom components in `core/shared.css`
+- **Design tokens:** `COLORS` object (`core/shared.js:7-23`) + `core/tailwind.init.js` (`lafa.*`)
+- **Font:** Inter Tight (system-ui fallback)
+- **i18n:** `data-i18n` attributes, ES/EN toggle via `L.setLang()`
+- **No frameworks:** Vanilla JS only. No React, no jQuery
+
+## Code Style (fleet-intelligence/)
+
+- TypeScript strict mode, `lafa.*` Tailwind color tokens (`tailwind.config.ts`)
+- State: AppContext (reducer) + ToastContext
+- See `content/hiring/technical-challenge/CLAUDE.md` for payroll logic and challenge details
+
+## Content Conventions
+
+- **MECE data ownership:** Each fact in exactly one file; others cross-reference via links
+- **thesis/ = summary layer** → references analysis/ for evidence. Never duplicate — link.
+- **analysis/ = evidence layer** → supports thesis chapters
+- **strategy/ = Jose's contribution** → what he'd build at LAFA
+- **All content in English.** Interview transcripts may contain Spanish quotes.
 
 ## Key Facts
 
@@ -128,5 +83,8 @@ python content/hiring/technical-challenge/generate_didi_data.py
 - **Products:** Driver-as-Employee (DaE) + Lease-to-Own (LTO, launched Dec 2025)
 - **Tech status:** Stage 0 — everything is spreadsheets
 - **Platform partner:** DiDi (Premier launched Oct 2025)
-- **Hiring:** Jose would report to Levi Garcia (Head of Product). Next interview: JJ (CEO)
-- **Fleet Intelligence demo:** admin@lafa.mx / admin123
+- **Hiring:** Jose → Levi Garcia (Head of Product) → JJ (CEO)
+
+## Tooling
+
+No tests, no linter, no CI pipeline, no git hooks. Vercel auto-deploys from `main`.

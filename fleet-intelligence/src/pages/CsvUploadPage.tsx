@@ -3,6 +3,7 @@ import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter } from 'l
 import { useAppState, useAppDispatch, type Trip } from '../context/AppContext';
 import { MOCK_DRIVERS, formatMXN } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
+import { persistTrips } from '../lib/supabase-mutations';
 import EstadoIcon from '../components/ui/EstadoIcon';
 
 const STEPS = [
@@ -32,8 +33,8 @@ interface ParsedRow {
   errorMsg?: string;
 }
 
-function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: Set<string>): ParsedRow {
-  const driverExists = MOCK_DRIVERS.some(d => d.didiDriverId === row.driverId);
+function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: Set<string>, activeDrivers: { didiDriverId: number }[]): ParsedRow {
+  const driverExists = activeDrivers.some(d => d.didiDriverId === row.driverId);
   if (!driverExists) {
     return { ...row, estado: 'error', errorMsg: 'Driver ID no encontrado' };
   }
@@ -51,8 +52,15 @@ function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: S
     return { ...row, estado: 'error', errorMsg: 'Costo debe ser > 0' };
   }
 
-  if (row.horaInicio >= row.horaFin) {
-    return { ...row, estado: 'error', errorMsg: 'Hora inicio >= hora fin' };
+  // Allow midnight-crossing trips (e.g. 23:50 → 00:35 for nocturno shifts)
+  const parseMinutes = (t: string) => {
+    const [h, m] = t.split(':').map(Number);
+    return h * 60 + (m || 0);
+  };
+  const startMin = parseMinutes(row.horaInicio);
+  const endMin = parseMinutes(row.horaFin);
+  if (startMin === endMin) {
+    return { ...row, estado: 'error', errorMsg: 'Hora inicio = hora fin' };
   }
 
   if (row.pickupLat !== undefined && row.pickupLng !== undefined) {
@@ -109,7 +117,7 @@ function parseCsvText(text: string): ParsedRow[] {
 }
 
 export default function CsvUploadPage() {
-  const { trips } = useAppState();
+  const { trips, drivers: stateDrivers, session } = useAppState();
   const dispatch = useAppDispatch();
   const { showToast } = useToast();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -132,8 +140,9 @@ export default function CsvUploadPage() {
       const parsed = parseCsvText(text);
 
       const seenIds = new Set<string>();
+      const driversForValidation = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
       const validated = parsed.map(row => {
-        const result = validateRow(row, seenIds, existingTripIds);
+        const result = validateRow(row, seenIds, existingTripIds, driversForValidation);
         seenIds.add(row.tripId);
         return result;
       });
@@ -169,6 +178,15 @@ export default function CsvUploadPage() {
     }));
 
     dispatch({ type: 'IMPORT_TRIPS', payload: newTrips });
+
+    // Persist to Supabase — build didiDriverId → UUID map
+    const didiToDriverId = new Map<number, string>();
+    const driversForMap = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
+    for (const d of driversForMap) {
+      didiToDriverId.set(d.didiDriverId, d.id);
+    }
+    persistTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName);
+
     showToast('success', `${newTrips.length} viajes importados exitosamente.`);
     setActiveStep(3);
   }

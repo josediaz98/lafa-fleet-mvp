@@ -10,10 +10,33 @@ const PRODUCTIVITY_BONUS_PER_UNIT = 100;
 const OVERTIME_THRESHOLD_HOURS = 40;
 const OVERTIME_RATE_PER_HOUR = 50;
 const OVERTIME_CAP_HOURS = 8;
+const WORKING_DAYS_PER_WEEK = 5;
 
 interface ShiftSummary {
   driverId: string;
   totalHours: number;
+}
+
+/** Convert DD/MM/YYYY to YYYY-MM-DD for comparison with week bounds. */
+function parseFechaToISO(fecha: string): string {
+  const parts = fecha.split('/');
+  if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
+  return fecha;
+}
+
+/** Count weekdays (Mon-Fri) between two dates, inclusive. */
+function countWeekdays(start: Date, end: Date): number {
+  let count = 0;
+  const d = new Date(start);
+  d.setHours(0, 0, 0, 0);
+  const endNorm = new Date(end);
+  endNorm.setHours(0, 0, 0, 0);
+  while (d <= endNorm) {
+    const day = d.getDay();
+    if (day !== 0 && day !== 6) count++;
+    d.setDate(d.getDate() + 1);
+  }
+  return count;
 }
 
 export function calculateWeeklyPay(
@@ -33,7 +56,12 @@ export function calculateWeeklyPay(
   return drivers
     .filter(d => d.status === 'activo')
     .map(driver => {
-      const driverTrips = trips.filter(t => t.driverId === driver.didiDriverId);
+      // Bug A fix: Filter trips by week bounds
+      const driverTrips = trips.filter(t => {
+        if (t.driverId !== driver.didiDriverId) return false;
+        const tripDate = parseFechaToISO(t.fecha);
+        return tripDate >= weekStart && tripDate <= weekEnd;
+      });
       const totalBilled = driverTrips.reduce((sum, t) => sum + t.costo, 0);
       const shiftData = shiftSummaries.find(s => s.driverId === driver.id);
       const hoursWorked = shiftData?.totalHours ?? 0;
@@ -43,11 +71,10 @@ export function calculateWeeklyPay(
       let revenueThreshold = GOAL_THRESHOLD;
       const driverStartDate = new Date(driver.startDate);
 
+      // Bug D fix: Use working days (Mon-Fri = 5) instead of calendar days (7)
       if (driverStartDate > weekStartDate && driverStartDate <= weekEndDate) {
-        const totalDays = 7;
-        const msInDay = 86400000;
-        const daysWorked = Math.max(1, Math.ceil((weekEndDate.getTime() - driverStartDate.getTime()) / msInDay) + 1);
-        const prorateFactor = Math.min(daysWorked / totalDays, 1);
+        const daysWorked = Math.max(1, countWeekdays(driverStartDate, weekEndDate));
+        const prorateFactor = Math.min(daysWorked / WORKING_DAYS_PER_WEEK, 1);
         hoursThreshold = Math.round(OVERTIME_THRESHOLD_HOURS * prorateFactor * 10) / 10;
         revenueThreshold = Math.round(GOAL_THRESHOLD * prorateFactor);
       }
@@ -56,9 +83,10 @@ export function calculateWeeklyPay(
       const goalMet = (hoursWorked >= hoursThreshold) && (totalBilled >= revenueThreshold);
       const baseSalary = goalMet ? BASE_SALARY : 0;
 
+      // Bug E fix: Use prorated revenueThreshold instead of full GOAL_THRESHOLD
       let productivityBonus = 0;
       if (goalMet) {
-        const excess = totalBilled - GOAL_THRESHOLD;
+        const excess = totalBilled - revenueThreshold;
         if (excess > 0) {
           const units = Math.floor(excess / PRODUCTIVITY_UNIT);
           productivityBonus = units * PRODUCTIVITY_BONUS_PER_UNIT;
@@ -84,6 +112,8 @@ export function calculateWeeklyPay(
         center: center?.name ?? '',
         hoursWorked,
         totalBilled,
+        hoursThreshold,
+        revenueThreshold,
         goalMet,
         baseSalary,
         productivityBonus,

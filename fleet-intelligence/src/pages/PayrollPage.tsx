@@ -7,6 +7,7 @@ import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { calculateWeeklyPay, exportPayrollCsv } from '../lib/payroll';
 import { getWeekBounds } from '../lib/dateUtils';
+import { persistClosePayroll, persistRerunPayroll } from '../lib/supabase-mutations';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import SlidePanel from '../components/ui/SlidePanel';
 import EmptyState from '../components/ui/EmptyState';
@@ -30,12 +31,17 @@ export default function PayrollPage() {
 
   const previousWeekHours = useMemo(() => {
     const map = new Map<string, number>();
-    closedPayroll
-      .filter(p => p.status === 'cerrado')
-      .forEach(p => {
-        const existing = map.get(p.driverId) ?? 0;
-        if (p.hoursWorked > existing) map.set(p.driverId, p.hoursWorked);
-      });
+    // Bug B fix: Only use the most recent closed week, not max-ever
+    const closedRecords = closedPayroll.filter(p => p.status === 'cerrado' && p.weekLabel);
+    if (closedRecords.length === 0) return map;
+    // Find the most recent weekLabel by weekStart date
+    const mostRecentWeek = closedRecords.reduce((latest, p) => {
+      if (!latest || (p.weekStart && (!latest.weekStart || p.weekStart > latest.weekStart))) return p;
+      return latest;
+    }).weekLabel;
+    closedRecords
+      .filter(p => p.weekLabel === mostRecentWeek)
+      .forEach(p => map.set(p.driverId, p.hoursWorked));
     return map;
   }, [closedPayroll]);
 

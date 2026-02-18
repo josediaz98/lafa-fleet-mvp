@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer, type ReactNode, type Dispatch } from 'react';
+import { createContext, useContext, useReducer, useEffect, type ReactNode, type Dispatch } from 'react';
 import {
   MOCK_DRIVERS,
   MOCK_VEHICLES,
@@ -11,6 +11,8 @@ import {
   type MockShift,
   type MockUser,
 } from '../data/mockData';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { fetchAllData } from '../lib/supabase-queries';
 
 // ---- Types ----
 
@@ -38,6 +40,8 @@ export interface PayrollRecord {
   center: string;
   hoursWorked: number;
   totalBilled: number;
+  hoursThreshold: number;
+  revenueThreshold: number;
   goalMet: boolean;
   baseSalary: number;
   productivityBonus: number;
@@ -68,11 +72,13 @@ export interface AppState {
   trips: Trip[];
   closedPayroll: PayrollRecord[];
   session: Session | null;
+  hydrated: boolean;
 }
 
 // ---- Actions ----
 
 type Action =
+  | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated'> }
   | { type: 'ADD_SHIFT'; payload: Shift }
   | { type: 'CLOSE_SHIFT'; payload: { shiftId: string; checkOut: string; hoursWorked: number } }
   | { type: 'UPDATE_VEHICLE_STATUS'; payload: { vehicleId: string; status: string } }
@@ -94,6 +100,9 @@ type Action =
 
 function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
+    case 'HYDRATE':
+      return { ...state, ...action.payload, hydrated: true };
+
     case 'ADD_SHIFT':
       return { ...state, shifts: [...state.shifts, action.payload] };
 
@@ -203,6 +212,7 @@ const initialState: AppState = {
   trips: MOCK_TRIPS as Trip[],
   closedPayroll: MOCK_PAYROLL as PayrollRecord[],
   session: loadSession(),
+  hydrated: !isSupabaseConfigured,
 };
 
 // ---- Context ----
@@ -212,6 +222,24 @@ const DispatchContext = createContext<Dispatch<Action>>(() => {});
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    fetchAllData()
+      .then(data => dispatch({ type: 'HYDRATE', payload: data }))
+      .catch(err => {
+        console.error('Failed to load from Supabase, using mock data:', err);
+        dispatch({ type: 'HYDRATE', payload: {
+          drivers: MOCK_DRIVERS as Driver[],
+          vehicles: MOCK_VEHICLES as Vehicle[],
+          shifts: MOCK_SHIFTS as Shift[],
+          users: MOCK_USERS as User[],
+          trips: MOCK_TRIPS as Trip[],
+          closedPayroll: MOCK_PAYROLL as PayrollRecord[],
+        }});
+      });
+  }, []);
+
   return (
     <StateContext.Provider value={state}>
       <DispatchContext.Provider value={dispatch}>

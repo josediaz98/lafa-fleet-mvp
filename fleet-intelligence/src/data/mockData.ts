@@ -274,17 +274,22 @@ const _closedPayrollBase = [
   { id: 'pr-d30-prev', driverName: 'Gabriel Estrada', driverId: 'd30', centerId: 'c3', center: 'Roma', hoursWorked: 18, totalBilled: 2200, goalMet: false, baseSalary: 0, productivityBonus: 0, overtimePay: 0, totalPay: 1000 },
 ];
 
-export const MOCK_PAYROLL = _closedPayrollBase.map(r => ({
-  ...r,
-  status: 'cerrado' as const,
-  weekLabel: CLOSED_WEEK_LABEL,
-  weekStart: CLOSED_WEEK_START,
-  weekEnd: CLOSED_WEEK_END,
-  closedBy: 'Admin LAFA',
-  closedAt: CLOSED_AT,
-  version: 1,
-  aiExplanation: generateExplanation(r),
-}));
+export const MOCK_PAYROLL = _closedPayrollBase.map(r => {
+  const hoursThreshold = 40;
+  const revenueThreshold = 6000;
+  const withThresholds = { ...r, hoursThreshold, revenueThreshold };
+  return {
+    ...withThresholds,
+    status: 'cerrado' as const,
+    weekLabel: CLOSED_WEEK_LABEL,
+    weekStart: CLOSED_WEEK_START,
+    weekEnd: CLOSED_WEEK_END,
+    closedBy: 'Admin LAFA',
+    closedAt: CLOSED_AT,
+    version: 1,
+    aiExplanation: generateExplanation(withThresholds),
+  };
+});
 
 // ---- Utility functions ----
 

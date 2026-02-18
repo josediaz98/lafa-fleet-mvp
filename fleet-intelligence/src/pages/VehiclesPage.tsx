@@ -5,6 +5,7 @@ import { useCenterFilter } from '../hooks/useCenterFilter';
 import { MOCK_CENTERS } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { persistNewVehicle, persistUpdateVehicle, persistVehicleStatus } from '../lib/supabase-mutations';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
@@ -86,6 +87,7 @@ export default function VehiclesPage() {
       if (!ok) return;
     }
     dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: vehicle.id, status: newStatus } });
+    persistVehicleStatus(vehicle.id, newStatus);
     showToast('success', `${vehicle.plate} \u2192 ${STATUS_LABELS[newStatus] ?? newStatus}`);
   }
 
@@ -114,6 +116,7 @@ export default function VehiclesPage() {
       status: 'disponible',
     };
     dispatch({ type: 'ADD_VEHICLE', payload: newVehicle });
+    persistNewVehicle(newVehicle);
     showToast('success', `Veh\u00edculo ${newVehicle.plate} creado.`);
     setShowCreateModal(false);
   }
@@ -139,6 +142,7 @@ export default function VehiclesPage() {
     }
     const updated: Vehicle = { ...selectedVehicle, plate: newPlate, model: editForm.model.trim(), oem: editForm.oem.trim(), centerId: editForm.centerId };
     dispatch({ type: 'UPDATE_VEHICLE', payload: updated });
+    persistUpdateVehicle(updated);
     setSelectedVehicle(updated);
     showToast('success', `Vehículo ${updated.plate} actualizado.`);
     setEditMode(false);

@@ -1,7 +1,9 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AppProvider, useAppState } from './context/AppContext';
+import { AppProvider, useAppState, useAppDispatch } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import { ConfirmDialogProvider } from './components/ui/ConfirmDialog';
+import { supabase, isSupabaseConfigured } from './lib/supabase';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -25,27 +27,72 @@ function RequireAdmin({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function AuthRestorer() {
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) return;
+
+    // Restore session from Supabase on mount
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session?.user) {
+        supabase!.from('profiles')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .single()
+          .then(({ data: profile }) => {
+            if (profile && profile.status === 'activo') {
+              const session = {
+                userId: profile.id,
+                name: profile.name,
+                role: profile.role,
+                centerId: profile.center_id,
+              };
+              localStorage.setItem('lafa_session', JSON.stringify(session));
+              dispatch({ type: 'LOGIN', payload: session });
+            }
+          });
+      }
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT') {
+        localStorage.removeItem('lafa_session');
+        dispatch({ type: 'LOGOUT' });
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [dispatch]);
+
+  return null;
+}
+
 function AppRoutes() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route
-        element={
-          <RequireAuth>
-            <AppLayout />
-          </RequireAuth>
-        }
-      >
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/shifts" element={<ShiftsPage />} />
-        <Route path="/csv-upload" element={<RequireAdmin><CsvUploadPage /></RequireAdmin>} />
-        <Route path="/payroll" element={<PayrollPage />} />
-        <Route path="/drivers" element={<DriversPage />} />
-        <Route path="/vehicles" element={<VehiclesPage />} />
-        <Route path="/users" element={<RequireAdmin><UsersPage /></RequireAdmin>} />
-      </Route>
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
-    </Routes>
+    <>
+      <AuthRestorer />
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          element={
+            <RequireAuth>
+              <AppLayout />
+            </RequireAuth>
+          }
+        >
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/shifts" element={<ShiftsPage />} />
+          <Route path="/csv-upload" element={<RequireAdmin><CsvUploadPage /></RequireAdmin>} />
+          <Route path="/payroll" element={<PayrollPage />} />
+          <Route path="/drivers" element={<DriversPage />} />
+          <Route path="/vehicles" element={<VehiclesPage />} />
+          <Route path="/users" element={<RequireAdmin><UsersPage /></RequireAdmin>} />
+        </Route>
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      </Routes>
+    </>
   );
 }
 

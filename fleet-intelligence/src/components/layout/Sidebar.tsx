@@ -13,6 +13,7 @@ import {
 import StatusBadge from '../ui/StatusBadge';
 import LafaLogo from '../ui/LafaLogo';
 import { useAppState, useAppDispatch } from '../../context/AppContext';
+import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
@@ -39,6 +40,9 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const initials = session?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '';
 
   function handleLogout() {
+    if (isSupabaseConfigured && supabase) {
+      supabase.auth.signOut();
+    }
     localStorage.removeItem('lafa_session');
     dispatch({ type: 'LOGOUT' });
     navigate('/login');

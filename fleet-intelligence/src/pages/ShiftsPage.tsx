@@ -7,6 +7,7 @@ import { MOCK_CENTERS } from '../data/mockData';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { persistCheckIn, persistCheckOut, persistVehicleStatus } from '../lib/supabase-mutations';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import EmptyState from '../components/ui/EmptyState';
 import ShiftCard from '../components/shifts/ShiftCard';
@@ -15,7 +16,7 @@ import ShiftCheckInForm from '../components/shifts/ShiftCheckInForm';
 type ShiftTab = 'activos' | 'completados' | 'pendientes';
 
 export default function ShiftsPage() {
-  const { shifts, drivers, vehicles } = useAppState();
+  const { shifts, drivers, vehicles, session } = useAppState();
   const dispatch = useAppDispatch();
   const { filterByCenter } = useCenterFilter();
   const { showToast } = useToast();
@@ -80,6 +81,8 @@ export default function ShiftsPage() {
 
     dispatch({ type: 'ADD_SHIFT', payload: newShift });
     dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: vehicle.id, status: 'en_turno' } });
+    persistCheckIn(newShift, session?.userId ?? '');
+    persistVehicleStatus(vehicle.id, 'en_turno');
     showToast('success', `Check-in registrado: ${driver.fullName} en ${vehicle.plate}`);
   }
 
@@ -98,12 +101,15 @@ export default function ShiftsPage() {
       if (!ok) return;
     }
 
+    const checkOutTime = new Date().toISOString();
     dispatch({
       type: 'CLOSE_SHIFT',
-      payload: { shiftId, checkOut: new Date().toISOString(), hoursWorked: hours },
+      payload: { shiftId, checkOut: checkOutTime, hoursWorked: hours },
     });
+    persistCheckOut(shiftId, checkOutTime, hours);
     if (shift.vehicleId) {
       dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: shift.vehicleId, status: 'disponible' } });
+      persistVehicleStatus(shift.vehicleId, 'disponible');
     }
     showToast('success', `Turno cerrado: ${shift.driverName} \u2014 ${hours}h`);
   }
