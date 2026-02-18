@@ -21,18 +21,14 @@ npx serve .
 # Fleet Intelligence MVP
 cd fleet-intelligence && npm install   # first time only
 cd fleet-intelligence && cp .env.example .env.local  # edit with Supabase keys
-cd fleet-intelligence && npm run dev   # localhost:5173 — requires Supabase
+cd fleet-intelligence && npm run dev   # localhost:5173 — works without Supabase (falls back to mock data)
 cd fleet-intelligence && npm run build # production → dist/
 ```
 
 ## Deployment (Vercel)
 
-Single Vercel project orchestrates both apps. Root `vercel.json`:
-- `/` → `site/index.html` (marketing landing page)
-- `/app/*` → Fleet Intelligence SPA (React, built to `/app/`)
-- `/site/<prototype>/` → Static prototypes (dashboard, battery, etc.)
-
-Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/ && cp -r dist ../app`
+Single Vercel project. Root `vercel.json` routes `/` → `site/index.html`, `/app/*` → Fleet Intelligence SPA.
+Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/`
 
 ## Directory Layout
 
@@ -56,16 +52,21 @@ Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --b
 ## Code Style (site/)
 
 - **IIFE per page:** `(function () { ... })()`, shared state via `window.LAFA`
+- **Script load order matters:** `i18n.js` → `shared.js` → page script. Swapping breaks i18n silently.
 - **Tailwind + shared.css:** Utility classes first, custom components in `core/shared.css`
-- **Design tokens:** `COLORS` object (`core/shared.js:7-23`) + `core/tailwind.init.js` (`lafa.*`)
+- **Design tokens:** `COLORS` object (`core/shared.js:7-23`) + `core/tailwind.init.js` (`lafa.*`) — must stay in sync
 - **Font:** Inter Tight (system-ui fallback)
-- **i18n:** `data-i18n` attributes, ES/EN toggle via `L.setLang()`
+- **i18n:** `data-i18n` attributes, ES/EN toggle via `window.switchLang(lang)`
 - **No frameworks:** Vanilla JS only. No React, no jQuery
 
 ## Code Style (fleet-intelligence/)
 
 - TypeScript strict mode, `lafa.*` Tailwind color tokens (`tailwind.config.ts`)
-- State: AppContext (reducer) + ToastContext
+- **Dual data source:** Supabase when configured, mock data (`src/data/mockData.ts`) otherwise. `dataSource` in AppState tracks which is active.
+- **Service layer:** Pages call `action*()` functions from `lib/actions.ts`, never dispatch + Supabase directly
+- **State:** Split contexts — `useAppState()` / `useAppDispatch()` to avoid re-renders
+- **Status values are Spanish:** `'activo'`, `'inactivo'`, `'en_turno'`, `'completado'`, etc. Must match Supabase enums.
+- **DB↔App mapping:** DB uses `snake_case`, app uses `camelCase`. All mapping in `lib/mappers.ts`.
 - See `content/hiring/technical-challenge/CLAUDE.md` for payroll logic and challenge details
 
 ## Content Conventions

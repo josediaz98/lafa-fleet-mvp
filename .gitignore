@@ -10,7 +10,6 @@ fleet-intelligence/.env.local
 fleet-intelligence/tsconfig.tsbuildinfo
 
 # Vercel build output
-app/
 .vercel
 
 # Personal course notes (not LAFA-specific)

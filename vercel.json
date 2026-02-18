@@ -1,9 +1,13 @@
 {
-  "buildCommand": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/ && cp -r dist ../app",
+  "buildCommand": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/",
   "outputDirectory": ".",
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
-    { "source": "/app", "destination": "/app/index.html" },
-    { "source": "/app/:path*", "destination": "/app/index.html" }
+    { "source": "/app/assets/:path*", "destination": "/fleet-intelligence/dist/assets/:path*" },
+    { "source": "/app/favicon.svg", "destination": "/fleet-intelligence/dist/favicon.svg" },
+    { "source": "/app/lafa-logo.svg", "destination": "/fleet-intelligence/dist/lafa-logo.svg" },
+    { "source": "/app/demo-trips.csv", "destination": "/fleet-intelligence/dist/demo-trips.csv" },
+    { "source": "/app", "destination": "/fleet-intelligence/dist/index.html" },
+    { "source": "/app/:path*", "destination": "/fleet-intelligence/dist/index.html" }
   ]
 }
