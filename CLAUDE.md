@@ -7,12 +7,12 @@ Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engi
 
 | Area | Stack |
 |------|-------|
-| `prototypes/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js (includes landing page) |
+| `site/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js (includes landing page) |
 | `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react + **Supabase** (PostgreSQL + Auth + RLS) |
 | `content/` | Markdown research files |
 | Technical challenge | Python (stdlib only for generator) |
 
-`prototypes/` has no build step (CDN only). `fleet-intelligence/` uses Vite.
+`site/` has no build step (CDN only). `fleet-intelligence/` uses Vite.
 
 ## Commands
 
@@ -31,7 +31,7 @@ cd fleet-intelligence && npm run build # production build → dist/
 python content/hiring/technical-challenge/generate_didi_data.py
 ```
 
-## Code Style (prototypes/)
+## Code Style (site/ prototypes)
 
 - **IIFE per page:** Each `.js` file wraps in `(function () { ... })()`, accesses shared state via `window.LAFA`
 - **Tailwind + shared.css:** Utility classes first, custom components in `shared.css`
@@ -82,7 +82,7 @@ python content/hiring/technical-challenge/generate_didi_data.py
 │   │       ├── supabase-schema.sql        ← DDL + RLS policies + seed data
 │   │       └── presentation-strategy.md   ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
-├── prototypes/                            ← Working prototypes + landing page (HTML + JS + CSS)
+├── site/                                  ← Landing page + working prototypes (HTML + JS + CSS)
 │   ├── index.html                         ← Marketing landing page (Vercel rewrites / to here)
 │   ├── core/                              ← Shared infrastructure
 │   │   ├── i18n.js                        ← ES/EN internationalization

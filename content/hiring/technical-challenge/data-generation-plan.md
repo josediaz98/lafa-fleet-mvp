@@ -28,11 +28,11 @@ content/hiring/technical-challenge/
 
 | Data | Source File | Lines |
 |------|-------------|-------|
-| 15 CDMX colonia coordinates | `tools/fleetmap.js` | 13-29 |
-| 3 LAFA center coords (Vallejo, Granada, Roma) | `tools/fleetmap.js` | 32-36 |
-| 5 charging station coords | `tools/fleetmap.js` | 39-45 |
-| Mexican name arrays | `tools/shared.js` | 47-49 |
-| Vehicle models by OEM | `tools/shared.js` | 54-58 |
+| 15 CDMX colonia coordinates | `site/fleetmap/fleetmap.js` | 13-29 |
+| 3 LAFA center coords (Vallejo, Granada, Roma) | `site/fleetmap/fleetmap.js` | 32-36 |
+| 5 charging station coords | `site/fleetmap/fleetmap.js` | 39-45 |
+| Mexican name arrays | `site/core/shared.js` | 47-49 |
+| Vehicle models by OEM | `site/core/shared.js` | 54-58 |
 | DiDi CSV format spec | `content/hiring/technical-challenge/brief.md` | 78-92 |
 | Payroll pseudocode | `content/hiring/technical-challenge/brief.md` | 43-65 |
 

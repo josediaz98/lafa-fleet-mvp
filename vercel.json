@@ -2,7 +2,7 @@
   "buildCommand": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/ && cp -r dist ../app",
   "outputDirectory": ".",
   "rewrites": [
-    { "source": "/", "destination": "/prototypes/index.html" },
+    { "source": "/", "destination": "/site/index.html" },
     { "source": "/app", "destination": "/app/index.html" },
     { "source": "/app/:path*", "destination": "/app/index.html" }
   ]
