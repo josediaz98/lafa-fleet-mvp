@@ -2,3 +2,10 @@
 .claude/
 .mcp.json
 node_modules/
+
+# Fleet Intelligence (React/Vite)
+fleet-intelligence/node_modules/
+fleet-intelligence/dist/
+fleet-intelligence/.env
+fleet-intelligence/.env.local
+fleet-intelligence/tsconfig.tsbuildinfo

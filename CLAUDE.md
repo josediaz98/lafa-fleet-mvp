@@ -1,67 +1,89 @@
 # LAFA Project Instructions
 
 ## What This Is
-Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin America Future Automobile). Organized as a VC investment thesis. Now also includes a web app (replica of LAFA's site + internal tools prototypes).
+Research and strategy folder for Jose Diaz's evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin America Future Automobile). Organized as a VC investment thesis. Also includes a web app (replica of LAFA's site + internal tools prototypes) and a technical challenge MVP.
+
+## Tech Stack
+
+| Area | Stack |
+|------|-------|
+| `tools/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
+| `index.html` | Same — marketing landing page |
+| `fleet-intelligence/` | React 18 + TypeScript + Vite + Tailwind CSS + lucide-react |
+| `content/` | Markdown research files |
+| Technical challenge | Python (stdlib only for generator) |
+
+`tools/` and `index.html` have no build step (CDN only). `fleet-intelligence/` uses Vite.
+
+## Commands
+
+```bash
+# Marketing site + tools (static, no build)
+python -m http.server 8000
+npx serve .
+
+# Fleet Intelligence MVP (React/Vite)
+cd fleet-intelligence && npm install   # first time only
+cd fleet-intelligence && npm run dev   # dev server (localhost:5173)
+cd fleet-intelligence && npm run build # production build → dist/
+
+# Generate DiDi test data (stdlib only — no pip install)
+python content/hiring/technical-challenge/generate_didi_data.py
+```
+
+## Code Style (tools/)
+
+- **IIFE per page:** Each `.js` file wraps in `(function () { ... })()`, accesses shared state via `window.LAFA`
+- **Tailwind + shared.css:** Utility classes first, custom components in `shared.css`
+- **Design tokens:** Colors in `COLORS` object (`shared.js:7-23`) and `tailwind.init.js` (`lafa.*` namespace)
+- **Fonts:** Inter Tight (system-ui fallback)
+- **i18n:** `data-i18n` attributes on elements, ES/EN toggle via `L.setLang()`
+- **No frameworks:** Vanilla JS only. No React, no jQuery
 
 ## File Structure
 ```
 /Lafa/
 ├── README.md                              ← Executive summary + VC thesis navigation
 ├── CLAUDE.md                              ← This file
+├── fleet-intelligence/                    ← Fleet Intelligence MVP (React + TS + Vite)
+│   ├── package.json                       ← Dependencies & scripts
+│   ├── vite.config.ts / tsconfig.json     ← Build config
+│   ├── tailwind.config.ts                 ← Tailwind with lafa.* color tokens
+│   ├── index.html                         ← Vite entry point
+│   └── src/
+│       ├── main.tsx / App.tsx             ← Entry + router
+│       ├── context/                       ← AppContext (state) + ToastContext
+│       ├── hooks/                         ← useCenterFilter
+│       ├── data/mockData.ts              ← Mock fleet data + utilities
+│       ├── lib/payroll.ts                ← Payroll calculation engine
+│       ├── components/                   ← Layout + UI components
+│       └── pages/                        ← 8 pages (Login, Dashboard, Shifts, CSV, Payroll, Drivers, Vehicles, Users)
 ├── content/                               ← All research & strategy content
 │   ├── thesis/                            ← VC investment thesis (8 chapters)
-│   │   ├── 01-problem.md                  ← Problem + Why Now (3 converging forces)
-│   │   ├── 02-market.md                   ← TAM/SAM/SOM + market timing
-│   │   ├── 03-solution.md                 ← Two products: DaE + LTO + flywheel
-│   │   ├── 04-business-model.md           ← Unit economics + path to profitability
-│   │   ├── 05-traction.md                 ← PMF evidence: fleet, DiDi, milestones, OEMs
-│   │   ├── 06-competition.md              ← Landscape + moats + threats
-│   │   ├── 07-team.md                     ← Team assessment + founder-market fit
-│   │   └── 08-risks.md                    ← Deal-breakers + verification
+│   │   ├── 01-problem.md … 08-risks.md
 │   ├── analysis/                          ← Deep-dive evidence (detail behind thesis/)
-│   │   ├── README.md                      ← Navigation index for all analysis files
-│   │   ├── fleet/
-│   │   │   ├── tariff-analysis.md         ← 50% tariff by OEM, CKD, unit economics
-│   │   │   ├── charging-economics.md      ← CFE rates, depot charging, CMS, OCPP, standards
-│   │   │   ├── battery-degradation.md     ← LFP in CDMX, SOH, analytics platforms, OEM data
-│   │   │   ├── fleet-technology.md        ← Telematics + FMS + emerging tech (merged)
-│   │   │   ├── route-optimization.md      ← HERE vs Google, OR-Tools/Vroom, SoC-aware dispatch
-│   │   │   └── predictive-maintenance.md  ← EV vs ICE savings, Stratio, OEM parts, ASE cert
-│   │   ├── fintech/
-│   │   │   ├── credit-scoring.md          ← MetaMap, Circulo, Belvo, Palenca/Bankuish/Truora
-│   │   │   ├── repossession-collections.md ← Leasing, GPS/kill switch, accounting, cybersecurity
-│   │   │   └── insurance-risk.md          ← EV premiums, Mexico insurers, BDEO, CMT, Ravin AI
-│   │   └── market/
-│   │       ├── competitive-landscape.md   ← VEMO, OCN, BYD, DiDi + platform integrations (merged)
-│   │       ├── ev-market-latam.md         ← Mexico EV market, Chinese OEMs, regulation
-│   │       ├── gig-driver-economics.md    ← 658K workers, EV vs ICE economics
-│   │       └── biz-model-research.md      ← DaE/LTO landscape, regulation by country
+│   │   ├── fleet/                         ← 6 files (tariff, charging, battery, tech, route, maintenance)
+│   │   ├── fintech/                       ← 3 files (credit, repossession, insurance)
+│   │   └── market/                        ← 4 files (competitive, ev-market, gig-driver, biz-model)
 │   ├── team/                              ← Individual team profiles (6 people)
-│   ├── strategy/                          ← Jose's strategic contribution
-│   │   ├── README.md                      ← Navigation + how files connect
-│   │   ├── ai-roadmap.md                  ← 12-month roadmap (Phase 0 + 8 AI projects)
-│   │   ├── product-ecosystem.md           ← 5 user types, 64 items, 3 horizons
-│   │   ├── data-infrastructure.md         ← 3-phase analytics stack, cost scaling, ML priorities
-│   │   └── tech-stack-scaling.md          ← Build vs buy matrix, stacks at 500/2K/10K, flywheel
+│   ├── strategy/                          ← Jose's strategic contribution (4 files + README)
 │   ├── vemo-benchmark/                    ← Vemo competitive intel (7 topic files + README)
-│   │   ├── README.md                      ← Source index + navigation + quick comparison
-│   │   ├── 01-company-profile.md          ← Consolidated profile: model, scale, OEMs, capital
-│   │   ├── 02-impulso-financing.md        ← LTO benchmark: credit, bundling, driver economics
-│   │   ├── 03-charging-infrastructure.md  ← Charging: standards, partnerships, revenue model
-│   │   ├── 04-fleet-safety.md             ← Emergency protocols, C2 ops, QHSE, insurance
-│   │   ├── 05-battery-lifecycle.md        ← SOH, degradation, second-life, circular economy
-│   │   ├── 06-founder-frameworks.md       ← Rocha's strategic mental models
-│   │   └── 07-source-transcript.md        ← Vemo Talks #1 transcript (energy transition)
-│   ├── hiring/                            ← Hiring process (README + 3 files)
-│   │   ├── README.md                      ← Timeline, job description, Jose's CV (merged)
+│   ├── hiring/                            ← Hiring process
+│   │   ├── README.md                      ← Timeline, job description, Jose's CV
 │   │   ├── interview-levi-2026-02-06.md   ← Full interview transcript
 │   │   ├── interview-levi-feedback.md     ← Post-interview feedback
-│   │   └── jj-interview-prep.md           ← CEO interview prep
+│   │   ├── jj-interview-prep.md           ← CEO interview prep
+│   │   └── technical-challenge/           ← Fleet Intelligence & Payroll MVP
+│   │       ├── CLAUDE.md                  ← Challenge-specific instructions
+│   │       ├── brief.md                   ← Challenge spec + payroll pseudocode
+│   │       ├── assumptions-qa.md          ← 25 resolved ambiguities
+│   │       ├── data-generation-plan.md    ← Generator design doc
+│   │       ├── generate_didi_data.py      ← DiDi trip CSV generator
+│   │       └── presentation-strategy.md  ← Reforge frameworks × challenge presentation
 │   └── reference/                         ← Brand assets
 ├── tools/                                 ← Internal tools app (HTML + JS + CSS)
 │   ├── tailwind.init.js                   ← Shared Tailwind config (all tool pages)
-│   ├── shared.css                         ← Shared styles (WA chat, modals, pills, etc.)
-│   ├── shared.js                          ← Shared data, sidebar, utilities, modal controller
+│   ├── shared.css / shared.js             ← Shared styles, data, sidebar, utilities
 │   ├── dashboard.html / dashboard.js      ← Fleet operations dashboard
 │   ├── battery.html / battery.js          ← Battery health monitor
 │   ├── collections.html / collections.js  ← WhatsApp collections bot
