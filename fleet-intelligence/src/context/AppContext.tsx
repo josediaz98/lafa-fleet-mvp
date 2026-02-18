@@ -77,7 +77,7 @@ export interface AppState {
 
 // ---- Actions ----
 
-type Action =
+export type Action =
   | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated'> }
   | { type: 'ADD_SHIFT'; payload: Shift }
   | { type: 'CLOSE_SHIFT'; payload: { shiftId: string; checkOut: string; hoursWorked: number } }

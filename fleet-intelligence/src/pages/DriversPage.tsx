@@ -2,11 +2,11 @@ import { useState, useMemo } from 'react';
 import { Search, Plus, Users, Clock } from 'lucide-react';
 import { useAppState, useAppDispatch, type Driver } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { MOCK_CENTERS, formatMXN, formatTime } from '../data/mockData';
-import { getCenterName } from '../lib/dataUtils';
+import { MOCK_CENTERS, formatTime } from '../data/mockData';
+import { formatMXN, getCenterName } from '../lib/dataUtils';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
-import { persistNewDriver, persistUpdateDriver, persistDeactivateDriver } from '../lib/supabase-mutations';
+import { actionAddDriver, actionUpdateDriver, actionDeactivateDriver } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
@@ -89,9 +89,7 @@ export default function DriversPage() {
       startDate: createForm.startDate,
       status: 'activo',
     };
-    dispatch({ type: 'ADD_DRIVER', payload: newDriver });
-    persistNewDriver(newDriver);
-    showToast('success', `Conductor ${newDriver.fullName} creado.`);
+    actionAddDriver(newDriver, dispatch, showToast);
     setShowCreateModal(false);
   }
 
@@ -128,10 +126,8 @@ export default function DriversPage() {
       defaultShift: form.defaultShift,
       startDate: form.startDate,
     };
-    dispatch({ type: 'UPDATE_DRIVER', payload: updated });
-    persistUpdateDriver(updated);
+    actionUpdateDriver(updated, dispatch, showToast);
     setSelectedDriver(updated);
-    showToast('success', `Conductor ${updated.fullName} actualizado.`);
     setEditMode(false);
   }
 
@@ -151,9 +147,7 @@ export default function DriversPage() {
       variant: 'danger',
     });
     if (!ok) return;
-    dispatch({ type: 'DEACTIVATE_DRIVER', payload: selectedDriver.id });
-    persistDeactivateDriver(selectedDriver.id);
-    showToast('success', `${selectedDriver.fullName} desactivado.`);
+    actionDeactivateDriver(selectedDriver.id, selectedDriver.fullName, dispatch, showToast);
     setSelectedDriver(null);
   }
 

@@ -1,6 +1,7 @@
 import type { Trip, PayrollRecord, Driver } from '../context/AppContext';
 import { MOCK_CENTERS } from '../data/mockData';
 import { generateExplanation } from './explanation';
+import { parseFechaToISO } from './dateUtils';
 
 const BASE_SALARY = 2500;
 const GOAL_THRESHOLD = 6000;
@@ -15,13 +16,6 @@ const WORKING_DAYS_PER_WEEK = 5;
 interface ShiftSummary {
   driverId: string;
   totalHours: number;
-}
-
-/** Convert DD/MM/YYYY to YYYY-MM-DD for comparison with week bounds. */
-function parseFechaToISO(fecha: string): string {
-  const parts = fecha.split('/');
-  if (parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`;
-  return fecha;
 }
 
 /** Count weekdays (Mon-Fri) between two dates, inclusive. */

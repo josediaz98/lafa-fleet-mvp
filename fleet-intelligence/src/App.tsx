@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useAppState, useAppDispatch } from './context/AppContext';
 import { ToastProvider } from './context/ToastContext';
 import { ConfirmDialogProvider } from './components/ui/ConfirmDialog';
+import ErrorBoundary from './components/ui/ErrorBoundary';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
@@ -102,7 +103,9 @@ export default function App() {
       <AppProvider>
         <ToastProvider>
           <ConfirmDialogProvider>
-            <AppRoutes />
+            <ErrorBoundary>
+              <AppRoutes />
+            </ErrorBoundary>
           </ConfirmDialogProvider>
         </ToastProvider>
       </AppProvider>

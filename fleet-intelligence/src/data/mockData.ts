@@ -1,3 +1,20 @@
+/**
+ * Mock data for the Fleet Intelligence MVP demo.
+ *
+ * SCALE CONTEXT:
+ *   This file contains a demo subset for edge-case testing:
+ *   - 30 drivers, 12 vehicles, 3 centers, 68 trip records, 30 payroll records
+ *
+ *   Production scale:
+ *   - 150 vehicles today (~300 drivers, ~10,800 trips/week, ~1,800 shifts/week)
+ *   - 2,000 vehicles target (~4,000 drivers, ~144,000 trips/week, ~24,000 shifts/week)
+ *
+ *   What changes at production scale (see prd.md §7.7):
+ *   - Pagination on trips, shifts, and payroll tables
+ *   - Server-side payroll computation (Edge Function or pg function)
+ *   - Chunked/streaming CSV upload (15–20 MB at 2K vehicles)
+ *   - Lazy data loading per page (replaces fetchAllData)
+ */
 import { generateExplanation } from '../lib/explanation';
 
 // ---- Centers ----
@@ -151,11 +168,23 @@ export const MOCK_USERS: MockUser[] = [
 ];
 
 // ---- Trips (current week: 16/02/2026 – 22/02/2026) ----
-// Each entry represents daily billing aggregate from DiDi
+// Mixed format: d1 (Feb 16) uses individual ride-level records matching the brief's CSV format.
+// Remaining entries use daily billing aggregates for MVP simplicity.
+// The CSV parser and payroll engine handle both formats identically (they sum `costo` per driver per week).
 
 export const MOCK_TRIPS: { id: string; driverId: number; fecha: string; tripId: string; horaInicio: string; horaFin: string; costo: number; propina: number }[] = [
   // d1 — Carlos Mendoza (114958, Vallejo) — High earner → ~$9,500
-  { id: 't01', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n2', horaInicio: '05:30', horaFin: '17:30', costo: 1520, propina: 80 },
+  // Feb 16: INDIVIDUAL TRIPS (9 trips, total $1,520, tips $80) — matches brief CSV format
+  { id: 't01a', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n1', horaInicio: '5:32:00', horaFin: '6:18:00', costo: 185.50, propina: 0 },
+  { id: 't01b', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n2', horaInicio: '6:30:00', horaFin: '7:15:00', costo: 195.00, propina: 30 },
+  { id: 't01c', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n3', horaInicio: '7:35:00', horaFin: '8:10:00', costo: 142.80, propina: 0 },
+  { id: 't01d', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n4', horaInicio: '8:25:00', horaFin: '9:15:00', costo: 188.20, propina: 0 },
+  { id: 't01e', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n5', horaInicio: '9:30:00', horaFin: '10:20:00', costo: 210.50, propina: 50 },
+  { id: 't01f', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n6', horaInicio: '10:40:00', horaFin: '11:15:00', costo: 125.36, propina: 0 },
+  { id: 't01g', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n7', horaInicio: '12:00:00', horaFin: '12:45:00', costo: 178.64, propina: 0 },
+  { id: 't01h', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n8', horaInicio: '13:05:00', horaFin: '13:50:00', costo: 155.00, propina: 0 },
+  { id: 't01i', driverId: 114958, fecha: '16/02/2026', tripId: 'k3m8n9', horaInicio: '14:10:00', horaFin: '15:00:00', costo: 139.00, propina: 0 },
+  // Feb 17–21: DAILY AGGREGATES (remaining days)
   { id: 't02', driverId: 114958, fecha: '17/02/2026', tripId: 'p4q9r1', horaInicio: '05:15', horaFin: '17:00', costo: 1680, propina: 120 },
   { id: 't03', driverId: 114958, fecha: '18/02/2026', tripId: 'v2w7x5', horaInicio: '05:45', horaFin: '17:15', costo: 1450, propina: 0 },
   { id: 't04', driverId: 114958, fecha: '19/02/2026', tripId: 'b6c1d8', horaInicio: '05:30', horaFin: '17:30', costo: 1590, propina: 60 },
@@ -306,11 +335,3 @@ export function getElapsedTime(isoString: string): string {
   return `${minutes}m`;
 }
 
-export function formatMXN(amount: number): string {
-  return new Intl.NumberFormat('es-MX', {
-    style: 'currency',
-    currency: 'MXN',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
-}

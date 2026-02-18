@@ -5,10 +5,11 @@ import { useCenterFilter } from '../hooks/useCenterFilter';
 import { MOCK_CENTERS } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
-import { persistNewVehicle, persistUpdateVehicle, persistVehicleStatus } from '../lib/supabase-mutations';
+import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
+import Modal from '../components/ui/Modal';
 import { getCenterName } from '../lib/dataUtils';
 import { STATUS_LABELS } from '../lib/statusMap';
 
@@ -86,9 +87,7 @@ export default function VehiclesPage() {
       });
       if (!ok) return;
     }
-    dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: vehicle.id, status: newStatus } });
-    persistVehicleStatus(vehicle.id, newStatus);
-    showToast('success', `${vehicle.plate} \u2192 ${STATUS_LABELS[newStatus] ?? newStatus}`);
+    await actionVehicleStatus(vehicle.id, newStatus, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
   }
 
   function openCreate() {
@@ -115,9 +114,7 @@ export default function VehiclesPage() {
       centerId: form.centerId,
       status: 'disponible',
     };
-    dispatch({ type: 'ADD_VEHICLE', payload: newVehicle });
-    persistNewVehicle(newVehicle);
-    showToast('success', `Veh\u00edculo ${newVehicle.plate} creado.`);
+    actionAddVehicle(newVehicle, dispatch, showToast);
     setShowCreateModal(false);
   }
 
@@ -141,10 +138,8 @@ export default function VehiclesPage() {
       return;
     }
     const updated: Vehicle = { ...selectedVehicle, plate: newPlate, model: editForm.model.trim(), oem: editForm.oem.trim(), centerId: editForm.centerId };
-    dispatch({ type: 'UPDATE_VEHICLE', payload: updated });
-    persistUpdateVehicle(updated);
+    actionUpdateVehicle(updated, dispatch, showToast);
     setSelectedVehicle(updated);
-    showToast('success', `Vehículo ${updated.plate} actualizado.`);
     setEditMode(false);
   }
 
@@ -390,72 +385,64 @@ export default function VehiclesPage() {
         )}
       </SlidePanel>
 
-      {showCreateModal && (
-        <>
-          <div className="fixed inset-0 z-[80] bg-black/50" onClick={() => setShowCreateModal(false)} />
-          <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
-            <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-              <h3 className="text-lg font-semibold text-lafa-text-primary mb-5">{'Nuevo veh\u00edculo'}</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
-                  <input
-                    value={form.plate}
-                    onChange={e => setForm({ ...form, plate: e.target.value })}
-                    placeholder="ABC-123"
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
-                  <input
-                    value={form.model}
-                    onChange={e => setForm({ ...form, model: e.target.value })}
-                    placeholder="Geometry C"
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
-                  <input
-                    value={form.oem}
-                    onChange={e => setForm({ ...form, oem: e.target.value })}
-                    placeholder="Geely"
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-                  <select
-                    value={form.centerId}
-                    onChange={e => setForm({ ...form, centerId: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    {MOCK_CENTERS.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
-                </div>
-                {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleCreate}
-                    className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-                  >
-                    {'Crear veh\u00edculo'}
-                  </button>
-                </div>
-              </div>
-            </div>
+      <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title={'Nuevo veh\u00edculo'}>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
+            <input
+              value={form.plate}
+              onChange={e => setForm({ ...form, plate: e.target.value })}
+              placeholder="ABC-123"
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
           </div>
-        </>
-      )}
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
+            <input
+              value={form.model}
+              onChange={e => setForm({ ...form, model: e.target.value })}
+              placeholder="Geometry C"
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
+            <input
+              value={form.oem}
+              onChange={e => setForm({ ...form, oem: e.target.value })}
+              placeholder="Geely"
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
+            <select
+              value={form.centerId}
+              onChange={e => setForm({ ...form, centerId: e.target.value })}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            >
+              {MOCK_CENTERS.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          </div>
+          {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              onClick={() => setShowCreateModal(false)}
+              className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            >
+              {'Crear veh\u00edculo'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

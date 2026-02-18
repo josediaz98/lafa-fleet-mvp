@@ -7,7 +7,7 @@ import { MOCK_CENTERS } from '../data/mockData';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
-import { persistCheckIn, persistCheckOut, persistVehicleStatus } from '../lib/supabase-mutations';
+import { actionCheckIn, actionCheckOut } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import EmptyState from '../components/ui/EmptyState';
 import ShiftCard from '../components/shifts/ShiftCard';
@@ -79,11 +79,7 @@ export default function ShiftsPage() {
       status: 'en_turno',
     };
 
-    dispatch({ type: 'ADD_SHIFT', payload: newShift });
-    dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: vehicle.id, status: 'en_turno' } });
-    persistCheckIn(newShift, session?.userId ?? '');
-    persistVehicleStatus(vehicle.id, 'en_turno');
-    showToast('success', `Check-in registrado: ${driver.fullName} en ${vehicle.plate}`);
+    actionCheckIn(newShift, vehicle.id, session?.userId ?? '', dispatch, showToast);
   }
 
   async function handleCheckOut(shiftId: string) {
@@ -102,16 +98,11 @@ export default function ShiftsPage() {
     }
 
     const checkOutTime = new Date().toISOString();
-    dispatch({
-      type: 'CLOSE_SHIFT',
-      payload: { shiftId, checkOut: checkOutTime, hoursWorked: hours },
-    });
-    persistCheckOut(shiftId, checkOutTime, hours);
-    if (shift.vehicleId) {
-      dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: shift.vehicleId, status: 'disponible' } });
-      persistVehicleStatus(shift.vehicleId, 'disponible');
-    }
-    showToast('success', `Turno cerrado: ${shift.driverName} \u2014 ${hours}h`);
+    await actionCheckOut(
+      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+      dispatch,
+      showToast,
+    );
   }
 
   return (

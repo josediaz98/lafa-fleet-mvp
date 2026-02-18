@@ -1,9 +1,10 @@
 import { useState, useRef } from 'react';
 import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter } from 'lucide-react';
 import { useAppState, useAppDispatch, type Trip } from '../context/AppContext';
-import { MOCK_DRIVERS, formatMXN } from '../data/mockData';
+import { MOCK_DRIVERS } from '../data/mockData';
+import { formatMXN } from '../lib/dataUtils';
 import { useToast } from '../context/ToastContext';
-import { persistTrips } from '../lib/supabase-mutations';
+import { actionImportTrips } from '../lib/actions';
 import EstadoIcon from '../components/ui/EstadoIcon';
 
 const STEPS = [
@@ -12,7 +13,7 @@ const STEPS = [
   { num: 3, label: 'Confirmar' },
 ];
 
-const CSV_TEMPLATE = 'driverId,fecha,tripId,horaInicio,horaFin,costo,propina\n114958,16/02/2026,abc123,6:32:00,7:18:00,195.50,0\n114959,16/02/2026,def456,7:40:00,8:35:00,228.60,30';
+const CSV_TEMPLATE = 'Driver ID,Date,Trip ID,Initial time,Final time,Cost,Tip,Initial coordinates,Final coordinates\n114958,16/02/2026,abc123,6:32:00,7:18:00,$195.50,0,"19.4890,-99.1480","19.4170,-99.1620"\n114959,16/02/2026,def456,7:40:00,8:35:00,$228.60,30,"19.4400,-99.1870","19.4890,-99.1480"';
 
 const CDMX_LAT_MIN = 19.1;
 const CDMX_LAT_MAX = 19.6;
@@ -77,33 +78,68 @@ function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: S
   return { ...row, estado: 'valido' };
 }
 
+/** Strip currency prefix ($) and whitespace from a numeric string. */
+function stripCurrency(val: string): string {
+  return val.replace(/^\s*\$\s*/, '').trim();
+}
+
+/**
+ * Split a CSV line respecting quoted fields.
+ * Handles quoted coordinate pairs like "19.39,-99.16" as single fields.
+ */
+function splitCsvLine(line: string): string[] {
+  const fields: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      fields.push(current.trim());
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  fields.push(current.trim());
+  return fields;
+}
+
 function parseCsvText(text: string): ParsedRow[] {
   const lines = text.trim().split('\n');
   if (lines.length < 2) return [];
 
-  const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+  const headers = splitCsvLine(lines[0]).map(h => h.trim().toLowerCase());
+
+  // Support both English (brief) and Spanish header variants
   const driverIdx = headers.findIndex(h => h.includes('driver'));
-  const fechaIdx = headers.findIndex(h => h.includes('fecha'));
+  const fechaIdx = headers.findIndex(h => h.includes('fecha') || h.includes('date'));
   const tripIdx = headers.findIndex(h => h.includes('trip'));
-  const inicioIdx = headers.findIndex(h => h.includes('inicio'));
-  const finIdx = headers.findIndex(h => h.includes('fin'));
-  const costoIdx = headers.findIndex(h => h.includes('costo'));
-  const propinaIdx = headers.findIndex(h => h.includes('propina'));
+  const inicioIdx = headers.findIndex(h => h.includes('inicio') || h === 'initial time');
+  const finIdx = headers.findIndex(h => h.includes('fin') || h === 'final time');
+  const costoIdx = headers.findIndex(h => h.includes('costo') || h === 'cost');
+  const propinaIdx = headers.findIndex(h => h.includes('propina') || h === 'tip');
+  // Coordinate columns: either separate lat/lng cols or quoted pairs
   const latIdx = headers.findIndex(h => h.includes('lat'));
   const lngIdx = headers.findIndex(h => h.includes('lng') || h.includes('lon'));
+  const initialCoordsIdx = headers.findIndex(h => h === 'initial coordinates');
+
 
   return lines.slice(1).filter(l => l.trim()).map(line => {
-    const cols = line.split(',').map(c => c.trim());
+    const cols = splitCsvLine(line);
     const row: ParsedRow = {
       driverId: parseInt(cols[driverIdx] || '0', 10),
       fecha: cols[fechaIdx] || '',
       tripId: cols[tripIdx] || '',
       horaInicio: cols[inicioIdx] || '',
       horaFin: cols[finIdx] || '',
-      costo: parseFloat(cols[costoIdx] || '0'),
-      propina: parseFloat(cols[propinaIdx] || '0'),
+      costo: parseFloat(stripCurrency(cols[costoIdx] || '0')),
+      propina: parseFloat(stripCurrency(cols[propinaIdx] || '0')),
       estado: 'valido' as const,
     };
+
+    // Parse coordinates from separate lat/lng columns
     if (latIdx !== -1 && lngIdx !== -1) {
       const lat = parseFloat(cols[latIdx] || '');
       const lng = parseFloat(cols[lngIdx] || '');
@@ -112,6 +148,20 @@ function parseCsvText(text: string): ParsedRow[] {
         row.pickupLng = lng;
       }
     }
+    // Parse coordinates from quoted "lat, lng" pair (brief format)
+    else if (initialCoordsIdx !== -1) {
+      const coordStr = cols[initialCoordsIdx] || '';
+      const parts = coordStr.split(',').map(s => s.trim());
+      if (parts.length === 2) {
+        const lat = parseFloat(parts[0]);
+        const lng = parseFloat(parts[1]);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          row.pickupLat = lat;
+          row.pickupLng = lng;
+        }
+      }
+    }
+
     return row;
   });
 }
@@ -177,17 +227,13 @@ export default function CsvUploadPage() {
       propina: r.propina,
     }));
 
-    dispatch({ type: 'IMPORT_TRIPS', payload: newTrips });
-
-    // Persist to Supabase — build didiDriverId → UUID map
+    // Build didiDriverId → UUID map
     const didiToDriverId = new Map<number, string>();
     const driversForMap = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
     for (const d of driversForMap) {
       didiToDriverId.set(d.didiDriverId, d.id);
     }
-    persistTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName);
-
-    showToast('success', `${newTrips.length} viajes importados exitosamente.`);
+    actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast);
     setActiveStep(3);
   }
 
@@ -252,7 +298,7 @@ export default function CsvUploadPage() {
                 Haz click para seleccionar archivo CSV
               </p>
               <p className="text-xs text-lafa-text-secondary">
-                Columnas: driverId, fecha, tripId, horaInicio, horaFin, costo, propina
+                Formato DiDi: Driver ID, Date, Trip ID, Initial time, Final time, Cost, Tip
               </p>
             </div>
           </div>

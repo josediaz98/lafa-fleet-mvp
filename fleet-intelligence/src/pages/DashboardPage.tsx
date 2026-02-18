@@ -3,11 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatTime, formatMXN } from '../data/mockData';
+import { formatTime } from '../data/mockData';
+import { formatMXN } from '../lib/dataUtils';
 import { getWeekBounds, shiftHours } from '../lib/dateUtils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '../constants';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { actionCheckOut } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import ShiftCard from '../components/shifts/ShiftCard';
 import EmptyState from '../components/ui/EmptyState';
@@ -93,14 +95,12 @@ export default function DashboardPage() {
       if (!ok) return;
     }
 
-    dispatch({
-      type: 'CLOSE_SHIFT',
-      payload: { shiftId, checkOut: new Date().toISOString(), hoursWorked: hours },
-    });
-    if (shift.vehicleId) {
-      dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: shift.vehicleId, status: 'disponible' } });
-    }
-    showToast('success', `Turno cerrado: ${shift.driverName} \u2014 ${hours}h`);
+    const checkOutTime = new Date().toISOString();
+    await actionCheckOut(
+      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+      dispatch,
+      showToast,
+    );
   }
 
   return (

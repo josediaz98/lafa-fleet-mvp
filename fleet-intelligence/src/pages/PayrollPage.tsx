@@ -2,12 +2,12 @@ import { useState, useMemo } from 'react';
 import { Upload, Receipt } from 'lucide-react';
 import { useAppState, useAppDispatch, type PayrollRecord } from '../context/AppContext';
 import { useCenterFilter } from '../hooks/useCenterFilter';
-import { formatMXN } from '../data/mockData';
+import { formatMXN } from '../lib/dataUtils';
 import { useToast } from '../context/ToastContext';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
 import { calculateWeeklyPay, exportPayrollCsv } from '../lib/payroll';
-import { getWeekBounds } from '../lib/dateUtils';
-import { persistClosePayroll, persistRerunPayroll } from '../lib/supabase-mutations';
+import { getWeekBounds, buildShiftSummaries } from '../lib/dateUtils';
+import { actionClosePayroll, actionRerunPayroll } from '../lib/actions';
 import CenterFilterDropdown from '../components/ui/CenterFilterDropdown';
 import SlidePanel from '../components/ui/SlidePanel';
 import EmptyState from '../components/ui/EmptyState';
@@ -47,15 +47,7 @@ export default function PayrollPage() {
 
   const livePayroll = useMemo(() => {
     const filteredDrivers = filterByCenter(drivers);
-    const shiftSummaries = filteredDrivers.map(driver => {
-      const driverShifts = shifts.filter(
-        s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked
-      );
-      return {
-        driverId: driver.id,
-        totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0),
-      };
-    });
+    const shiftSummaries = buildShiftSummaries(filteredDrivers, shifts);
     return calculateWeeklyPay(filteredDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
   }, [drivers, trips, shifts, filterByCenter, week.label, week.start, week.end, session?.name, previousWeekHours]);
 
@@ -117,13 +109,10 @@ export default function PayrollPage() {
     });
     if (!ok) return;
 
-    const shiftSummaries = drivers.filter(d => d.status === 'activo').map(driver => {
-      const driverShifts = shifts.filter(s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked);
-      return { driverId: driver.id, totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0) };
-    });
-    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
-    dispatch({ type: 'CLOSE_PAYROLL_WEEK', payload: records });
-    showToast('success', `Semana ${week.label} cerrada exitosamente.`);
+    const activeDrivers = drivers.filter(d => d.status === 'activo');
+    const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
+    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
+    await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast);
     setTab('cerradas');
     setSelectedWeek(week.label);
   }
@@ -138,13 +127,10 @@ export default function PayrollPage() {
     if (!ok) return;
 
     const latestVersion = Math.max(...closedPayroll.filter(p => p.weekLabel === selectedWeek).map(p => p.version ?? 1), 0);
-    const shiftSummaries = drivers.filter(d => d.status === 'activo').map(driver => {
-      const driverShifts = shifts.filter(s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked);
-      return { driverId: driver.id, totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0) };
-    });
-    const records = calculateWeeklyPay(drivers.filter(d => d.status === 'activo'), trips, shiftSummaries, selectedWeek, week.start, week.end, session?.name ?? '', latestVersion + 1, previousWeekHours);
-    dispatch({ type: 'RERUN_PAYROLL_CLOSE', payload: { weekLabel: selectedWeek, newRecords: records } });
-    showToast('success', `N\u00f3mina re-ejecutada (v${latestVersion + 1}).`);
+    const activeDrivers = drivers.filter(d => d.status === 'activo');
+    const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
+    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, week.start, week.end, session?.name ?? '', latestVersion + 1, previousWeekHours);
+    await actionRerunPayroll(week.start, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast);
   }
 
   function handleExport() {

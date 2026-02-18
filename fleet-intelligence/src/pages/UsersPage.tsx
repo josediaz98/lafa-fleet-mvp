@@ -5,8 +5,10 @@ import { MOCK_CENTERS } from '../data/mockData';
 import { useToast } from '../context/ToastContext';
 import { getCenterName } from '../lib/dataUtils';
 import { useConfirmDialog } from '../components/ui/ConfirmDialog';
+import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '../lib/actions';
 import StatusBadge from '../components/ui/StatusBadge';
 import SlidePanel from '../components/ui/SlidePanel';
+import Modal from '../components/ui/Modal';
 
 interface UserFormState {
   name: string;
@@ -84,8 +86,7 @@ export default function UsersPage() {
       status: 'activo',
       password: form.password,
     };
-    dispatch({ type: 'ADD_USER', payload: newUser });
-    showToast('success', `Usuario ${newUser.name} creado.`);
+    actionAddUser(newUser, form.password, dispatch, showToast);
     setShowCreateModal(false);
   }
 
@@ -129,9 +130,8 @@ export default function UsersPage() {
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
     };
-    dispatch({ type: 'UPDATE_USER', payload: updated });
+    actionUpdateUser(updated, dispatch, showToast);
     setSelectedUser(updated);
-    showToast('success', `Usuario ${updated.name} actualizado.`);
     setEditMode(false);
   }
 
@@ -153,8 +153,7 @@ export default function UsersPage() {
       variant: 'danger',
     });
     if (!ok) return;
-    dispatch({ type: 'DEACTIVATE_USER', payload: selectedUser.id });
-    showToast('success', `${selectedUser.name} desactivado.`);
+    actionDeactivateUser(selectedUser.id, selectedUser.name, dispatch, showToast);
     setSelectedUser(null);
   }
 
@@ -349,85 +348,77 @@ export default function UsersPage() {
         )}
       </SlidePanel>
 
-      {showCreateModal && (
-        <>
-          <div className="fixed inset-0 z-[80] bg-black/50" onClick={() => setShowCreateModal(false)} />
-          <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
-            <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-              <h3 className="text-lg font-semibold text-lafa-text-primary mb-5">Nuevo usuario</h3>
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
-                  <input
-                    value={form.name}
-                    onChange={e => setForm({ ...form, name: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={e => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contrase\u00f1a'}</label>
-                  <input
-                    type="password"
-                    value={form.password}
-                    onChange={e => setForm({ ...form, password: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  />
-                  <p className="text-xs text-lafa-text-secondary mt-1">{'M\u00ednimo 6 caracteres'}</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
-                  <select
-                    value={form.role}
-                    onChange={e => setForm({ ...form, role: e.target.value })}
-                    className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                  >
-                    <option value="admin">Admin</option>
-                    <option value="supervisor">Supervisor</option>
-                  </select>
-                </div>
-                {form.role === 'supervisor' && (
-                  <div>
-                    <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-                    <select
-                      value={form.centerId}
-                      onChange={e => setForm({ ...form, centerId: e.target.value })}
-                      className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-                    >
-                      {MOCK_CENTERS.map(c => (
-                        <option key={c.id} value={c.id}>{c.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-                {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    onClick={() => setShowCreateModal(false)}
-                    className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    onClick={handleCreate}
-                    className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-                  >
-                    Crear usuario
-                  </button>
-                </div>
-              </div>
-            </div>
+      <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title="Nuevo usuario">
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
+            <input
+              value={form.name}
+              onChange={e => setForm({ ...form, name: e.target.value })}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
           </div>
-        </>
-      )}
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={e => setForm({ ...form, email: e.target.value })}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contrase\u00f1a'}</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={e => setForm({ ...form, password: e.target.value })}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
+            <p className="text-xs text-lafa-text-secondary mt-1">{'M\u00ednimo 6 caracteres'}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
+            <select
+              value={form.role}
+              onChange={e => setForm({ ...form, role: e.target.value })}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            >
+              <option value="admin">Admin</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+          </div>
+          {form.role === 'supervisor' && (
+            <div>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
+              <select
+                value={form.centerId}
+                onChange={e => setForm({ ...form, centerId: e.target.value })}
+                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+              >
+                {MOCK_CENTERS.map(c => (
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              onClick={() => setShowCreateModal(false)}
+              className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleCreate}
+              className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            >
+              Crear usuario
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
