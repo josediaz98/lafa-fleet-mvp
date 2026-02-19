@@ -82,7 +82,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             }`}
           />
           {supabaseMode && (
-            <p className="text-xs text-lafa-text-secondary mt-1">Solo correos @lafa-mx.com</p>
+            <p className="text-xs text-lafa-text-secondary mt-1">Email corporativo del usuario</p>
           )}
         </div>
         {!supabaseMode && (

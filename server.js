@@ -48,9 +48,10 @@ app.post('/api/invite-user', async (req, res) => {
   if (!email || !name || !role) {
     return res.status(400).json({ error: 'email, name, and role are required' });
   }
-  if (!email.endsWith('@lafa-mx.com')) {
-    return res.status(400).json({ error: 'Solo correos @lafa-mx.com permitidos' });
-  }
+  // TODO: re-enable for production
+  // if (!email.endsWith('@lafa-mx.com')) {
+  //   return res.status(400).json({ error: 'Solo correos @lafa-mx.com permitidos' });
+  // }
   if (!['admin', 'supervisor'].includes(role)) {
     return res.status(400).json({ error: 'role must be admin or supervisor' });
   }

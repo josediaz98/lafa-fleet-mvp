@@ -91,9 +91,10 @@ export function validateUserCreate(
     if (!isValidEmail(form.email)) {
       return 'Formato de email inválido.';
     }
-    if (!isLafaEmail(form.email)) {
-      return 'Solo correos @lafa-mx.com permitidos.';
-    }
+    // TODO: re-enable for production
+    // if (!isLafaEmail(form.email)) {
+    //   return 'Solo correos @lafa-mx.com permitidos.';
+    // }
   } else {
     if (!isRequired(form.name) || !isRequired(form.email) || !isRequired(form.password)) {
       return 'Nombre, email y contraseña son obligatorios.';
