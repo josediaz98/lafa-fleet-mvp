@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { useCenterFilter } from '@/components/ui/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { shiftHours } from '@/lib/date-utils';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/constants';
@@ -10,9 +10,9 @@ import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionCheckIn, actionCheckOut } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
-import ShiftCheckInModal from './ShiftCheckInModal';
-import ShiftRow from './ShiftRow';
-import ShiftTable from './ShiftTable';
+import ShiftCheckInModal from './components/ShiftCheckInModal';
+import ShiftRow from './components/ShiftRow';
+import ShiftTable from './components/ShiftTable';
 
 type ShiftTab = 'activos' | 'completados' | 'pendientes';
 

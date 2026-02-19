@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { useCenterFilter } from '@/components/ui/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatTime } from '@/lib/date-utils';
 import { formatMXN } from '@/lib/format';
 import { getWeekBounds, shiftHours } from '@/lib/date-utils';
@@ -11,7 +11,7 @@ import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionCheckOut } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
-import ShiftCard from '@/features/shifts/ShiftCard';
+import ShiftCard from '@/features/shifts/components/ShiftCard';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function DashboardPage() {

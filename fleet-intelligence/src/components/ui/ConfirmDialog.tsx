@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, useRef, useEffect, useId, type ReactNode } from 'react';
-import { useFocusTrap } from './use-focus-trap';
+import { useFocusTrap } from '@/lib/use-focus-trap';
 
 interface ConfirmOptions {
   title: string;

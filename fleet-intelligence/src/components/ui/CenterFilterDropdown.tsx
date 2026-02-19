@@ -1,4 +1,4 @@
-import { useCenterFilter } from '@/components/ui/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 
 interface CenterFilterDropdownProps {

@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import type { Driver, PayrollRecord, Shift } from '@/types';
-import DriverDataTab from './components/DriverDataTab';
-import DriverPayrollTab from './components/DriverPayrollTab';
-import DriverShiftTab from './components/DriverShiftTab';
+import DriverDataTab from './DriverDataTab';
+import DriverPayrollTab from './DriverPayrollTab';
+import DriverShiftTab from './DriverShiftTab';
 
 type DriverPanelTab = 'datos' | 'nomina' | 'turnos';
 

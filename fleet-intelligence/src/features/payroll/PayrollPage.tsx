@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Upload, Receipt, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { PayrollRecord } from '@/types';
-import { useCenterFilter } from '@/components/ui/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -13,8 +13,8 @@ import { getPayrollFlags, generateWeekSummary } from '@/features/payroll/lib/pay
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import SlidePanel from '@/components/ui/SlidePanel';
 import EmptyState from '@/components/ui/EmptyState';
-import PayrollSummaryCards from './PayrollSummaryCards';
-import PayrollDetailPanel from './PayrollDetailPanel';
+import PayrollSummaryCards from './components/PayrollSummaryCards';
+import PayrollDetailPanel from './components/PayrollDetailPanel';
 
 type PayrollTab = 'actual' | 'cerradas';
 type SortKey = 'driverName' | 'hoursWorked' | 'totalBilled' | 'totalPay';

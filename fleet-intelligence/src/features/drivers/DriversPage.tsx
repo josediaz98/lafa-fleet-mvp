@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
-import { useCenterFilter } from '@/components/ui/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { getCenterName } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
@@ -11,8 +11,8 @@ import { actionAddDriver, actionUpdateDriver, actionDeactivateDriver } from '@/l
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
-import DriverCreateModal from './DriverCreateModal';
-import DriverDetailPanel from './DriverDetailPanel';
+import DriverCreateModal from './components/DriverCreateModal';
+import DriverDetailPanel from './components/DriverDetailPanel';
 
 type StatusFilter = 'todos' | 'activo' | 'inactivo';
 type ShiftFilter = 'todos' | 'diurno' | 'nocturno';

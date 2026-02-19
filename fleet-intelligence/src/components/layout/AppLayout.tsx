@@ -4,8 +4,8 @@ import { Menu, AlertTriangle, X } from 'lucide-react';
 import { Skeleton, SkeletonKPICards, SkeletonTableRows } from '@/components/ui/Skeleton';
 import Sidebar from './Sidebar';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { CenterFilterProvider } from '@/components/ui/use-center-filter';
-import { useIdleLogout } from '@/lib/useIdleLogout';
+import { CenterFilterProvider } from '@/lib/use-center-filter';
+import { useIdleLogout } from '@/lib/use-idle-logout';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export default function AppLayout() {

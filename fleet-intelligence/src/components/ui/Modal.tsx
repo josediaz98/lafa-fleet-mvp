@@ -1,5 +1,5 @@
 import { useEffect, useRef, useId, type ReactNode } from 'react';
-import { useFocusTrap } from './use-focus-trap';
+import { useFocusTrap } from '@/lib/use-focus-trap';
 
 interface ModalProps {
   open: boolean;
