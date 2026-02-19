@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter } from 'lucide-react';
+import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter, History } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Trip } from '@/types';
 import { MOCK_DRIVERS } from '@/data/mock-data';
@@ -9,6 +9,7 @@ import { actionImportTrips } from '@/lib/actions';
 import { getWeekBounds } from '@/lib/date-utils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
 import { parseCsvText, validateRow, CSV_TEMPLATE, type ParsedRow } from './lib/csv-parser';
+import UploadHistoryTable from './components/UploadHistoryTable';
 
 const STEPS = [
   { num: 1, label: 'Subir archivo' },
@@ -27,6 +28,7 @@ export default function CsvUploadPage() {
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [historyKey, setHistoryKey] = useState(0);
 
   const existingTripIds = new Set(trips.map(t => t.tripId));
 
@@ -86,7 +88,7 @@ export default function CsvUploadPage() {
     URL.revokeObjectURL(url);
   }
 
-  function handleImport() {
+  async function handleImport() {
     const validRows = rows.filter(r => r.estado !== 'error');
     const newTrips: Trip[] = validRows.map(r => ({
       id: `t-${r.tripId}`,
@@ -104,8 +106,13 @@ export default function CsvUploadPage() {
     for (const d of driversForMap) {
       didiToDriverId.set(d.didiDriverId, d.id);
     }
-    actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast);
-    setActiveStep(3);
+    try {
+      await actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast);
+      setActiveStep(3);
+    } catch {
+      showToast('error', 'Error al importar viajes. Intenta de nuevo.');
+    }
+    setHistoryKey(k => k + 1);
   }
 
   const validCount = rows.filter(r => r.estado === 'valido').length;
@@ -329,6 +336,14 @@ export default function CsvUploadPage() {
           </button>
         </div>
       )}
+
+      <div className="mt-10">
+        <h2 className="text-lg font-semibold text-lafa-text-primary mb-4 flex items-center gap-2">
+          <History size={20} className="text-lafa-text-secondary" />
+          Historial de cargas
+        </h2>
+        <UploadHistoryTable refreshKey={historyKey} />
+      </div>
     </div>
   );
 }
