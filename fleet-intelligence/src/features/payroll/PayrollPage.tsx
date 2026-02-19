@@ -106,7 +106,7 @@ export default function PayrollPage() {
   async function handleCloseWeek() {
     const ok = await confirm({
       title: 'Cerrar semana',
-      description: `Se cerrar\u00e1 la n\u00f3mina de la semana ${week.label}. Esta acci\u00f3n no se puede deshacer f\u00e1cilmente.`,
+      description: `Se cerrará la nómina de la semana ${week.label}. Esta acción no se puede deshacer fácilmente.`,
       confirmLabel: 'Cerrar semana',
       variant: 'danger',
     });
@@ -123,7 +123,7 @@ export default function PayrollPage() {
   async function handleRerun() {
     const ok = await confirm({
       title: 'Re-ejecutar cierre',
-      description: 'Se recalcular\u00e1 la n\u00f3mina de la semana cerrada. La versi\u00f3n anterior se marcar\u00e1 como superseded.',
+      description: 'Se recalculará la nómina de la semana cerrada. La versión anterior se marcará como superseded.',
       confirmLabel: 'Re-ejecutar',
       variant: 'danger',
     });
@@ -150,7 +150,7 @@ export default function PayrollPage() {
         className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap"
         onClick={() => handleSort(field)}
       >
-        {label} {sortKey === field ? (sortAsc ? '\u2191' : '\u2193') : ''}
+        {label} {sortKey === field ? (sortAsc ? '↑' : '↓') : ''}
       </th>
     );
   }
@@ -160,7 +160,7 @@ export default function PayrollPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">{'N\u00f3mina'}</h1>
+        <h1 className="text-2xl font-bold text-lafa-text-primary">{'Nómina'}</h1>
         <div className="flex items-center gap-3 flex-wrap">
           <CenterFilterDropdown />
           {tab === 'actual' && isAdmin && (
@@ -243,7 +243,7 @@ export default function PayrollPage() {
         <EmptyState
           icon={Upload}
           title="Sin datos de viajes"
-          description={'Importa viajes desde Carga CSV para ver el c\u00e1lculo de n\u00f3mina en vivo.'}
+          description={'Importa viajes desde Carga CSV para ver el cálculo de nómina en vivo.'}
         />
       )}
 
@@ -277,7 +277,7 @@ export default function PayrollPage() {
                     <SortHeader label="Conductor" field="driverName" />
                     <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Centro</th>
                     <SortHeader label="Horas" field="hoursWorked" />
-                    <SortHeader label={'Facturaci\u00f3n'} field="totalBilled" />
+                    <SortHeader label={'Facturación'} field="totalBilled" />
                     <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Meta</th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Base</th>
                     <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Bono</th>
@@ -292,7 +292,7 @@ export default function PayrollPage() {
                   {sorted.length === 0 && (
                     <tr>
                       <td colSpan={12} className="px-4 py-8">
-                        <EmptyState icon={Receipt} title={'Sin registros de n\u00f3mina'} />
+                        <EmptyState icon={Receipt} title={'Sin registros de nómina'} />
                       </td>
                     </tr>
                   )}
@@ -316,7 +316,7 @@ export default function PayrollPage() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         {row.goalMet ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">{'\u00a0S\u00ed\u00a0'}</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">{'\u00a0Sí\u00a0'}</span>
                         ) : (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(239,68,68,0.15)] text-[#EF4444]">No</span>
                         )}
@@ -324,7 +324,7 @@ export default function PayrollPage() {
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.baseSalary)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.productivityBonus)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.overtimePay)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '\u2014' : formatMXN(1000)}</td>
+                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '—' : formatMXN(1000)}</td>
                       <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalPay)}</td>
                       <td className="px-4 py-3">
                         {(() => {
@@ -373,7 +373,7 @@ export default function PayrollPage() {
       <SlidePanel
         open={!!selectedRow}
         onClose={() => setSelectedRow(null)}
-        title={selectedRow ? `Detalle \u2014 ${selectedRow.driverName}` : ''}
+        title={selectedRow ? `Detalle — ${selectedRow.driverName}` : ''}
       >
         {selectedRow && (
           <PayrollDetailPanel record={selectedRow} trips={selectedRowTrips} />

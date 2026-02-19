@@ -110,7 +110,7 @@ export default function DriversPage() {
     }
     const ok = await confirm({
       title: 'Desactivar conductor',
-      description: `Se desactivar\u00e1 a ${selectedDriver.fullName}. No podr\u00e1 ser asignado a nuevos turnos.`,
+      description: `Se desactivará a ${selectedDriver.fullName}. No podrá ser asignado a nuevos turnos.`,
       confirmLabel: 'Desactivar',
       variant: 'danger',
     });

@@ -10,7 +10,7 @@ export default function ValidationIcon({ estado, msg }: ValidationIconProps) {
     case 'valido':
       return (
         <span className="inline-flex items-center gap-1 text-xs text-[#22C55E]">
-          <CheckCircle size={14} /> {'V\u00e1lido'}
+          <CheckCircle size={14} /> {'Válido'}
         </span>
       );
     case 'warning':

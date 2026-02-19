@@ -27,10 +27,10 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
           <StatusBadge status="completado" />
         </div>
         <p className="text-xs text-lafa-text-secondary mb-1">
-          {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} {shift.center}
+          {shift.plate} {'·'} {shift.model} {'·'} {shift.center}
         </p>
         <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
-          <span>{formatTime(shift.checkIn)} {shift.checkOut ? `\u2192 ${formatTime(shift.checkOut)}` : ''}</span>
+          <span>{formatTime(shift.checkIn)} {shift.checkOut ? `→ ${formatTime(shift.checkOut)}` : ''}</span>
           {shift.hoursWorked !== undefined && (
             <span className="font-medium text-[#22C55E]">{shift.hoursWorked}h</span>
           )}
@@ -47,7 +47,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
           <StatusBadge status="alerta" label={`Abierto ${getElapsedTime(shift.checkIn)}`} />
         </div>
         <p className="text-xs text-lafa-text-secondary mb-3">
-          {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} {shift.center}
+          {shift.plate} {'·'} {shift.model} {'·'} {shift.center}
         </p>
         <div className="flex items-center justify-between">
           <p className="text-xs text-lafa-text-secondary">
@@ -83,7 +83,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
         )}
       </div>
       <p className="text-xs text-lafa-text-secondary mb-3">
-        {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} Check-in: {formatTime(shift.checkIn)}
+        {shift.plate} {'·'} {shift.model} {'·'} Check-in: {formatTime(shift.checkIn)}
       </p>
       <div className="flex items-center justify-between">
         <span className={`text-sm font-medium ${isOvertime ? 'text-[#EF4444]' : 'text-[#3B82F6]'}`}>{getElapsedTime(shift.checkIn)}</span>

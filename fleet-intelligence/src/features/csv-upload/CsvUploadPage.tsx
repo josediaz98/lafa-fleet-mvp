@@ -32,7 +32,7 @@ export default function CsvUploadPage() {
 
   function processFile(file: File) {
     if (file.size > 20 * 1024 * 1024) {
-      showToast('error', 'Archivo muy grande (m\u00e1x 20MB)');
+      showToast('error', 'Archivo muy grande (máx 20MB)');
       return;
     }
 
@@ -200,7 +200,7 @@ export default function CsvUploadPage() {
         <>
           <div className="flex items-center gap-4 mb-4 text-sm flex-wrap">
             <span className="inline-flex items-center gap-1.5 text-[#22C55E]">
-              <CheckCircle size={14} /> {validCount} {'v\u00e1lidos'}
+              <CheckCircle size={14} /> {validCount} {'válidos'}
             </span>
             <span className="inline-flex items-center gap-1.5 text-[#EAB308]">
               <AlertTriangle size={14} /> {warningCount} warning
@@ -261,7 +261,7 @@ export default function CsvUploadPage() {
                     >
                       <td className="px-4 py-3 text-lafa-text-primary font-mono">{row.driverId}</td>
                       <td className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-[#EAB308]' : 'text-lafa-text-secondary'}`}>
-                        {row.matchedDriverName ?? '\u2014'}
+                        {row.matchedDriverName ?? '—'}
                         {row.matchType === 'fuzzy' && <span className="text-[10px] ml-1">(fuzzy)</span>}
                       </td>
                       <td className="px-4 py-3 text-lafa-text-secondary">{row.fecha}</td>
@@ -283,7 +283,7 @@ export default function CsvUploadPage() {
               onClick={() => { setActiveStep(1); setRows([]); setFileName(''); }}
               className="px-5 py-2.5 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
             >
-              {'\u2190 Atr\u00e1s'}
+              {'← Atrás'}
             </button>
             <button
               onClick={handleImport}
@@ -301,7 +301,7 @@ export default function CsvUploadPage() {
           <div className="w-16 h-16 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center mb-4">
             <CheckCircle size={32} className="text-[#22C55E]" />
           </div>
-          <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">{'Importaci\u00f3n completada'}</h2>
+          <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">{'Importación completada'}</h2>
           <div className="bg-lafa-accent/10 border border-lafa-accent/20 rounded-xl p-3 mb-4 text-sm text-lafa-text-primary text-center max-w-lg">
             {importableCount} viajes importados, mapeados a {uniqueDrivers} conductores. {formatMXN(totalBilling)} facturados.
             {warningCount > 0 ? ` ${warningCount} advertencia${warningCount !== 1 ? 's' : ''}.` : ''}
@@ -313,7 +313,7 @@ export default function CsvUploadPage() {
               <p className="text-lg font-bold text-lafa-text-primary">{importableCount}</p>
             </div>
             <div>
-              <p className="text-xs text-lafa-text-secondary">{'Facturaci\u00f3n'}</p>
+              <p className="text-xs text-lafa-text-secondary">{'Facturación'}</p>
               <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalBilling)}</p>
             </div>
             <div>

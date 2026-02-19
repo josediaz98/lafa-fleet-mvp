@@ -53,7 +53,7 @@ export function getWeekBounds() {
   weekEnd.setDate(weekStart.getDate() + 6);
   const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
   return {
-    label: `${fmt(weekStart)} \u2013 ${fmt(weekEnd)}, ${weekStart.getFullYear()}`,
+    label: `${fmt(weekStart)} – ${fmt(weekEnd)}, ${weekStart.getFullYear()}`,
     start: weekStart.toISOString().slice(0, 10),
     end: weekEnd.toISOString().slice(0, 10),
     startDate: weekStart,

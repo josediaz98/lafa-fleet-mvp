@@ -32,7 +32,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
               Algo sali&oacute; mal
             </h2>
             <p className="text-sm text-lafa-text-secondary mb-6">
-              {this.state.error?.message || 'Ocurri\u00f3 un error inesperado.'}
+              {this.state.error?.message || 'Ocurrió un error inesperado.'}
             </p>
             <button
               onClick={() => window.location.reload()}

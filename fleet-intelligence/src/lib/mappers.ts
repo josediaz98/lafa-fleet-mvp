@@ -113,7 +113,7 @@ export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
   const ws = new Date(row.week_start + 'T00:00:00');
   const we = new Date(row.week_end + 'T00:00:00');
   const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
-  const weekLabel = `${fmt(ws)} \u2013 ${fmt(we)}, ${ws.getFullYear()}`;
+  const weekLabel = `${fmt(ws)} – ${fmt(we)}, ${ws.getFullYear()}`;
 
   return {
     id: row.id,

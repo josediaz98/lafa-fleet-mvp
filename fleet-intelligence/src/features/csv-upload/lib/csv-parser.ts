@@ -64,7 +64,7 @@ export function validateRow(
   const exactMatch = activeDrivers.find(d => d.didiDriverId === row.driverId);
   if (!exactMatch) {
     const suggestion = findClosestDriverId(row.driverId, activeDrivers);
-    const hint = suggestion ? ` \u00bfQuisiste decir ${suggestion}?` : '';
+    const hint = suggestion ? ` ¿Quisiste decir ${suggestion}?` : '';
     return { ...row, estado: 'error', errorMsg: `Driver ID no encontrado${hint}` };
   }
   row.matchedDriverName = exactMatch.fullName ?? `Driver ${exactMatch.didiDriverId}`;
@@ -76,7 +76,7 @@ export function validateRow(
 
   const parts = row.fecha.split('/');
   if (parts.length !== 3) {
-    return { ...row, estado: 'error', errorMsg: 'Fecha inv\u00e1lida' };
+    return { ...row, estado: 'error', errorMsg: 'Fecha inválida' };
   }
 
   if (row.costo <= 0) {

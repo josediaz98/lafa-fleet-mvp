@@ -31,7 +31,7 @@ export default function PayrollSummaryCards({
     <div className="space-y-3 mb-5">
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-          <p className="text-xs text-lafa-text-secondary mb-1">{'Total n\u00f3mina'}</p>
+          <p className="text-xs text-lafa-text-secondary mb-1">{'Total nómina'}</p>
           <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalNomina)}</p>
         </div>
         <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
@@ -42,16 +42,16 @@ export default function PayrollSummaryCards({
           </p>
         </div>
         <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-          <p className="text-xs text-lafa-text-secondary mb-1">{'Facturaci\u00f3n total'}</p>
+          <p className="text-xs text-lafa-text-secondary mb-1">{'Facturación total'}</p>
           <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalBilled)}</p>
         </div>
         <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4">
-          <p className="text-xs text-lafa-text-secondary mb-1">{'Prom. facturaci\u00f3n/hora'}</p>
+          <p className="text-xs text-lafa-text-secondary mb-1">{'Prom. facturación/hora'}</p>
           <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(avgPerHour)}</p>
         </div>
         {totalSupport !== undefined && totalSupport > 0 && (
           <div className="bg-lafa-surface border border-[#EF4444]/20 rounded-xl p-4">
-            <p className="text-xs text-lafa-text-secondary mb-1">{'Apoyo econ\u00f3mico'}</p>
+            <p className="text-xs text-lafa-text-secondary mb-1">{'Apoyo económico'}</p>
             <p className="text-lg font-bold text-[#EF4444]">{formatMXN(totalSupport)}</p>
             <p className="text-[10px] text-lafa-text-secondary">{totalDrivers - driversWithGoal} conductor{(totalDrivers - driversWithGoal) !== 1 ? 'es' : ''}</p>
           </div>

@@ -42,7 +42,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
             <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 max-w-md w-full shadow-2xl">
               <h3 className="text-lg font-semibold text-lafa-text-primary mb-2">{options.title}</h3>
               <p className="text-sm text-lafa-text-secondary mb-6">
-                {options.description ?? 'Esta acci\u00f3n no se puede deshacer.'}
+                {options.description ?? 'Esta acción no se puede deshacer.'}
               </p>
               <div className="flex items-center justify-end gap-3">
                 <button

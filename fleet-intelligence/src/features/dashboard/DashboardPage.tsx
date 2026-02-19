@@ -81,9 +81,9 @@ export default function DashboardPage() {
   const kpiCards = [
     { label: 'Turnos activos', value: String(enTurno.length), icon: Clock, color: 'text-[#3B82F6]', bg: 'bg-[rgba(59,130,246,0.15)]' },
     { label: 'Conductores en turno', value: `${driversInShift} / ${activeDriversCount}`, icon: Users, color: 'text-[#8B5CF6]', bg: 'bg-[rgba(139,92,246,0.15)]' },
-    { label: 'Veh\u00edculos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-[#22C55E]', bg: 'bg-[rgba(34,197,94,0.15)]' },
+    { label: 'Vehículos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-[#22C55E]', bg: 'bg-[rgba(34,197,94,0.15)]' },
     { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-[#EF4444]', bg: 'bg-[rgba(239,68,68,0.15)]' },
-    { label: 'Facturaci\u00f3n semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
+    { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
   ];
 
   async function handleCloseShift(shiftId: string) {
@@ -95,7 +95,7 @@ export default function DashboardPage() {
     if (hours < 1) {
       const ok = await confirm({
         title: 'Turno muy corto',
-        description: `Este turno tiene menos de 1 hora (${hours}h). \u00bfSeguro que deseas cerrarlo?`,
+        description: `Este turno tiene menos de 1 hora (${hours}h). ¿Seguro que deseas cerrarlo?`,
         confirmLabel: 'Cerrar turno',
         variant: 'danger',
       });
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                   <span className="text-sm font-semibold text-[#EF4444]">Turno abierto +{Math.floor(shiftHours(shift.checkIn))}h</span>
                 </div>
                 <p className="text-xs text-lafa-text-secondary mb-3">
-                  {shift.driverName} - {shift.plate} {'\u00b7'} Check-in: {formatTime(shift.checkIn)}.
+                  {shift.driverName} - {shift.plate} {'·'} Check-in: {formatTime(shift.checkIn)}.
                   <br />Sin check-out registrado.
                 </p>
                 <button
@@ -181,7 +181,7 @@ export default function DashboardPage() {
               </div>
             ))}
             {alertShifts.length === 0 && (
-              <EmptyState icon={AlertTriangle} title="Sin alertas activas" description="Todos los turnos est\u00e1n dentro del rango normal." />
+              <EmptyState icon={AlertTriangle} title="Sin alertas activas" description="Todos los turnos están dentro del rango normal." />
             )}
 
             {driversNear6K.length > 0 && (
