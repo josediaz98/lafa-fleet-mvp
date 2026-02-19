@@ -2,6 +2,8 @@
 .DS_Store
 .claude/*
 !.claude/settings.json
+!.claude/commands/
+!.claude/hooks/
 
 # Dependencies
 node_modules/
