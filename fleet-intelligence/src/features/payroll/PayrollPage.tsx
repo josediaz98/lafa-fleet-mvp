@@ -7,7 +7,7 @@ import { usePagination } from '@/lib/use-pagination';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { calculateWeeklyPay, exportPayrollCsv } from '@/features/payroll/lib/payroll';
+import { calculateWeeklyPay, exportPayrollCsv, SUPPORT_AMOUNT } from '@/features/payroll/lib/payroll';
 import { getWeekBounds, buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
 import { getPayrollFlags, generateWeekSummary } from '@/features/payroll/lib/payroll-flags';
@@ -339,7 +339,7 @@ export default function PayrollPage() {
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.baseSalary)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.productivityBonus)}</td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.overtimePay)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '—' : formatMXN(1000)}</td>
+                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '—' : formatMXN(SUPPORT_AMOUNT)}</td>
                       <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalPay)}</td>
                       <td className="px-4 py-3">
                         {(() => {

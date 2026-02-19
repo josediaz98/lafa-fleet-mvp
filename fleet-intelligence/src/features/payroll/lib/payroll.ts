@@ -5,7 +5,7 @@ import { parseFechaToISO } from '@/lib/date-utils';
 
 const BASE_SALARY = 2500;
 export const GOAL_THRESHOLD = 6000;
-const SUPPORT_AMOUNT = 1000;
+export const SUPPORT_AMOUNT = 1000;
 const PRODUCTIVITY_UNIT = 500;
 const PRODUCTIVITY_BONUS_PER_UNIT = 100;
 export const OVERTIME_THRESHOLD_HOURS = 40;
@@ -77,9 +77,9 @@ export function calculateWeeklyPay(
         if (t.driverId !== driver.didiDriverId) return false;
         return isTripInWeek(t, weekStart, weekEnd);
       });
-      const totalBilled = driverTrips.reduce((sum, t) => sum + t.costo, 0);
+      const totalBilled = Math.round(driverTrips.reduce((sum, t) => sum + t.costo, 0) * 100) / 100;
       // H1: Compute tips total from driver trips
-      const tipsTotal = driverTrips.reduce((sum, t) => sum + t.propina, 0);
+      const tipsTotal = Math.round(driverTrips.reduce((sum, t) => sum + t.propina, 0) * 100) / 100;
       const shiftData = shiftSummaries.find(s => s.driverId === driver.id);
       const hoursWorked = shiftData?.totalHours ?? 0;
 

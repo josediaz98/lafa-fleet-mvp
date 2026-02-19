@@ -83,6 +83,10 @@ export function validateRow(
     return { ...row, estado: 'error', errorMsg: 'Costo debe ser > 0' };
   }
 
+  if (row.propina < 0 || isNaN(row.propina)) {
+    return { ...row, estado: 'error', errorMsg: 'Propina inválida o negativa' };
+  }
+
   const parseMinutes = (t: string) => {
     const [h, m] = t.split(':').map(Number);
     return h * 60 + (m || 0);
@@ -159,6 +163,19 @@ export function parseCsvText(text: string): ParsedRow[] {
   const latIdx = headers.findIndex(h => h.includes('lat'));
   const lngIdx = headers.findIndex(h => h.includes('lng') || h.includes('lon'));
   const initialCoordsIdx = headers.findIndex(h => h === 'initial coordinates');
+
+  // Validate required headers are present
+  const requiredHeaders: [number, string][] = [
+    [driverIdx, 'Driver ID'], [fechaIdx, 'Date/Fecha'], [tripIdx, 'Trip ID'],
+    [inicioIdx, 'Initial time/Inicio'], [finIdx, 'Final time/Fin'], [costoIdx, 'Cost/Costo'],
+  ];
+  const missingHeaders = requiredHeaders.filter(([idx]) => idx === -1).map(([, name]) => name);
+  if (missingHeaders.length > 0) {
+    return [{
+      driverId: 0, fecha: '', tripId: '', horaInicio: '', horaFin: '', costo: 0, propina: 0,
+      estado: 'error' as const, errorMsg: `Columnas requeridas no encontradas: ${missingHeaders.join(', ')}`,
+    }];
+  }
 
   return lines.slice(1).filter(l => l.trim()).map(line => {
     const cols = splitCsvLine(line);

@@ -341,6 +341,68 @@ describe('calculateWeeklyPay', () => {
     });
   });
 
+  describe('B1: floating-point rounding before goal check', () => {
+    it('revenue that sums to 5999.995 rounds to 6000 → goal met', () => {
+      const driver = makeDriver();
+      // 5 trips: 4 × $1200 + 1 × $1199.999 = $5999.999 → rounds to $6000.00
+      const trips: Trip[] = [];
+      for (let i = 0; i < 5; i++) {
+        const date = new Date(2026, 1, 16 + i);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        trips.push({
+          id: `t-${i}`,
+          driverId: driver.didiDriverId,
+          fecha: `${dd}/${mm}/${date.getFullYear()}`,
+          tripId: `trip-fp-${i}`,
+          horaInicio: '06:00',
+          horaFin: '17:00',
+          costo: i < 4 ? 1200 : 1199.999,
+          propina: 0,
+        });
+      }
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      // 4800 + 1199.999 = 5999.999 → Math.round(* 100) / 100 = 6000.00
+      expect(results[0].totalBilled).toBe(6000);
+      expect(results[0].goalMet).toBe(true);
+      expect(results[0].baseSalary).toBe(2500);
+    });
+
+    it('revenue that sums to 5999.994 rounds to 5999.99 → goal NOT met', () => {
+      const driver = makeDriver();
+      const trips: Trip[] = [];
+      for (let i = 0; i < 5; i++) {
+        const date = new Date(2026, 1, 16 + i);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        trips.push({
+          id: `t-${i}`,
+          driverId: driver.didiDriverId,
+          fecha: `${dd}/${mm}/${date.getFullYear()}`,
+          tripId: `trip-fp2-${i}`,
+          horaInicio: '06:00',
+          horaFin: '17:00',
+          costo: i < 4 ? 1200 : 1199.994,
+          propina: 0,
+        });
+      }
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(5999.99);
+      expect(results[0].goalMet).toBe(false);
+      expect(results[0].totalPay).toBe(1000);
+    });
+  });
+
   describe('Edge Case 2b: $5,999.99 precision', () => {
     it('revenue $5,999.99 → goal NOT met', () => {
       const driver = makeDriver();

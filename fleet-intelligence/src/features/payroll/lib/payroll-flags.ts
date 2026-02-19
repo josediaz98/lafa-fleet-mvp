@@ -1,5 +1,5 @@
 import type { PayrollRecord } from '@/types';
-import { GOAL_THRESHOLD, OVERTIME_THRESHOLD_HOURS } from './payroll';
+import { GOAL_THRESHOLD, OVERTIME_THRESHOLD_HOURS, SUPPORT_AMOUNT } from './payroll';
 import { formatMXN } from '@/lib/format';
 import { PALETTE } from '@/lib/status-map';
 
@@ -15,18 +15,19 @@ export function getPayrollFlags(record: PayrollRecord, previousWeekHours?: numbe
   const flags: PayrollFlag[] = [];
   const isProrated = record.hoursThreshold < OVERTIME_THRESHOLD_HOURS || record.revenueThreshold < GOAL_THRESHOLD;
 
-  // Near-threshold: missed by a small amount
+  // Near-threshold: missed by a small amount (independent checks for each dimension)
   if (!record.goalMet) {
     const billingGap = record.revenueThreshold - record.totalBilled;
     const hoursGap = record.hoursThreshold - record.hoursWorked;
 
-    if (billingGap > 0 && billingGap <= NEAR_THRESHOLD_MXN && hoursGap <= 0) {
+    if (billingGap > 0 && billingGap <= NEAR_THRESHOLD_MXN) {
       flags.push({
         type: 'near-threshold',
         label: `A ${formatMXN(billingGap)} de la meta`,
         color: PALETTE.alert,
       });
-    } else if (hoursGap > 0 && hoursGap <= 2 && billingGap <= 0) {
+    }
+    if (hoursGap > 0 && hoursGap <= 2) {
       flags.push({
         type: 'near-threshold',
         label: `A ${hoursGap}h de la meta`,
@@ -74,7 +75,7 @@ export function generateWeekSummary(records: PayrollRecord[]): PayrollWeekSummar
   const totalBase = records.reduce((s, r) => s + r.baseSalary, 0);
   const totalBonus = records.reduce((s, r) => s + r.productivityBonus, 0);
   const totalOvertime = records.reduce((s, r) => s + r.overtimePay, 0);
-  const totalSupport = records.filter(r => !r.goalMet).length * 1000;
+  const totalSupport = records.filter(r => !r.goalMet).length * SUPPORT_AMOUNT;
 
   const narrative = `${driversWithGoal} de ${totalDrivers} conductores alcanzaron la meta. Nómina total: ${formatMXN(totalPayroll)}. Distribución: Base ${formatMXN(totalBase)}, Bonos ${formatMXN(totalBonus)}, Overtime ${formatMXN(totalOvertime)}, Apoyo ${formatMXN(totalSupport)}.`;
 

@@ -300,7 +300,7 @@ export default function CsvUploadPage() {
 
           <div className="flex items-center justify-end gap-3">
             <button
-              onClick={() => { setActiveStep(1); setRows([]); setFileName(''); }}
+              onClick={() => { setActiveStep(1); setRows([]); setFileName(''); if (fileRef.current) fileRef.current.value = ''; }}
               className="px-5 py-2.5 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
             >
               {'← Atrás'}
@@ -342,7 +342,7 @@ export default function CsvUploadPage() {
             </div>
           </div>
           <button
-            onClick={() => { setActiveStep(1); setRows([]); setFileName(''); }}
+            onClick={() => { setActiveStep(1); setRows([]); setFileName(''); if (fileRef.current) fileRef.current.value = ''; }}
             className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Cargar otro archivo

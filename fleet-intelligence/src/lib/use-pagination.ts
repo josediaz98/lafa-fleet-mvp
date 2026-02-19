@@ -25,11 +25,14 @@ export function usePagination<T>(items: T[], options?: UsePaginationOptions): Us
     setCurrentPage(1);
   }, [items.length]);
 
-  // Clamp page if it exceeds totalPages
+  // Clamp page if it exceeds totalPages (e.g. after filtering reduces items)
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   const safePage = Math.min(currentPage, totalPages);
-  if (safePage !== currentPage) {
-    setCurrentPage(safePage);
-  }
 
   const paginatedItems = useMemo(() => {
     const start = (safePage - 1) * pageSize;

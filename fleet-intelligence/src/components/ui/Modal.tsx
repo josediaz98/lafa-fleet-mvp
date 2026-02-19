@@ -10,16 +10,18 @@ interface ModalProps {
 
 export default function Modal({ open, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   const titleId = useId();
 
   useEffect(() => {
     if (!open) return;
     function handleKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') onCloseRef.current();
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  }, [open, onClose]);
+  }, [open]);
 
   useFocusTrap(open ? dialogRef : { current: null });
 

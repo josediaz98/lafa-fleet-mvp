@@ -134,8 +134,8 @@ CREATE TABLE weekly_payroll (
 CREATE INDEX idx_payroll_driver_week ON weekly_payroll(driver_id, week_start);
 
 -- M3: Prevent duplicate active shifts for same driver or vehicle
-CREATE UNIQUE INDEX idx_one_active_shift_per_driver ON shifts(driver_id) WHERE status = 'en_turno';
-CREATE UNIQUE INDEX idx_one_active_shift_per_vehicle ON shifts(vehicle_id) WHERE status = 'en_turno';
+CREATE UNIQUE INDEX idx_one_active_shift_per_driver ON shifts(driver_id) WHERE status IN ('en_turno', 'pendiente_revision');
+CREATE UNIQUE INDEX idx_one_active_shift_per_vehicle ON shifts(vehicle_id) WHERE status IN ('en_turno', 'pendiente_revision');
 
 
 -- ============================================================

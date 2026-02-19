@@ -62,6 +62,11 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
     return shifts.some(s => s.driverId === selectedDriver.id && s.checkIn.startsWith(today) && s.status === 'completado');
   }, [selectedDriver, shifts]);
 
+  const driverHasActiveShift = useMemo(() => {
+    if (!selectedDriver) return false;
+    return shifts.some(s => s.driverId === selectedDriver.id && (s.status === 'en_turno' || s.status === 'pendiente_revision'));
+  }, [selectedDriver, shifts]);
+
   async function handleSubmit() {
     setFormError('');
     if (!selectedDriverId || !selectedVehicleId) {
@@ -98,7 +103,13 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
               <span className="text-lafa-text-secondary">Turno default</span>
               <StatusBadge status={selectedDriver.defaultShift} />
             </div>
-            {driverHadShiftToday && (
+            {driverHasActiveShift && (
+              <div className="flex items-center gap-1.5 text-status-danger pt-1">
+                <AlertTriangle size={12} />
+                <span>Este conductor ya tiene un turno activo</span>
+              </div>
+            )}
+            {driverHadShiftToday && !driverHasActiveShift && (
               <div className="flex items-center gap-1.5 text-status-alert pt-1">
                 <AlertTriangle size={12} />
                 <span>Ya tuvo un turno hoy</span>
@@ -148,7 +159,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting}
+            disabled={isSubmitting || driverHasActiveShift}
             className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Registrando...' : 'Registrar check-in'}

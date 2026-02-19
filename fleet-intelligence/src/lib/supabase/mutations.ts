@@ -149,7 +149,13 @@ export async function persistTrips(
 
   if (rows.length > 0) {
     const { error } = await supabase.from('trips').insert(rows);
-    if (error) return { error: new Error(error.message) };
+    if (error) {
+      // BUG-3 fix: Mark orphaned upload record as 'error' so it doesn't show as successful
+      if (uploadId) {
+        await supabase.from('csv_uploads').update({ status: 'error', valid_count: 0 }).eq('id', uploadId);
+      }
+      return { error: new Error(error.message) };
+    }
   }
   return { error: null };
 }

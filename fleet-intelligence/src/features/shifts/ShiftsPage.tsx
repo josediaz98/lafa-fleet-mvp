@@ -183,6 +183,14 @@ export default function ShiftsPage() {
       {tab === 'activos' && (
         activeShifts.length > 0 ? (
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+            <div className="px-4 py-2.5 flex items-center gap-x-4 border-b border-lafa-border">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider min-w-[120px] flex-[2]">Conductor</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-1 hidden sm:block">Centro</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-[1.5] hidden md:block">Vehículo</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 hidden sm:block">Check-in</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0">Tiempo</span>
+              <span className="w-[70px] shrink-0"></span>
+            </div>
             <div className="divide-y divide-lafa-border/50">
               {activeShifts.map(shift => (
                 <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} disabled={closingShiftId === shift.id} />
@@ -215,6 +223,14 @@ export default function ShiftsPage() {
       {tab === 'pendientes' && (
         pendingShifts.length > 0 ? (
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+            <div className="px-4 py-2.5 flex items-center gap-x-4 border-b border-lafa-border">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider min-w-[120px] flex-[2]">Conductor</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-1 hidden sm:block">Centro</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-[1.5] hidden md:block">Vehículo</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 hidden sm:block">Check-in</span>
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0">Tiempo</span>
+              <span className="w-[70px] shrink-0"></span>
+            </div>
             <div className="divide-y divide-lafa-border/50">
               {pendingShifts.map(shift => (
                 <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} disabled={closingShiftId === shift.id} />

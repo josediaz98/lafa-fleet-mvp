@@ -113,14 +113,17 @@ export function mapShift(row: DbShift): Shift {
   const vehicle = vehiclesMap.get(row.vehicle_id);
   const center = driver ? centersMap.get(driver.center_id) : undefined;
 
+  if (!driver) console.warn(`mapShift: driver ${row.driver_id} not found in lookup map`);
+  if (!vehicle) console.warn(`mapShift: vehicle ${row.vehicle_id} not found in lookup map`);
+
   return {
     id: row.id,
     driverId: row.driver_id,
-    driverName: driver?.full_name ?? '',
+    driverName: driver?.full_name ?? 'Desconocido',
     vehicleId: row.vehicle_id,
-    plate: vehicle?.plate ?? '',
-    model: vehicle?.model ?? '',
-    center: center?.name ?? '',
+    plate: vehicle?.plate ?? 'Desconocido',
+    model: vehicle?.model ?? 'Desconocido',
+    center: center?.name ?? 'Desconocido',
     centerId: driver?.center_id ?? '',
     checkIn: row.check_in,
     checkOut: row.check_out ?? undefined,
@@ -137,6 +140,7 @@ function formatDateForUI(isoDate: string): string {
 
 export function mapTrip(row: DbTrip): Trip {
   const driver = driversMap.get(row.driver_id);
+  if (!driver) console.warn(`mapTrip: driver ${row.driver_id} not found in lookup map — trip ${row.didi_trip_id} will be orphaned`);
   return {
     id: row.id,
     driverId: driver?.didi_driver_id ?? 0,
@@ -172,10 +176,10 @@ export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
 
   return {
     id: row.id,
-    driverName: driver?.full_name ?? '',
+    driverName: driver?.full_name ?? 'Desconocido',
     driverId: row.driver_id,
     centerId: driver?.center_id ?? '',
-    center: center?.name ?? '',
+    center: center?.name ?? 'Desconocido',
     hoursWorked: Number(row.hours_worked),
     totalBilled: Number(row.total_billed),
     tipsTotal: Number(row.tips_total),

@@ -1,6 +1,7 @@
 import type { PayrollRecord, Trip } from '@/types';
 import { formatMXN } from '@/lib/format';
 import { PALETTE } from '@/lib/status-map';
+import { SUPPORT_AMOUNT } from '@/features/payroll/lib/payroll';
 
 interface PayrollDetailPanelProps {
   record: PayrollRecord;
@@ -55,7 +56,7 @@ export default function PayrollDetailPanel({ record, trips }: PayrollDetailPanel
           {!record.goalMet && (
             <div className="flex justify-between text-sm">
               <span className="text-lafa-text-secondary">{'Apoyo económico'}</span>
-              <span className="text-status-danger">{formatMXN(1000)}</span>
+              <span className="text-status-danger">{formatMXN(SUPPORT_AMOUNT)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm font-semibold border-t border-lafa-border pt-2">
@@ -68,7 +69,7 @@ export default function PayrollDetailPanel({ record, trips }: PayrollDetailPanel
           const basePct = Math.round((record.baseSalary / total) * 100);
           const bonoPct = Math.round((record.productivityBonus / total) * 100);
           const otPct = Math.round((record.overtimePay / total) * 100);
-          const supportAmt = record.goalMet ? 0 : 1000;
+          const supportAmt = record.goalMet ? 0 : SUPPORT_AMOUNT;
           const supportPct = Math.round((supportAmt / total) * 100);
           const items = [
             { label: 'Base', pct: basePct, color: PALETTE.active },

@@ -93,12 +93,17 @@ export async function actionCheckOut(
     updateVehicleStatusInMap(params.vehicleId, 'disponible');
     const { error: vErr } = await persistVehicleStatus(params.vehicleId, 'disponible');
     if (vErr) {
-      // Rollback vehicle status in state and map
-      console.error('[actionCheckOut] vehicle status failed:', vErr.message, { vehicleId: params.vehicleId });
-      dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId: params.vehicleId, status: 'en_turno' } });
-      updateVehicleStatusInMap(params.vehicleId, 'en_turno');
-      showToast('error', `Error al actualizar vehículo: ${vErr.message}`);
-      return;
+      // BUG-1 fix: Shift is already closed — vehicle IS free. Don't rollback state.
+      // Retry once after 500ms before giving up on the DB side.
+      console.warn('[actionCheckOut] vehicle status persist failed, retrying:', vErr.message, { vehicleId: params.vehicleId });
+      await new Promise(r => setTimeout(r, 500));
+      const { error: retryErr } = await persistVehicleStatus(params.vehicleId, 'disponible');
+      if (retryErr) {
+        // State stays correct ('disponible'). DB is inconsistent — reconciliation on next hydrate will fix it.
+        console.error('[actionCheckOut] vehicle status retry failed:', retryErr.message, { vehicleId: params.vehicleId });
+        showToast('warning', 'Turno cerrado, pero el status del vehículo no se pudo sincronizar. Se corregirá automáticamente.');
+        return;
+      }
     }
   }
   showToast('success', `Turno cerrado: ${params.driverName} — ${params.hoursWorked}h`);
