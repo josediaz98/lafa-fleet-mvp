@@ -65,7 +65,7 @@ export default function VehicleDetailPanel({
       (s) => s.vehicleId === vehicle.id && s.status === 'en_turno',
     );
     if (hasActiveShift) {
-      return statuses.filter((s) => s !== 'disponible');
+      return statuses.filter((s) => s === 'cargando');
     }
     return statuses;
   }

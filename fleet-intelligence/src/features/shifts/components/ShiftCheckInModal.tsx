@@ -91,6 +91,7 @@ export default function ShiftCheckInModal({
   }, [selectedDriver, shifts]);
 
   async function handleSubmit() {
+    if (isSubmitting) return;
     setFormError('');
     if (!selectedDriverId || !selectedVehicleId) {
       setFormError('Selecciona conductor y vehículo.');

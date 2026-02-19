@@ -435,3 +435,4 @@ export const DEV_ADMIN: User = {
   status: 'activo',
   password: 'admin123',
 };
+
