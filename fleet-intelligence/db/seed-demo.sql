@@ -27,6 +27,9 @@ DELETE FROM trips;
 DELETE FROM csv_uploads;
 DELETE FROM shifts;
 
+-- Reset vehicle statuses (check-in may have set some to 'en_turno')
+UPDATE vehicles SET status = 'disponible';
+
 
 -- ============================================================
 -- 2. FIX START DATES
