@@ -192,19 +192,33 @@ export async function persistRerunPayroll(
 
 // ---- Users ----
 
-export async function persistNewUser(user: User, _password: string): Promise<MutationResult> {
+type InviteResult = { userId?: string; error: Error | null };
+
+export async function persistNewUser(user: User, _password: string): Promise<InviteResult> {
   if (!supabase) return { error: null };
-  // Create Supabase auth user via admin API is not available client-side
-  // For MVP: create profile directly (auth user must be created in Dashboard)
-  const { error } = await supabase.from('profiles').insert({
-    id: user.id,
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    center_id: user.centerId,
-    status: user.status,
+
+  // Supabase mode: call Express invite endpoint (creates auth user + profile)
+  const { data: { session } } = await supabase.auth.getSession();
+  const token = session?.access_token;
+  if (!token) return { error: new Error('No session token available') };
+
+  const res = await fetch('/api/invite-user', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+    body: JSON.stringify({
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      centerId: user.centerId,
+    }),
   });
-  return { error: error ? new Error(error.message) : null };
+
+  const data = await res.json();
+  if (!res.ok) return { error: new Error(data.error || 'Invite failed') };
+  return { userId: data.userId, error: null };
 }
 
 export async function persistUpdateUser(user: User): Promise<MutationResult> {

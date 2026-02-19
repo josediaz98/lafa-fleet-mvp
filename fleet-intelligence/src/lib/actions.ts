@@ -60,7 +60,7 @@ export async function actionCheckOut(
     const { error: vErr } = await persistVehicleStatus(params.vehicleId, 'disponible');
     if (vErr) { showToast('error', `Error al actualizar vehículo: ${vErr.message}`); return; }
   }
-  showToast('success', `Turno cerrado: ${params.driverName} \u2014 ${params.hoursWorked}h`);
+  showToast('success', `Turno cerrado: ${params.driverName} — ${params.hoursWorked}h`);
 }
 
 // ---- Vehicles ----
@@ -76,7 +76,7 @@ export async function actionVehicleStatus(
   dispatch({ type: 'UPDATE_VEHICLE_STATUS', payload: { vehicleId, status } });
   const { error } = await persistVehicleStatus(vehicleId, status);
   if (error) { showToast('error', `Error al cambiar status: ${error.message}`); return; }
-  showToast('success', `${plate} \u2192 ${statusLabel}`);
+  showToast('success', `${plate} → ${statusLabel}`);
 }
 
 export async function actionAddVehicle(
@@ -87,7 +87,7 @@ export async function actionAddVehicle(
   dispatch({ type: 'ADD_VEHICLE', payload: vehicle });
   const { error } = await persistNewVehicle(vehicle);
   if (error) { showToast('error', `Error al crear vehículo: ${error.message}`); return; }
-  showToast('success', `Veh\u00edculo ${vehicle.plate} creado.`);
+  showToast('success', `Vehículo ${vehicle.plate} creado.`);
 }
 
 export async function actionUpdateVehicle(
@@ -184,13 +184,13 @@ export async function actionRerunPayroll(
   role?: string,
 ) {
   if (role && role !== 'admin') {
-    showToast('error', 'Solo administradores pueden re-ejecutar la n\u00f3mina.');
+    showToast('error', 'Solo administradores pueden re-ejecutar la nómina.');
     return;
   }
   dispatch({ type: 'RERUN_PAYROLL_CLOSE', payload: { weekLabel, newRecords } });
   const { error } = await persistRerunPayroll(weekStart, newRecords, closedById);
   if (error) { showToast('error', `Error al re-ejecutar nómina: ${error.message}`); return; }
-  showToast('success', `N\u00f3mina re-ejecutada (v${version}).`);
+  showToast('success', `Nómina re-ejecutada (v${version}).`);
 }
 
 // ---- Users ----
@@ -200,11 +200,21 @@ export async function actionAddUser(
   password: string,
   dispatch: AppDispatch,
   showToast: ShowToast,
+  supabaseMode = false,
 ) {
-  dispatch({ type: 'ADD_USER', payload: user });
-  const { error } = await persistNewUser(user, password);
-  if (error) { showToast('error', `Error al crear usuario: ${error.message}`); return; }
-  showToast('success', `Usuario ${user.name} creado.`);
+  if (supabaseMode) {
+    // Supabase: call API first, get real UUID, then dispatch
+    const { userId, error } = await persistNewUser(user, password);
+    if (error) { showToast('error', `Error al enviar invitación: ${error.message}`); return; }
+    dispatch({ type: 'ADD_USER', payload: { ...user, id: userId ?? user.id, status: 'invitado' } });
+    showToast('success', `Invitación enviada a ${user.email}`);
+  } else {
+    // Mock mode: optimistic dispatch
+    dispatch({ type: 'ADD_USER', payload: user });
+    const { error } = await persistNewUser(user, password);
+    if (error) { showToast('error', `Error al crear usuario: ${error.message}`); return; }
+    showToast('success', `Usuario ${user.name} creado.`);
+  }
 }
 
 export async function actionUpdateUser(

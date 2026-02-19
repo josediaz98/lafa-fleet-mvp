@@ -52,6 +52,14 @@ export function validateVehicleForm(
 }
 
 // ─────────────────────────────────────────────────────────────
+// Domain validators
+// ─────────────────────────────────────────────────────────────
+
+export function isLafaEmail(email: string): boolean {
+  return email.trim().toLowerCase().endsWith('@lafa-mx.com');
+}
+
+// ─────────────────────────────────────────────────────────────
 // User form validation
 // ─────────────────────────────────────────────────────────────
 
@@ -73,18 +81,29 @@ export interface UserRecord {
 
 export function validateUserCreate(
   form: UserFormData,
-  users: UserRecord[]
+  users: UserRecord[],
+  supabaseMode = false,
 ): string | null {
-  if (!isRequired(form.name) || !isRequired(form.email) || !isRequired(form.password)) {
-    return 'Nombre, email y contraseña son obligatorios.';
-  }
-
-  if (!isValidEmail(form.email)) {
-    return 'Formato de email inválido.';
-  }
-
-  if (!isMinLength(form.password!, 6)) {
-    return 'La contraseña debe tener al menos 6 caracteres.';
+  if (supabaseMode) {
+    if (!isRequired(form.name) || !isRequired(form.email)) {
+      return 'Nombre y email son obligatorios.';
+    }
+    if (!isValidEmail(form.email)) {
+      return 'Formato de email inválido.';
+    }
+    if (!isLafaEmail(form.email)) {
+      return 'Solo correos @lafa-mx.com permitidos.';
+    }
+  } else {
+    if (!isRequired(form.name) || !isRequired(form.email) || !isRequired(form.password)) {
+      return 'Nombre, email y contraseña son obligatorios.';
+    }
+    if (!isValidEmail(form.email)) {
+      return 'Formato de email inválido.';
+    }
+    if (!isMinLength(form.password!, 6)) {
+      return 'La contraseña debe tener al menos 6 caracteres.';
+    }
   }
 
   const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase());

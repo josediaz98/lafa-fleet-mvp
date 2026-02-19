@@ -2,19 +2,27 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, Loader2, Mail } from 'lucide-react';
 import LafaLogo from '@/components/ui/LafaLogo';
+import { supabase } from '@/lib/supabase/client';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      setSent(true);
-    }, 1200);
+
+    if (supabase) {
+      const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}reset-password`;
+      await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
+    } else {
+      await new Promise(r => setTimeout(r, 1200));
+    }
+
+    // Always show success to prevent email enumeration
+    setLoading(false);
+    setSent(true);
   }
 
   return (

@@ -8,6 +8,8 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/features/auth/LoginPage';
 import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage';
+import ResetPasswordPage from '@/features/auth/ResetPasswordPage';
+import AcceptInvitePage from '@/features/auth/AcceptInvitePage';
 import DashboardPage from '@/features/dashboard/DashboardPage';
 import ShiftsPage from '@/features/shifts/ShiftsPage';
 import CsvUploadPage from '@/features/csv-upload/CsvUploadPage';
@@ -76,6 +78,8 @@ function AppRoutes() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/accept-invite" element={<AcceptInvitePage />} />
         <Route
           element={
             <RequireAuth>

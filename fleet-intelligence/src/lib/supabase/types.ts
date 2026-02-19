@@ -15,7 +15,7 @@ export interface DbProfile {
   email: string;
   role: 'admin' | 'supervisor';
   center_id: string | null;
-  status: 'activo' | 'inactivo';
+  status: 'activo' | 'inactivo' | 'invitado';
   created_at: string;
 }
 

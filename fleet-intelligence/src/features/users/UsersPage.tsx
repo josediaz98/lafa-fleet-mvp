@@ -6,6 +6,7 @@ import { MOCK_CENTERS } from '@/data/mock-data';
 import { useToast } from '@/app/providers/ToastProvider';
 import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -40,7 +41,7 @@ export default function UsersPage() {
   );
 
   function handleCreateUser(user: User, password: string) {
-    actionAddUser(user, password, dispatch, showToast);
+    actionAddUser(user, password, dispatch, showToast, isSupabaseConfigured);
   }
 
   function openEdit() {

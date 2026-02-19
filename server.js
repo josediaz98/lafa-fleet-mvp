@@ -1,12 +1,91 @@
 const express = require('express');
 const path = require('path');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use(express.json());
+
+// --- Supabase admin client (server-side only) ---
+const supabaseUrl = process.env.SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+const supabaseAdmin =
+  supabaseUrl && supabaseServiceKey
+    ? createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } })
+    : null;
+
+// --- Auth helpers ---
+async function requireAdmin(req) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader?.startsWith('Bearer ')) {
+    throw new Error('Missing authorization header');
+  }
+  const token = authHeader.slice(7);
+  if (!supabaseAdmin) throw new Error('Supabase not configured on server');
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) throw new Error('Invalid or expired token');
+  const { data: profile } = await supabaseAdmin.from('profiles').select('role').eq('id', user.id).single();
+  if (!profile || profile.role !== 'admin') throw new Error('Admin access required');
+  return user;
+}
+
 // --- Health check ---
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
+});
+
+// --- Invite user ---
+app.post('/api/invite-user', async (req, res) => {
+  try {
+    await requireAdmin(req);
+  } catch (err) {
+    return res.status(401).json({ error: err.message });
+  }
+
+  const { email, name, role, centerId } = req.body;
+
+  if (!email || !name || !role) {
+    return res.status(400).json({ error: 'email, name, and role are required' });
+  }
+  if (!email.endsWith('@lafa-mx.com')) {
+    return res.status(400).json({ error: 'Solo correos @lafa-mx.com permitidos' });
+  }
+  if (!['admin', 'supervisor'].includes(role)) {
+    return res.status(400).json({ error: 'role must be admin or supervisor' });
+  }
+
+  try {
+    const origin = req.headers.origin || 'https://lafa-production.up.railway.app';
+    const redirectTo = `${origin}/fleet-intelligence/accept-invite`;
+
+    const { data: authData, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+      redirectTo,
+      data: { name, role },
+    });
+
+    if (authError) {
+      return res.status(400).json({ error: authError.message });
+    }
+
+    const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+      id: authData.user.id,
+      name,
+      email,
+      role,
+      center_id: role === 'admin' ? null : centerId || null,
+      status: 'invitado',
+    });
+
+    if (profileError) {
+      await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
+      return res.status(500).json({ error: `Profile creation failed: ${profileError.message}` });
+    }
+
+    return res.json({ userId: authData.user.id });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 // --- Redirects ---

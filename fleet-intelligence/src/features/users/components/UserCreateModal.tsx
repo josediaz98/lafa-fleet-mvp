@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Mail } from 'lucide-react';
 import type { User } from '@/types';
 import { MOCK_CENTERS } from '@/data/mock-data';
+import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { validateUserCreate, type UserFormData } from '@/lib/validators';
 import Modal from '@/components/ui/Modal';
 
@@ -22,6 +24,7 @@ const emptyForm: UserFormData = {
 export default function UserCreateModal({ open, onClose, users, onCreate }: UserCreateModalProps) {
   const [form, setForm] = useState<UserFormData>({ ...emptyForm, centerId: MOCK_CENTERS[0]?.id ?? '' });
   const [formError, setFormError] = useState('');
+  const supabaseMode = isSupabaseConfigured;
 
   useEffect(() => {
     if (open) {
@@ -31,7 +34,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
   }, [open]);
 
   function handleCreate() {
-    const error = validateUserCreate(form, users);
+    const error = validateUserCreate(form, users, supabaseMode);
     if (error) {
       setFormError(error);
       return;
@@ -42,16 +45,24 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
       email: form.email.trim(),
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
-      status: 'activo',
-      password: form.password!,
+      status: supabaseMode ? 'invitado' : 'activo',
+      password: supabaseMode ? '' : form.password!,
     };
-    onCreate(newUser, form.password!);
+    onCreate(newUser, form.password ?? '');
     onClose();
   }
 
   return (
-    <Modal open={open} onClose={onClose} title="Nuevo usuario">
+    <Modal open={open} onClose={onClose} title={supabaseMode ? 'Invitar usuario' : 'Nuevo usuario'}>
       <div className="space-y-4">
+        {supabaseMode && (
+          <div className="flex items-start gap-2.5 p-3 bg-lafa-accent/5 border border-lafa-accent/20 rounded-lg">
+            <Mail className="w-4 h-4 text-lafa-accent mt-0.5 shrink-0" />
+            <p className="text-xs text-lafa-text-secondary leading-relaxed">
+              Se enviará un correo de invitación para que el usuario configure su contraseña.
+            </p>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
           <input
@@ -70,17 +81,22 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
               formError.toLowerCase().includes('email') ? 'border-[#EF4444]' : 'border-lafa-border'
             }`}
           />
+          {supabaseMode && (
+            <p className="text-xs text-lafa-text-secondary mt-1">Solo correos @lafa-mx.com</p>
+          )}
         </div>
-        <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contraseña'}</label>
-          <input
-            type="password"
-            value={form.password}
-            onChange={e => { setForm({ ...form, password: e.target.value }); setFormError(''); }}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-          />
-          <p className="text-xs text-lafa-text-secondary mt-1">{'Mínimo 6 caracteres'}</p>
-        </div>
+        {!supabaseMode && (
+          <div>
+            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contraseña'}</label>
+            <input
+              type="password"
+              value={form.password}
+              onChange={e => { setForm({ ...form, password: e.target.value }); setFormError(''); }}
+              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            />
+            <p className="text-xs text-lafa-text-secondary mt-1">{'Mínimo 6 caracteres'}</p>
+          </div>
+        )}
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
           <select
@@ -118,7 +134,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             onClick={handleCreate}
             className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
           >
-            Crear usuario
+            {supabaseMode ? 'Enviar invitación' : 'Crear usuario'}
           </button>
         </div>
       </div>
