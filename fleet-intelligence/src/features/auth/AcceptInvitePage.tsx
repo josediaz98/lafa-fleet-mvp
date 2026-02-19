@@ -31,18 +31,20 @@ export default function AcceptInvitePage() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
         handled = true;
-        // Fetch profile to confirm invite status and get name
-        const { data: profile } = await supabase!.from('profiles')
-          .select('name, status')
-          .eq('id', session.user.id)
-          .single();
+        try {
+          const { data: profile } = await supabase!.from('profiles')
+            .select('name, status')
+            .eq('id', session.user.id)
+            .single();
 
-        if (profile?.status === 'invitado') {
-          setUserName(profile.name);
-          setReady(true);
-        } else {
-          // Not an invite flow — redirect to dashboard
-          navigate('/dashboard', { replace: true });
+          if (profile?.status === 'invitado') {
+            setUserName(profile.name);
+            setReady(true);
+          } else {
+            navigate('/dashboard', { replace: true });
+          }
+        } catch {
+          setExpired(true);
         }
       }
     });

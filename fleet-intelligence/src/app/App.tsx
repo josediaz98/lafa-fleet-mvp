@@ -51,19 +51,24 @@ function AuthRestorer() {
           .select('*')
           .eq('id', data.session.user.id)
           .single()
-          .then(({ data: profile }) => {
-            if (profile && profile.status === 'activo') {
-              const session = {
-                userId: profile.id,
-                name: profile.name,
-                role: profile.role,
-                centerId: profile.center_id,
-              };
-              localStorage.setItem('lafa_session', JSON.stringify(session));
-              dispatch({ type: 'LOGIN', payload: session });
-            }
-            dispatch({ type: 'AUTH_CHECKED' });
-          });
+          .then(
+            ({ data: profile }) => {
+              if (profile && profile.status === 'activo') {
+                const session = {
+                  userId: profile.id,
+                  name: profile.name,
+                  role: profile.role,
+                  centerId: profile.center_id,
+                };
+                localStorage.setItem('lafa_session', JSON.stringify(session));
+                dispatch({ type: 'LOGIN', payload: session });
+              }
+              dispatch({ type: 'AUTH_CHECKED' });
+            },
+            () => {
+              dispatch({ type: 'AUTH_CHECKED' });
+            },
+          );
       } else {
         dispatch({ type: 'AUTH_CHECKED' });
       }

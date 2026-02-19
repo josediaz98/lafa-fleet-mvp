@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import LafaLogo from '@/components/ui/LafaLogo';
 import { supabase } from '@/lib/supabase/client';
 import { useAppDispatch } from '@/app/providers/AppProvider';
@@ -17,6 +17,7 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -24,13 +25,23 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    let handled = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
+        handled = true;
         setReady(true);
       }
     });
 
-    return () => subscription.unsubscribe();
+    const timer = setTimeout(() => {
+      if (!handled) setExpired(true);
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -80,8 +91,33 @@ export default function ResetPasswordPage() {
           <div className="flex justify-center mb-10">
             <LafaLogo className="h-10 w-auto" />
           </div>
-          <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
-          <p className="text-sm text-lafa-text-secondary">Verificando enlace...</p>
+          {expired ? (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <div className="w-12 h-12 rounded-full bg-status-danger/10 flex items-center justify-center">
+                  <AlertCircle className="w-6 h-6 text-status-danger" />
+                </div>
+              </div>
+              <h1 className="text-lg font-semibold text-lafa-text-primary">
+                Enlace no válido
+              </h1>
+              <p className="text-sm text-lafa-text-secondary">
+                El enlace de recuperación ha expirado o ya fue utilizado.
+                Solicita un nuevo enlace.
+              </p>
+              <Link
+                to="/forgot-password"
+                className="inline-block mt-2 px-6 py-2.5 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-semibold rounded-lg text-sm transition-all duration-200"
+              >
+                Solicitar nuevo enlace
+              </Link>
+            </div>
+          ) : (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
+              <p className="text-sm text-lafa-text-secondary">Verificando enlace...</p>
+            </>
+          )}
         </div>
       </div>
     );

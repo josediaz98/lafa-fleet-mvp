@@ -86,6 +86,8 @@ export default function DashboardPage() {
     { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-status-alert', bg: 'bg-status-alert/15' },
   ];
 
+  const [closingShiftId, setClosingShiftId] = useState<string | null>(null);
+
   async function handleCloseShift(shiftId: string) {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return;
@@ -102,12 +104,17 @@ export default function DashboardPage() {
       if (!ok) return;
     }
 
-    const checkOutTime = new Date().toISOString();
-    await actionCheckOut(
-      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
-      dispatch,
-      showToast,
-    );
+    setClosingShiftId(shiftId);
+    try {
+      const checkOutTime = new Date().toISOString();
+      await actionCheckOut(
+        { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+        dispatch,
+        showToast,
+      );
+    } finally {
+      setClosingShiftId(null);
+    }
   }
 
   return (
@@ -174,9 +181,10 @@ export default function DashboardPage() {
                 </p>
                 <button
                   onClick={() => handleCloseShift(shift.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150"
+                  disabled={closingShiftId === shift.id}
+                  className="px-3 py-1.5 text-xs font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150 disabled:opacity-50"
                 >
-                  Cerrar turno
+                  {closingShiftId === shift.id ? 'Cerrando...' : 'Cerrar turno'}
                 </button>
               </div>
             ))}
