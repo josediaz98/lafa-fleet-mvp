@@ -98,15 +98,6 @@ export function validateUserCreate(
     return 'Ya existe un usuario con ese email.';
   }
 
-  if (form.role === 'supervisor') {
-    const supervisorExists = users.some(
-      u => u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId
-    );
-    if (supervisorExists) {
-      return 'Ya existe un supervisor activo en ese centro.';
-    }
-  }
-
   return null;
 }
 
@@ -128,15 +119,6 @@ export function validateUserEdit(
   );
   if (emailExists) {
     return 'Ya existe otro usuario con ese email.';
-  }
-
-  if (form.role === 'supervisor') {
-    const supervisorExists = users.some(
-      u => u.id !== currentUserId && u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId
-    );
-    if (supervisorExists) {
-      return 'Ya existe un supervisor activo en ese centro.';
-    }
   }
 
   return null;
