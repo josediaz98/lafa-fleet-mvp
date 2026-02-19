@@ -6,7 +6,7 @@ import { MOCK_DRIVERS } from '@/data/mock-data';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { actionImportTrips } from '@/lib/actions';
-import { getWeekBounds } from '@/lib/date-utils';
+import { getWeekBounds } from '@/lib/dateUtils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
 import { parseCsvText, validateRow, CSV_TEMPLATE, type ParsedRow } from './lib/csv-parser';
 

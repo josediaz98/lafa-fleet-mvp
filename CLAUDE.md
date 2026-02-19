@@ -46,48 +46,19 @@ Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --b
 ├── site/                    ← Landing page + 6 prototypes (static HTML/JS)
 │   ├── index.html           ← Marketing landing page
 │   ├── core/                ← Shared: i18n, shared.js/css, tailwind config
+│   ├── images/              ← Static images (favicon, og-image, photos, logos)
 │   └── {dashboard,battery,collections,fleetmap,onboarding,roadmap}/
 ├── fleet-intelligence/      ← Fleet Intelligence MVP (React + TS + Vite)
 │   └── src/                 ← app/, components/, features/, lib/, types/, data/
-├── content/                 ← Research & strategy (Markdown)
-│   ├── thesis/              ← 8-chapter VC thesis (summary layer)
-│   ├── analysis/            ← Evidence layer (fleet/, fintech/, market/)
-│   ├── strategy/            ← Product strategy proposals
-│   ├── hiring/              ← Interviews + technical challenge (has its own CLAUDE.md)
-│   ├── team/                ← Individual profiles
-│   ├── vemo-benchmark/      ← Competitive intel
-│   └── reference/           ← Brand assets
-└── images/
+└── content/                 ← Research & strategy (Markdown)
+    ├── thesis/              ← 8-chapter VC thesis (summary layer)
+    ├── analysis/            ← Evidence layer (fleet/, fintech/, market/)
+    ├── strategy/            ← Product strategy proposals
+    ├── hiring/              ← Interviews + technical challenge (has its own CLAUDE.md)
+    ├── team/                ← Individual profiles
+    ├── vemo-benchmark/      ← Competitive intel
+    └── reference/           ← Brand assets
 ```
-
-## Code Style (site/)
-
-- **IIFE per page:** `(function () { ... })()`, shared state via `window.LAFA`
-- **Script load order matters:** `i18n.js` → `shared.js` → page script. Swapping breaks i18n silently.
-- **Tailwind + shared.css:** Utility classes first, custom components in `core/shared.css`
-- **Design tokens:** `COLORS` object (`core/shared.js`) + `core/tailwind.init.js` (`lafa.*`) — must stay in sync
-- **Font:** Inter Tight (system-ui fallback)
-- **i18n:** `data-i18n` attributes, ES/EN toggle via `window.switchLang(lang)`
-- **No frameworks:** Vanilla JS only. No React, no jQuery
-
-## Code Style (fleet-intelligence/)
-
-- TypeScript strict mode, `lafa.*` Tailwind color tokens (`tailwind.config.ts`)
-- **Dual data source:** Supabase when configured, mock data (`src/data/mock-data.ts`) otherwise. `dataSource` in AppState tracks which is active.
-- **Service layer:** Pages call `action*()` functions from `lib/actions.ts`, never dispatch + Supabase directly
-- **State:** Split contexts — `useAppState()` / `useAppDispatch()` to avoid re-renders
-- **Status values are Spanish:** `'activo'`, `'inactivo'`, `'en_turno'`, `'completado'`, etc. Must match Supabase enums.
-- **DB↔App mapping:** DB uses `snake_case`, app uses `camelCase`. All mapping in `lib/mappers.ts`.
-- See `content/hiring/technical-challenge/CLAUDE.md` for payroll logic and challenge details
-- See `fleet-intelligence/CLAUDE.md` for architecture, routing, and feature module patterns
-
-## Content Conventions
-
-- **MECE data ownership:** Each fact in exactly one file; others cross-reference via links
-- **thesis/ = summary layer** → references analysis/ for evidence. Never duplicate — link.
-- **analysis/ = evidence layer** → supports thesis chapters
-- **strategy/ = Jose's contribution** → what he'd build at LAFA
-- **All content in English.** Interview transcripts may contain Spanish quotes.
 
 ## Key Facts
 

@@ -1,7 +1,7 @@
 import type { Trip, PayrollRecord, Driver } from '@/types';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { generateExplanation } from './explanation';
-import { parseFechaToISO } from '@/lib/date-utils';
+import { parseFechaToISO } from '@/lib/dateUtils';
 
 const BASE_SALARY = 2500;
 export const GOAL_THRESHOLD = 6000;
