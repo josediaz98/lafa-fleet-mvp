@@ -108,7 +108,8 @@ export default function CsvUploadPage() {
       didiToDriverId.set(d.didiDriverId, d.id);
     }
     try {
-      await actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast);
+      // H5: Pass warning/error counts to persist for accurate upload history
+      await actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast, warningCount, errorCount);
       setActiveStep(3);
     } catch {
       showToast('error', 'Error al importar viajes. Intenta de nuevo.');

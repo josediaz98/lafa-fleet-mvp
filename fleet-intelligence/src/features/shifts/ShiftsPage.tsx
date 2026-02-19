@@ -7,6 +7,7 @@ import { CENTERS } from '@/data/constants';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import type { Shift } from '@/types';
 import { actionCheckIn, actionCheckOut } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
@@ -87,7 +88,7 @@ export default function ShiftsPage() {
     if (!driver || !vehicle) return;
 
     const center = CENTERS.find(c => c.id === driver.centerId);
-    const newShift = {
+    const newShift: Shift = {
       id: crypto.randomUUID(),
       driverId: driver.id,
       driverName: driver.fullName,

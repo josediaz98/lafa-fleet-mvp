@@ -1,3 +1,11 @@
+// ---- Status Enums (M1+M2) ----
+
+export type DriverStatus = 'activo' | 'inactivo';
+export type VehicleStatus = 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
+export type ShiftStatus = 'en_turno' | 'completado' | 'pendiente_revision';
+export type UserStatus = 'activo' | 'inactivo' | 'invitado';
+export type PayrollStatus = 'borrador' | 'cerrado' | 'superseded';
+
 // ---- Domain Types ----
 
 export interface Center {
@@ -12,7 +20,7 @@ export interface Driver {
   centerId: string;
   defaultShift: string;
   startDate: string;
-  status: string;
+  status: DriverStatus;
 }
 
 export interface Vehicle {
@@ -21,7 +29,7 @@ export interface Vehicle {
   model: string;
   oem: string;
   centerId: string;
-  status: string;
+  status: VehicleStatus;
 }
 
 export interface Shift {
@@ -36,7 +44,7 @@ export interface Shift {
   checkIn: string;
   checkOut?: string;
   hoursWorked?: number;
-  status: string;
+  status: ShiftStatus;
 }
 
 export interface User {
@@ -45,7 +53,7 @@ export interface User {
   email: string;
   role: string;
   centerId: string | null;
-  status: string;
+  status: UserStatus;
   password?: string;
 }
 
@@ -68,6 +76,7 @@ export interface PayrollRecord {
   center: string;
   hoursWorked: number;
   totalBilled: number;
+  tipsTotal: number;
   hoursThreshold: number;
   revenueThreshold: number;
   goalMet: boolean;
@@ -75,10 +84,10 @@ export interface PayrollRecord {
   productivityBonus: number;
   overtimePay: number;
   totalPay: number;
-  status: string;
+  status: PayrollStatus;
   weekLabel?: string;
-  weekStart?: string;
-  weekEnd?: string;
+  weekStart: string;
+  weekEnd: string;
   closedBy?: string;
   closedAt?: string;
   version?: number;
@@ -121,7 +130,7 @@ export type Action =
   | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated' | 'authChecked'> }
   | { type: 'ADD_SHIFT'; payload: Shift }
   | { type: 'CLOSE_SHIFT'; payload: { shiftId: string; checkOut: string; hoursWorked: number } }
-  | { type: 'UPDATE_VEHICLE_STATUS'; payload: { vehicleId: string; status: string } }
+  | { type: 'UPDATE_VEHICLE_STATUS'; payload: { vehicleId: string; status: VehicleStatus } }
   | { type: 'IMPORT_TRIPS'; payload: Trip[] }
   | { type: 'ADD_DRIVER'; payload: Driver }
   | { type: 'UPDATE_DRIVER'; payload: Driver }
@@ -132,10 +141,21 @@ export type Action =
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'DEACTIVATE_USER'; payload: string }
   | { type: 'CLOSE_PAYROLL_WEEK'; payload: PayrollRecord[] }
-  | { type: 'RERUN_PAYROLL_CLOSE'; payload: { weekLabel: string; newRecords: PayrollRecord[] } }
+  | { type: 'RERUN_PAYROLL_CLOSE'; payload: { weekStart: string; newRecords: PayrollRecord[] } }
   | { type: 'LOGIN'; payload: Session }
   | { type: 'LOGOUT' }
   | { type: 'APPEND_SHIFTS'; payload: { shifts: Shift[]; oldestDate: string; hasMore: boolean } }
   | { type: 'APPEND_TRIPS'; payload: { trips: Trip[]; oldestDate: string; hasMore: boolean } }
   | { type: 'APPEND_PAYROLL'; payload: { payroll: PayrollRecord[]; oldestDate: string; hasMore: boolean } }
-  | { type: 'AUTH_CHECKED' };
+  | { type: 'AUTH_CHECKED' }
+  // C2: Rollback actions for optimistic update failures
+  | { type: 'REMOVE_SHIFT'; payload: string }
+  | { type: 'REMOVE_DRIVER'; payload: string }
+  | { type: 'REMOVE_VEHICLE'; payload: string }
+  | { type: 'REMOVE_USER'; payload: string }
+  | { type: 'REMOVE_PAYROLL_WEEK'; payload: string[] }
+  | { type: 'REMOVE_TRIPS'; payload: string[] }
+  | { type: 'REVERT_CLOSE_SHIFT'; payload: string }
+  | { type: 'REACTIVATE_DRIVER'; payload: string }
+  | { type: 'REACTIVATE_USER'; payload: string }
+  | { type: 'REVERT_RERUN_PAYROLL'; payload: { weekStart: string; removedIds: string[] } };

@@ -3,7 +3,7 @@ import type {
   DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
 } from '@/lib/supabase/types';
 
-// Lookup maps built once per HYDRATE
+// Lookup maps built once per HYDRATE, updated on entity mutations (C1)
 let centersMap: Map<string, DbCenter> = new Map();
 let driversMap: Map<string, DbDriver> = new Map();
 let vehiclesMap: Map<string, DbVehicle> = new Map();
@@ -19,6 +19,62 @@ export function setLookupMaps(
   driversMap = new Map(drivers.map(d => [d.id, d]));
   vehiclesMap = new Map(vehicles.map(v => [v.id, v]));
   profilesMap = new Map(profiles.map(p => [p.id, p]));
+}
+
+// C1: Incremental map updates after entity mutations
+export function addToDriversMap(driver: Driver) {
+  driversMap.set(driver.id, {
+    id: driver.id,
+    full_name: driver.fullName,
+    didi_driver_id: driver.didiDriverId,
+    center_id: driver.centerId,
+    default_shift: driver.defaultShift as 'diurno' | 'nocturno',
+    start_date: driver.startDate,
+    status: driver.status,
+    created_at: new Date().toISOString(),
+  });
+}
+
+export function addToVehiclesMap(vehicle: Vehicle) {
+  vehiclesMap.set(vehicle.id, {
+    id: vehicle.id,
+    plate: vehicle.plate,
+    model: vehicle.model,
+    oem: vehicle.oem as 'Geely' | 'JAC' | 'GAC',
+    center_id: vehicle.centerId,
+    status: vehicle.status,
+    created_at: new Date().toISOString(),
+  });
+}
+
+export function removeFromDriversMap(driverId: string) {
+  driversMap.delete(driverId);
+}
+
+export function updateDriverStatusInMap(driverId: string, status: Driver['status']) {
+  const existing = driversMap.get(driverId);
+  if (existing) driversMap.set(driverId, { ...existing, status });
+}
+
+export function removeFromVehiclesMap(vehicleId: string) {
+  vehiclesMap.delete(vehicleId);
+}
+
+export function updateVehicleStatusInMap(vehicleId: string, status: Vehicle['status']) {
+  const existing = vehiclesMap.get(vehicleId);
+  if (existing) vehiclesMap.set(vehicleId, { ...existing, status });
+}
+
+export function addToProfilesMap(user: User) {
+  profilesMap.set(user.id, {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role as 'admin' | 'supervisor',
+    center_id: user.centerId,
+    status: user.status,
+    created_at: new Date().toISOString(),
+  });
 }
 
 export function getCenterName(centerId: string): string | undefined {
@@ -122,6 +178,7 @@ export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
     center: center?.name ?? '',
     hoursWorked: Number(row.hours_worked),
     totalBilled: Number(row.total_billed),
+    tipsTotal: Number(row.tips_total),
     hoursThreshold: Number(row.hours_threshold),
     revenueThreshold: Number(row.revenue_threshold),
     goalMet: row.goal_met,
@@ -133,7 +190,8 @@ export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
     weekLabel,
     weekStart: row.week_start,
     weekEnd: row.week_end,
-    closedBy: closedByProfile?.name ?? row.closed_by ?? '',
+    // M4: Fallback to closed_by UUID when profile not in map (supervisor RLS)
+    closedBy: closedByProfile?.name ?? (row.closed_by ? `Usuario ${row.closed_by.slice(0, 8)}` : ''),
     closedAt: row.closed_at ?? undefined,
     version: row.version,
     aiExplanation: row.ai_explanation ?? undefined,

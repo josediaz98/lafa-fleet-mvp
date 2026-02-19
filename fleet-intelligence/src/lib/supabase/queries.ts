@@ -84,6 +84,22 @@ export async function fetchAllData(): Promise<HydrateData> {
         .limit(PAGE_SIZE),
     ]);
 
+  // C4: Check individual query errors — critical tables throw, non-critical degrade gracefully
+  const criticalErrors: string[] = [];
+  if (centersRes.error) criticalErrors.push(`centers: ${centersRes.error.message}`);
+  if (driversRes.error) criticalErrors.push(`drivers: ${driversRes.error.message}`);
+  if (vehiclesRes.error) criticalErrors.push(`vehicles: ${vehiclesRes.error.message}`);
+  if (shiftsRes.error) criticalErrors.push(`shifts: ${shiftsRes.error.message}`);
+  if (tripsRes.error) criticalErrors.push(`trips: ${tripsRes.error.message}`);
+  if (payrollRes.error) criticalErrors.push(`weekly_payroll: ${payrollRes.error.message}`);
+  if (criticalErrors.length > 0) {
+    throw new Error(`Failed to fetch data: ${criticalErrors.join('; ')}`);
+  }
+  // profiles may be incomplete for supervisors (RLS) — not critical
+  if (profilesRes.error) {
+    console.warn('Profiles query returned error (may be RLS-scoped):', profilesRes.error.message);
+  }
+
   const centers = (centersRes.data ?? []) as DbCenter[];
   const drivers = (driversRes.data ?? []) as DbDriver[];
   const vehicles = (vehiclesRes.data ?? []) as DbVehicle[];

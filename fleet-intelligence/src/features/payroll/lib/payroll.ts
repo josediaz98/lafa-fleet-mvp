@@ -78,6 +78,8 @@ export function calculateWeeklyPay(
         return isTripInWeek(t, weekStart, weekEnd);
       });
       const totalBilled = driverTrips.reduce((sum, t) => sum + t.costo, 0);
+      // H1: Compute tips total from driver trips
+      const tipsTotal = driverTrips.reduce((sum, t) => sum + t.propina, 0);
       const shiftData = shiftSummaries.find(s => s.driverId === driver.id);
       const hoursWorked = shiftData?.totalHours ?? 0;
 
@@ -119,14 +121,16 @@ export function calculateWeeklyPay(
       const totalPay = goalMet ? baseSalary + productivityBonus + overtimePay : SUPPORT_AMOUNT;
       const center = (centers ?? CENTERS).find(c => c.id === driver.centerId);
 
+      // H2: Use crypto.randomUUID() for proper UUID that matches DB format
       const record = {
-        id: `pr-${driver.id}-${Date.now()}`,
+        id: crypto.randomUUID(),
         driverName: driver.fullName,
         driverId: driver.id,
         centerId: driver.centerId,
         center: center?.name ?? '',
         hoursWorked,
         totalBilled,
+        tipsTotal,
         hoursThreshold,
         revenueThreshold,
         goalMet,
@@ -134,7 +138,7 @@ export function calculateWeeklyPay(
         productivityBonus,
         overtimePay,
         totalPay,
-        status: 'cerrado',
+        status: 'cerrado' as const,
         weekLabel,
         weekStart,
         weekEnd,
@@ -150,10 +154,11 @@ export function calculateWeeklyPay(
     });
 }
 
+// L3: Add Tips column to CSV export
 export function exportPayrollCsv(records: PayrollRecord[], tab?: 'actual' | 'cerradas'): void {
   const headers = [
     'Conductor', 'Centro', 'Horas', 'Meta horas', 'Facturación', 'Meta facturación',
-    'Meta cumplida', 'Salario Base', 'Bono', 'Horas extra', 'Apoyo', 'Pago Total', 'Status',
+    'Propinas', 'Meta cumplida', 'Salario Base', 'Bono', 'Horas extra', 'Apoyo', 'Pago Total', 'Status',
   ];
   const csvRows = [headers.join(',')];
 
@@ -167,6 +172,7 @@ export function exportPayrollCsv(records: PayrollRecord[], tab?: 'actual' | 'cer
       r.hoursThreshold,
       r.totalBilled,
       r.revenueThreshold,
+      r.tipsTotal,
       r.goalMet ? 'Sí' : 'No',
       r.baseSalary,
       r.productivityBonus,

@@ -1,6 +1,6 @@
 import { supabase } from './client';
 import { parseFechaToISO } from '@/lib/date-utils';
-import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
+import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User, VehicleStatus } from '@/types';
 
 type MutationResult = { error: Error | null };
 
@@ -29,9 +29,16 @@ export async function persistCheckOut(shiftId: string, checkOut: string, hoursWo
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistVehicleStatus(vehicleId: string, status: string): Promise<MutationResult> {
+export async function persistVehicleStatus(vehicleId: string, status: VehicleStatus): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const { error } = await supabase.from('vehicles').update({ status }).eq('id', vehicleId);
+  return { error: error ? new Error(error.message) : null };
+}
+
+// C3: Compensating delete for failed check-in atomicity
+export async function persistDeleteShift(shiftId: string): Promise<MutationResult> {
+  if (!supabase) return { error: null };
+  const { error } = await supabase.from('shifts').delete().eq('id', shiftId);
   return { error: error ? new Error(error.message) : null };
 }
 
@@ -97,23 +104,26 @@ export async function persistUpdateVehicle(vehicle: Vehicle): Promise<MutationRe
 
 // ---- CSV Trips ----
 
+// H5: Accept warning/error counts from CSV parser
 export async function persistTrips(
   trips: Trip[],
   didiToDriverId: Map<number, string>,
   uploadedBy: string,
   fileName: string,
+  warningCount = 0,
+  errorCount = 0,
 ): Promise<MutationResult> {
   if (!supabase) return { error: null };
 
-  // Create csv_uploads record
   const validCount = trips.length;
+  const totalRecords = validCount + errorCount;
   const { data: upload, error: uploadError } = await supabase.from('csv_uploads').insert({
     filename: fileName,
     uploaded_by: uploadedBy,
-    record_count: validCount,
+    record_count: totalRecords,
     valid_count: validCount,
-    warning_count: 0,
-    error_count: 0,
+    warning_count: warningCount,
+    error_count: errorCount,
     status: 'procesado',
   }).select('id').single();
 
@@ -146,15 +156,18 @@ export async function persistTrips(
 
 // ---- Payroll ----
 
+// H1: Use tipsTotal from record instead of hardcoded 0
+// H2: Include frontend-generated ID in DB insert
 export async function persistClosePayroll(records: PayrollRecord[], closedById: string): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const rows = records.map(r => ({
+    id: r.id,
     driver_id: r.driverId,
     week_start: r.weekStart,
     week_end: r.weekEnd,
     hours_worked: r.hoursWorked,
     total_billed: r.totalBilled,
-    tips_total: 0,
+    tips_total: r.tipsTotal,
     hours_threshold: r.hoursThreshold,
     revenue_threshold: r.revenueThreshold,
     goal_met: r.goalMet,
@@ -172,22 +185,27 @@ export async function persistClosePayroll(records: PayrollRecord[], closedById: 
   return { error: error ? new Error(error.message) : null };
 }
 
+// H3: Reverse order — INSERT new first, then UPDATE old on success
 export async function persistRerunPayroll(
   weekStart: string,
   newRecords: PayrollRecord[],
   closedById: string,
 ): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  // Mark previous version as superseded
+
+  // Insert new version first (safe: if this fails, old records untouched)
+  const insertResult = await persistClosePayroll(newRecords, closedById);
+  if (insertResult.error) return insertResult;
+
+  // Mark previous version as superseded (only after insert succeeds)
   const { error: updateError } = await supabase.from('weekly_payroll')
     .update({ status: 'superseded' })
     .eq('week_start', weekStart)
-    .eq('status', 'cerrado');
+    .eq('status', 'cerrado')
+    .not('id', 'in', `(${newRecords.map(r => r.id).join(',')})`);
 
   if (updateError) return { error: new Error(updateError.message) };
-
-  // Insert new version
-  return persistClosePayroll(newRecords, closedById);
+  return { error: null };
 }
 
 // ---- Users ----

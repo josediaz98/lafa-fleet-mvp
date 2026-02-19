@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import type { Vehicle } from '@/types';
+import type { Vehicle, VehicleStatus } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
 import { useToast } from '@/app/providers/ToastProvider';
@@ -73,7 +73,7 @@ export default function VehiclesPage() {
     setStatusFilter('todos');
   }
 
-  async function handleStatusChange(vehicle: Vehicle, newStatus: string) {
+  async function handleStatusChange(vehicle: Vehicle, newStatus: VehicleStatus) {
     if (newStatus === 'mantenimiento' || newStatus === 'fuera_de_servicio') {
       const label = STATUS_LABELS[newStatus];
       const ok = await confirm({
@@ -84,8 +84,8 @@ export default function VehiclesPage() {
       });
       if (!ok) return;
     }
-    await actionVehicleStatus(vehicle.id, newStatus, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
-    setSelectedVehicle({ ...vehicle, status: newStatus });
+    await actionVehicleStatus(vehicle.id, newStatus, vehicle.status, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
+    setSelectedVehicle({ ...vehicle, status: newStatus as VehicleStatus });
   }
 
   function handleCreateVehicle(vehicle: Vehicle) {
@@ -93,7 +93,8 @@ export default function VehiclesPage() {
   }
 
   function handleEditVehicle(updated: Vehicle) {
-    actionUpdateVehicle(updated, dispatch, showToast);
+    if (!selectedVehicle) return;
+    actionUpdateVehicle(updated, selectedVehicle, dispatch, showToast);
     setSelectedVehicle(updated);
   }
 

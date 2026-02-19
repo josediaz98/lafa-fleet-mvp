@@ -77,7 +77,7 @@ export default function UsersPage() {
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
     };
-    actionUpdateUser(updated, dispatch, showToast);
+    actionUpdateUser(updated, selectedUser, dispatch, showToast);
     setSelectedUser(updated);
     setEditMode(false);
   }

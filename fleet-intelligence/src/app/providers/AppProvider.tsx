@@ -28,7 +28,7 @@ function appReducer(state: AppState, action: Action): AppState {
         ...state,
         shifts: state.shifts.map(s =>
           s.id === action.payload.shiftId
-            ? { ...s, status: 'completado', checkOut: action.payload.checkOut, hoursWorked: action.payload.hoursWorked }
+            ? { ...s, status: 'completado' as const, checkOut: action.payload.checkOut, hoursWorked: action.payload.hoursWorked }
             : s
         ),
       };
@@ -57,7 +57,7 @@ function appReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         drivers: state.drivers.map(d =>
-          d.id === action.payload ? { ...d, status: 'inactivo' } : d
+          d.id === action.payload ? { ...d, status: 'inactivo' as const } : d
         ),
       };
 
@@ -83,17 +83,18 @@ function appReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         users: state.users.map(u =>
-          u.id === action.payload ? { ...u, status: 'inactivo' } : u
+          u.id === action.payload ? { ...u, status: 'inactivo' as const } : u
         ),
       };
 
     case 'CLOSE_PAYROLL_WEEK':
       return { ...state, closedPayroll: [...state.closedPayroll, ...action.payload] };
 
+    // H4: Match by weekStart (ISO date) instead of weekLabel (locale-dependent string)
     case 'RERUN_PAYROLL_CLOSE': {
       const superseded = state.closedPayroll.map(p =>
-        p.weekLabel === action.payload.weekLabel && p.status === 'cerrado'
-          ? { ...p, status: 'superseded' }
+        p.weekStart === action.payload.weekStart && p.status === 'cerrado'
+          ? { ...p, status: 'superseded' as const }
           : p
       );
       return { ...state, closedPayroll: [...superseded, ...action.payload.newRecords] };
@@ -133,6 +134,69 @@ function appReducer(state: AppState, action: Action): AppState {
         dataRange: state.dataRange
           ? { ...state.dataRange, payrollFrom: action.payload.oldestDate, payrollHasMore: action.payload.hasMore }
           : undefined,
+      };
+
+    // C2: Rollback actions for failed persists
+    case 'REMOVE_SHIFT':
+      return { ...state, shifts: state.shifts.filter(s => s.id !== action.payload) };
+
+    case 'REMOVE_DRIVER':
+      return { ...state, drivers: state.drivers.filter(d => d.id !== action.payload) };
+
+    case 'REMOVE_VEHICLE':
+      return { ...state, vehicles: state.vehicles.filter(v => v.id !== action.payload) };
+
+    case 'REMOVE_USER':
+      return { ...state, users: state.users.filter(u => u.id !== action.payload) };
+
+    case 'REMOVE_PAYROLL_WEEK':
+      return {
+        ...state,
+        closedPayroll: state.closedPayroll.filter(p => !action.payload.includes(p.id)),
+      };
+
+    case 'REMOVE_TRIPS':
+      return {
+        ...state,
+        trips: state.trips.filter(t => !action.payload.includes(t.id)),
+      };
+
+    case 'REVERT_CLOSE_SHIFT':
+      return {
+        ...state,
+        shifts: state.shifts.map(s =>
+          s.id === action.payload
+            ? { ...s, status: 'en_turno' as const, checkOut: undefined, hoursWorked: undefined }
+            : s
+        ),
+      };
+
+    case 'REACTIVATE_DRIVER':
+      return {
+        ...state,
+        drivers: state.drivers.map(d =>
+          d.id === action.payload ? { ...d, status: 'activo' as const } : d
+        ),
+      };
+
+    case 'REACTIVATE_USER':
+      return {
+        ...state,
+        users: state.users.map(u =>
+          u.id === action.payload ? { ...u, status: 'activo' as const } : u
+        ),
+      };
+
+    case 'REVERT_RERUN_PAYROLL':
+      return {
+        ...state,
+        closedPayroll: state.closedPayroll
+          .filter(p => !action.payload.removedIds.includes(p.id))
+          .map(p =>
+            p.weekStart === action.payload.weekStart && p.status === 'superseded'
+              ? { ...p, status: 'cerrado' as const }
+              : p
+          ),
       };
 
     default:

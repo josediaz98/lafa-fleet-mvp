@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import type { Vehicle, Shift } from '@/types';
+import type { Vehicle, Shift, VehicleStatus } from '@/types';
 import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
@@ -7,15 +7,15 @@ import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Select from '@/components/ui/Select';
 
-const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
-const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
+const ALL_STATUSES: VehicleStatus[] = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
+const SUPERVISOR_STATUSES: VehicleStatus[] = ['disponible', 'cargando', 'mantenimiento'];
 
 interface VehicleDetailPanelProps {
   vehicle: Vehicle;
   shifts: Shift[];
   isAdmin: boolean;
   existingPlates: string[];
-  onStatusChange: (vehicle: Vehicle, newStatus: string) => void;
+  onStatusChange: (vehicle: Vehicle, newStatus: VehicleStatus) => void;
   onEdit: (updated: Vehicle) => void;
 }
 

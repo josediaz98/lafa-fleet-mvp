@@ -95,7 +95,8 @@ export default function DriversPage() {
   }
 
   function handleEdit(updated: Driver) {
-    actionUpdateDriver(updated, dispatch, showToast);
+    if (!selectedDriver) return;
+    actionUpdateDriver(updated, selectedDriver, dispatch, showToast);
     setSelectedDriver(updated);
   }
 

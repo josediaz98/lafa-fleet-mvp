@@ -1,4 +1,9 @@
 export type {
+  DriverStatus,
+  VehicleStatus,
+  ShiftStatus,
+  UserStatus,
+  PayrollStatus,
   Center,
   Driver,
   Vehicle,

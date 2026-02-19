@@ -36,7 +36,7 @@ export interface DbVehicle {
   model: string;
   oem: 'Geely' | 'JAC' | 'GAC';
   center_id: string;
-  status: string;
+  status: 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
   created_at: string;
 }
 
@@ -47,7 +47,7 @@ export interface DbShift {
   check_in: string;
   check_out: string | null;
   hours_worked: number | null;
-  status: string;
+  status: 'en_turno' | 'completado' | 'pendiente_revision';
   created_by: string | null;
   created_at: string;
 }
@@ -97,7 +97,7 @@ export interface DbWeeklyPayroll {
   productivity_bonus: number;
   overtime_pay: number;
   total_pay: number;
-  status: string;
+  status: 'borrador' | 'cerrado' | 'superseded';
   version: number;
   ai_explanation: string | null;
   closed_by: string | null;
