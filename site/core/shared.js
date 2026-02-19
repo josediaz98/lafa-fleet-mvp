@@ -521,7 +521,7 @@ function initSidebar(currentPage) {
 function createBottomNav(currentPage) {
   const homeLabel = typeof t === 'function' ? t('shared.nav.home') : 'Inicio';
   const NAV_ITEMS = [
-    { id: 'home', label: homeLabel, href: '../', icon: 'home' },
+    { id: 'home', label: homeLabel, href: '/', icon: 'home' },
     ...SIDEBAR_PAGES.filter(p => p.id !== 'onboarding').map(p => ({ ...p, label: sidebarLabel(p) })),
   ];
   const nav = document.createElement('nav');

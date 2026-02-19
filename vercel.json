@@ -1,13 +1,18 @@
 {
-  "buildCommand": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/app/",
+  "buildCommand": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/fleet-intelligence/",
   "outputDirectory": ".",
+  "redirects": [
+    { "source": "/app/:path*", "destination": "/fleet-intelligence/:path*", "statusCode": 301 },
+    { "source": "/site/:path(dashboard|battery|collections|fleetmap|onboarding|roadmap)/:rest*", "destination": "/demos/:path/:rest*", "statusCode": 301 }
+  ],
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
-    { "source": "/app/assets/:path*", "destination": "/fleet-intelligence/dist/assets/:path*" },
-    { "source": "/app/favicon.svg", "destination": "/fleet-intelligence/dist/favicon.svg" },
-    { "source": "/app/lafa-logo.svg", "destination": "/fleet-intelligence/dist/lafa-logo.svg" },
-    { "source": "/app/demo-trips.csv", "destination": "/fleet-intelligence/dist/demo-trips.csv" },
-    { "source": "/app", "destination": "/fleet-intelligence/dist/index.html" },
-    { "source": "/app/:path*", "destination": "/fleet-intelligence/dist/index.html" }
+    { "source": "/demos/:path*", "destination": "/site/:path*" },
+    { "source": "/fleet-intelligence/assets/:path*", "destination": "/fleet-intelligence/dist/assets/:path*" },
+    { "source": "/fleet-intelligence/favicon.svg", "destination": "/fleet-intelligence/dist/favicon.svg" },
+    { "source": "/fleet-intelligence/lafa-logo.svg", "destination": "/fleet-intelligence/dist/lafa-logo.svg" },
+    { "source": "/fleet-intelligence/demo-trips.csv", "destination": "/fleet-intelligence/dist/demo-trips.csv" },
+    { "source": "/fleet-intelligence", "destination": "/fleet-intelligence/dist/index.html" },
+    { "source": "/fleet-intelligence/:path*", "destination": "/fleet-intelligence/dist/index.html" }
   ]
 }
