@@ -30,7 +30,10 @@ export default function LoginPage() {
         });
 
         if (authError || !authData.user) {
-          setError(authError?.message ?? 'Credenciales incorrectas.');
+          const msg = authError?.message === 'Invalid login credentials'
+            ? 'Correo o contraseña incorrectos.'
+            : 'Credenciales incorrectas.';
+          setError(msg);
           setLoading(false);
           return;
         }

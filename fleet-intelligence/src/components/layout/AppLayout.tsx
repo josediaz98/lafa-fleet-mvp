@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Menu, AlertTriangle, Loader2 } from 'lucide-react';
+import { Menu, AlertTriangle, Loader2, X } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAppState } from '@/app/providers/AppProvider';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { dataSource, hydrated } = useAppState();
+  const [demoDismissed, setDemoDismissed] = useState(
+    () => localStorage.getItem('lafa-demo-banner-dismissed') === 'true'
+  );
 
   // Show loading screen while fetching data from Supabase
   if (!hydrated) {
@@ -30,10 +33,16 @@ export default function AppLayout() {
         <img src={`${import.meta.env.BASE_URL}lafa-logo.svg`} alt="LAFA" className="h-4 w-auto" />
       </div>
       <main className="lg:ml-64 p-4 pt-16 lg:p-8 lg:pt-8 min-h-screen">
-        {dataSource === 'mock' && (
+        {dataSource === 'mock' && !demoDismissed && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-[rgba(234,179,8,0.3)] bg-[rgba(234,179,8,0.08)] px-4 py-2.5 text-sm text-[#EAB308]">
             <AlertTriangle size={16} className="shrink-0" />
             <span>Usando datos de demo. Los cambios no se guardan en base de datos.</span>
+            <button
+              onClick={() => { setDemoDismissed(true); localStorage.setItem('lafa-demo-banner-dismissed', 'true'); }}
+              className="ml-auto shrink-0 p-0.5 rounded hover:bg-[rgba(234,179,8,0.15)] transition-colors"
+            >
+              <X size={14} />
+            </button>
           </div>
         )}
         <Outlet />

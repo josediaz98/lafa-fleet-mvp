@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
-import { useCenterFilter } from '@/hooks/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { getCenterName } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
@@ -73,6 +73,11 @@ export default function DriversPage() {
       .filter(s => s.driverId === selectedDriver.id && s.status === 'completado')
       .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
       .slice(0, 20);
+  }, [selectedDriver, shifts]);
+
+  const driverActiveShift = useMemo(() => {
+    if (!selectedDriver) return null;
+    return shifts.find(s => s.driverId === selectedDriver.id && s.status === 'en_turno') ?? null;
   }, [selectedDriver, shifts]);
 
   function handleCreateDriver(createForm: DriverFormState) {
@@ -246,6 +251,7 @@ export default function DriversPage() {
             driver={selectedDriver}
             payrollHistory={driverPayrollHistory}
             shiftHistory={driverShiftHistory}
+            activeShift={driverActiveShift}
             isAdmin={isAdmin}
             onEdit={handleEdit}
             onDeactivate={handleDeactivate}

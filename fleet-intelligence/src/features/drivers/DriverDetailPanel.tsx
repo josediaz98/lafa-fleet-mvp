@@ -10,6 +10,7 @@ interface DriverDetailPanelProps {
   driver: Driver;
   payrollHistory: PayrollRecord[];
   shiftHistory: Shift[];
+  activeShift: Shift | null;
   isAdmin: boolean;
   onEdit: (updated: Driver) => void;
   onDeactivate: () => void;
@@ -25,6 +26,7 @@ export default function DriverDetailPanel({
   driver,
   payrollHistory,
   shiftHistory,
+  activeShift,
   isAdmin,
   onEdit,
   onDeactivate,
@@ -62,7 +64,7 @@ export default function DriverDetailPanel({
       )}
 
       {panelTab === 'turnos' && (
-        <DriverShiftTab shiftHistory={shiftHistory} />
+        <DriverShiftTab shiftHistory={shiftHistory} activeShift={activeShift} />
       )}
     </div>
   );

@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Upload, Receipt, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { PayrollRecord } from '@/types';
-import { useCenterFilter } from '@/hooks/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -112,7 +112,7 @@ export default function PayrollPage() {
     });
     if (!ok) return;
 
-    const activeDrivers = drivers.filter(d => d.status === 'activo');
+    const activeDrivers = filterByCenter(drivers).filter(d => d.status === 'activo');
     const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
     const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
     await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast, session?.role);

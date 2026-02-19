@@ -1,4 +1,5 @@
 import { formatTime, getElapsedTime } from '@/lib/date-utils';
+import { SHIFT_WINDOW_MS } from '@/lib/constants';
 import StatusBadge from '@/components/ui/StatusBadge';
 
 interface ShiftCardProps {
@@ -50,12 +51,12 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
         </p>
         <div className="flex items-center justify-between">
           <p className="text-xs text-lafa-text-secondary">
-            Check-in: {formatTime(shift.checkIn)} {'\u2014'} Sin check-out
+            Sin check-out registrado desde {formatTime(shift.checkIn)}
           </p>
           {onClose && (
             <button
               onClick={() => onClose(shift.id)}
-              className="px-3 py-1.5 text-xs font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
             >
               Cerrar turno
             </button>
@@ -65,25 +66,31 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
     );
   }
 
-  // Active variant
+  // Active variant — T-01: red styling for shifts >12h
+  const isOvertime = Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
+
   return (
-    <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4 hover:border-lafa-accent/30 transition-colors">
+    <div className={`bg-lafa-surface border ${isOvertime ? 'border-[rgba(239,68,68,0.4)]' : 'border-lafa-border'} rounded-xl p-4 hover:border-lafa-accent/30 transition-colors`}>
       <div className="flex items-center justify-between mb-2">
         <div>
           <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
           {shift.center && <span className="text-xs text-lafa-text-secondary ml-2">{shift.center}</span>}
         </div>
-        <StatusBadge status="en_turno" />
+        {isOvertime ? (
+          <StatusBadge status="alerta" label={`+${Math.floor((Date.now() - new Date(shift.checkIn).getTime()) / 3600000)}h`} />
+        ) : (
+          <StatusBadge status="en_turno" />
+        )}
       </div>
       <p className="text-xs text-lafa-text-secondary mb-3">
         {shift.plate} {'\u00b7'} {shift.model} {'\u00b7'} Check-in: {formatTime(shift.checkIn)}
       </p>
       <div className="flex items-center justify-between">
-        <span className="text-sm font-medium text-[#3B82F6]">{getElapsedTime(shift.checkIn)}</span>
+        <span className={`text-sm font-medium ${isOvertime ? 'text-[#EF4444]' : 'text-[#3B82F6]'}`}>{getElapsedTime(shift.checkIn)}</span>
         {onClose && (
           <button
             onClick={() => onClose(shift.id)}
-            className="px-3 py-1.5 text-xs font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
           >
             Cerrar turno
           </button>

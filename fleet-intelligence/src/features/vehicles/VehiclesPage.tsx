@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Plus, Car, Zap, Wrench, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Vehicle } from '@/types';
-import { useCenterFilter } from '@/hooks/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -11,14 +11,15 @@ import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
-import Modal from '@/components/ui/Modal';
 import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
+import VehicleTable from './components/VehicleTable';
+import VehicleCreateModal from './components/VehicleCreateModal';
 
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
 const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
 
-const emptyForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
+const emptyEditForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
 
 export default function VehiclesPage() {
   const { vehicles, shifts } = useAppState();
@@ -29,11 +30,9 @@ export default function VehiclesPage() {
 
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [form, setForm] = useState<VehicleFormData>(emptyForm);
-  const [formError, setFormError] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState<VehicleFormData>(emptyForm);
+  const [editForm, setEditForm] = useState<VehicleFormData>(emptyEditForm);
   const [editError, setEditError] = useState('');
 
   const centeredVehicles = filterByCenter(vehicles);
@@ -76,7 +75,7 @@ export default function VehiclesPage() {
       const label = STATUS_LABELS[newStatus];
       const ok = await confirm({
         title: `Cambiar a ${label}`,
-        description: `\u00bfSeguro que deseas marcar ${vehicle.plate} como "${label}"? No estar\u00e1 disponible para turnos.`,
+        description: `¿Seguro que deseas marcar ${vehicle.plate} como "${label}"? No estará disponible para turnos.`,
         confirmLabel: 'Confirmar',
         variant: 'danger',
       });
@@ -85,29 +84,8 @@ export default function VehiclesPage() {
     await actionVehicleStatus(vehicle.id, newStatus, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
   }
 
-  function openCreate() {
-    setForm({ ...emptyForm, centerId: effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? '' });
-    setFormError('');
-    setShowCreateModal(true);
-  }
-
-  function handleCreate() {
-    const existingPlates = vehicles.map(v => v.plate);
-    const error = validateVehicleForm(form, existingPlates);
-    if (error) {
-      setFormError(error);
-      return;
-    }
-    const newVehicle: Vehicle = {
-      id: `v-${Date.now()}`,
-      plate: form.plate.trim().toUpperCase(),
-      model: form.model.trim(),
-      oem: form.oem.trim(),
-      centerId: form.centerId,
-      status: 'disponible',
-    };
-    actionAddVehicle(newVehicle, dispatch, showToast);
-    setShowCreateModal(false);
+  function handleCreateVehicle(vehicle: Vehicle) {
+    actionAddVehicle(vehicle, dispatch, showToast);
   }
 
   function openVehicleEdit() {
@@ -148,15 +126,15 @@ export default function VehiclesPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">{'Veh\u00edculos'}</h1>
+        <h1 className="text-2xl font-bold text-lafa-text-primary">{'Vehículos'}</h1>
         <div className="flex items-center gap-3">
           <CenterFilterDropdown />
           {isAdmin && (
             <button
-              onClick={openCreate}
+              onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
             >
-              <Plus size={16} /> {'Nuevo veh\u00edculo'}
+              <Plus size={16} /> {'Nuevo vehículo'}
             </button>
           )}
         </div>
@@ -190,50 +168,16 @@ export default function VehiclesPage() {
         />
       </div>
 
-      <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-lafa-border">
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Placa</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Modelo</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">OEM</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Centro</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((vehicle, i) => (
-                <tr
-                  key={vehicle.id}
-                  className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
-                    i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
-                  }`}
-                  onClick={() => setSelectedVehicle(vehicle)}
-                >
-                  <td className="px-4 py-3 text-lafa-text-primary font-medium font-mono">{vehicle.plate}</td>
-                  <td className="px-4 py-3 text-lafa-text-primary">{vehicle.model}</td>
-                  <td className="px-4 py-3 text-lafa-text-secondary">{vehicle.oem}</td>
-                  <td className="px-4 py-3 text-lafa-text-secondary">{getCenterName(vehicle.centerId)}</td>
-                  <td className="px-4 py-3">
-                    <StatusBadge status={vehicle.status} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-4 py-2.5 border-t border-lafa-border">
-          <span className="text-xs text-lafa-text-secondary">
-            {filtered.length} de {centeredVehicles.length} {'veh\u00edculos'}
-          </span>
-        </div>
-      </div>
+      <VehicleTable
+        vehicles={filtered}
+        totalCount={centeredVehicles.length}
+        onSelect={setSelectedVehicle}
+      />
 
       <SlidePanel
         open={!!selectedVehicle}
         onClose={() => { setSelectedVehicle(null); setEditMode(false); }}
-        title={selectedVehicle ? `${selectedVehicle.plate} \u2014 ${selectedVehicle.model}` : ''}
+        title={selectedVehicle ? `${selectedVehicle.plate} — ${selectedVehicle.model}` : ''}
       >
         {selectedVehicle && !editMode && (
           <div>
@@ -298,7 +242,7 @@ export default function VehiclesPage() {
             <div>
               <h4 className="text-sm font-medium text-lafa-text-primary mb-3">Turnos recientes</h4>
               {vehicleShifts.length === 0 ? (
-                <p className="text-xs text-lafa-text-secondary">{'Sin turnos registrados para este veh\u00edculo.'}</p>
+                <p className="text-xs text-lafa-text-secondary">{'Sin turnos registrados para este vehículo.'}</p>
               ) : (
                 <div className="space-y-2">
                   {vehicleShifts.map(shift => (
@@ -379,64 +323,13 @@ export default function VehiclesPage() {
         )}
       </SlidePanel>
 
-      <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title={'Nuevo veh\u00edculo'}>
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
-            <input
-              value={form.plate}
-              onChange={e => setForm({ ...form, plate: e.target.value })}
-              placeholder="ABC-123"
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
-            <input
-              value={form.model}
-              onChange={e => setForm({ ...form, model: e.target.value })}
-              placeholder="Geometry C"
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
-            <input
-              value={form.oem}
-              onChange={e => setForm({ ...form, oem: e.target.value })}
-              placeholder="Geely"
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-            <select
-              value={form.centerId}
-              onChange={e => setForm({ ...form, centerId: e.target.value })}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            >
-              {MOCK_CENTERS.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-          {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleCreate}
-              className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-            >
-              {'Crear veh\u00edculo'}
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <VehicleCreateModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        existingPlates={vehicles.map(v => v.plate)}
+        defaultCenterId={effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? ''}
+        onCreate={handleCreateVehicle}
+      />
     </div>
   );
 }

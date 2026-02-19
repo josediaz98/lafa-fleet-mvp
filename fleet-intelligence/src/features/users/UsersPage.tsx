@@ -7,10 +7,11 @@ import { useToast } from '@/app/providers/ToastProvider';
 import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
-import { validateUserCreate, validateUserEdit, type UserFormData } from '@/lib/validators';
+import { validateUserEdit, type UserFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
-import Modal from '@/components/ui/Modal';
+import UserTable from './components/UserTable';
+import UserCreateModal from './components/UserCreateModal';
 
 const emptyForm: UserFormData = {
   name: '',
@@ -38,36 +39,8 @@ export default function UsersPage() {
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  function openCreate() {
-    setForm({ ...emptyForm, centerId: MOCK_CENTERS[0]?.id ?? '' });
-    setFormError('');
-    setShowCreateModal(true);
-  }
-
-  function handleCreate() {
-    const userRecords = users.map(u => ({
-      id: u.id,
-      email: u.email,
-      role: u.role,
-      status: u.status,
-      centerId: u.centerId,
-    }));
-    const error = validateUserCreate(form, userRecords);
-    if (error) {
-      setFormError(error);
-      return;
-    }
-    const newUser: User = {
-      id: `u-${Date.now()}`,
-      name: form.name.trim(),
-      email: form.email.trim(),
-      role: form.role,
-      centerId: form.role === 'admin' ? null : form.centerId,
-      status: 'activo',
-      password: form.password!,
-    };
-    actionAddUser(newUser, form.password!, dispatch, showToast);
-    setShowCreateModal(false);
+  function handleCreateUser(user: User, password: string) {
+    actionAddUser(user, password, dispatch, showToast);
   }
 
   function openEdit() {
@@ -117,12 +90,12 @@ export default function UsersPage() {
     }
     const activeAdmins = users.filter(u => u.role === 'admin' && u.status === 'activo');
     if (selectedUser.role === 'admin' && activeAdmins.length <= 1) {
-      showToast('error', 'No se puede desactivar al \u00faltimo administrador.');
+      showToast('error', 'No se puede desactivar al último administrador.');
       return;
     }
     const ok = await confirm({
       title: 'Desactivar usuario',
-      description: `Se desactivar\u00e1 a ${selectedUser.name}. No podr\u00e1 iniciar sesi\u00f3n.`,
+      description: `Se desactivará a ${selectedUser.name}. No podrá iniciar sesión.`,
       confirmLabel: 'Desactivar',
       variant: 'danger',
     });
@@ -131,12 +104,20 @@ export default function UsersPage() {
     setSelectedUser(null);
   }
 
+  const userRecords = users.map(u => ({
+    id: u.id,
+    email: u.email,
+    role: u.role,
+    status: u.status,
+    centerId: u.centerId,
+  }));
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-lafa-text-primary">Usuarios</h1>
         <button
-          onClick={openCreate}
+          onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
         >
           <Plus size={16} /> Nuevo usuario
@@ -154,55 +135,11 @@ export default function UsersPage() {
         />
       </div>
 
-      <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-lafa-border">
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Nombre</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Email</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Rol</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Centro asignado</th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filtered.map((user, i) => {
-                const isCurrentUser = session && user.id === session.userId;
-                return (
-                  <tr
-                    key={user.id}
-                    onClick={() => { setSelectedUser(user); setEditMode(false); }}
-                    className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
-                      isCurrentUser
-                        ? 'bg-lafa-accent/5 border-l-2 border-l-lafa-accent'
-                        : i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
-                    }`}
-                  >
-                    <td className="px-4 py-3 text-lafa-text-primary font-medium">
-                      <span className="flex items-center gap-2">
-                        {user.name}
-                        {isCurrentUser && (
-                          <span className="text-[10px] font-medium text-lafa-accent bg-lafa-accent/10 px-1.5 py-0.5 rounded">{'T\u00fa'}</span>
-                        )}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-lafa-text-secondary">{user.email}</td>
-                    <td className="px-4 py-3"><StatusBadge status={user.role} /></td>
-                    <td className="px-4 py-3 text-lafa-text-secondary">{getCenterName(user.centerId)}</td>
-                    <td className="px-4 py-3"><StatusBadge status={user.status} /></td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <div className="px-4 py-2.5 border-t border-lafa-border">
-          <span className="text-xs text-lafa-text-secondary">
-            {filtered.length} usuario{filtered.length !== 1 ? 's' : ''}
-          </span>
-        </div>
-      </div>
+      <UserTable
+        users={filtered}
+        session={session}
+        onSelect={(user) => { setSelectedUser(user); setEditMode(false); }}
+      />
 
       <SlidePanel
         open={!!selectedUser}
@@ -322,77 +259,12 @@ export default function UsersPage() {
         )}
       </SlidePanel>
 
-      <Modal open={showCreateModal} onClose={() => setShowCreateModal(false)} title="Nuevo usuario">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
-            <input
-              value={form.name}
-              onChange={e => setForm({ ...form, name: e.target.value })}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={e => setForm({ ...form, email: e.target.value })}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contrase\u00f1a'}</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={e => setForm({ ...form, password: e.target.value })}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-            <p className="text-xs text-lafa-text-secondary mt-1">{'M\u00ednimo 6 caracteres'}</p>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
-            <select
-              value={form.role}
-              onChange={e => setForm({ ...form, role: e.target.value })}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            >
-              <option value="admin">Admin</option>
-              <option value="supervisor">Supervisor</option>
-            </select>
-          </div>
-          {form.role === 'supervisor' && (
-            <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-              <select
-                value={form.centerId}
-                onChange={e => setForm({ ...form, centerId: e.target.value })}
-                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-              >
-                {MOCK_CENTERS.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
-          {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
-              onClick={() => setShowCreateModal(false)}
-              className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleCreate}
-              className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-            >
-              Crear usuario
-            </button>
-          </div>
-        </div>
-      </Modal>
+      <UserCreateModal
+        open={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        users={userRecords}
+        onCreate={handleCreateUser}
+      />
     </div>
   );
 }

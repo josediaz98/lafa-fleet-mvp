@@ -26,13 +26,11 @@ export default function CsvUploadPage() {
   const [fileName, setFileName] = useState('');
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
+  const [dragging, setDragging] = useState(false);
 
   const existingTripIds = new Set(trips.map(t => t.tripId));
 
-  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  function processFile(file: File) {
     if (file.size > 20 * 1024 * 1024) {
       showToast('error', 'Archivo muy grande (m\u00e1x 20MB)');
       return;
@@ -59,6 +57,23 @@ export default function CsvUploadPage() {
       setActiveStep(2);
     };
     reader.readAsText(file);
+  }
+
+  function handleFileSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    processFile(file);
+  }
+
+  function handleDrop(e: React.DragEvent) {
+    e.preventDefault();
+    setDragging(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) {
+      processFile(file);
+    } else {
+      showToast('error', 'Solo se aceptan archivos .csv');
+    }
   }
 
   function handleDownloadTemplate() {
@@ -144,14 +159,21 @@ export default function CsvUploadPage() {
         <div className="flex flex-col items-center justify-center py-16">
           <div
             onClick={() => fileRef.current?.click()}
-            className="w-full max-w-md border-2 border-dashed border-lafa-border rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer hover:border-lafa-accent/50 transition-colors"
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={handleDrop}
+            className={`w-full max-w-md border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer transition-colors ${
+              dragging
+                ? 'border-lafa-accent bg-lafa-accent/5'
+                : 'border-lafa-border hover:border-lafa-accent/50'
+            }`}
           >
             <div className="w-14 h-14 rounded-full bg-lafa-accent/10 flex items-center justify-center">
               <Upload size={24} className="text-lafa-accent" />
             </div>
             <div className="text-center">
               <p className="text-sm font-medium text-lafa-text-primary mb-1">
-                Haz click para seleccionar archivo CSV
+                Arrastra tu archivo CSV aqu{'í'}, o haz click para seleccionar
               </p>
               <p className="text-xs text-lafa-text-secondary">
                 Formato DiDi: Driver ID, Date, Trip ID, Initial time, Final time, Cost, Tip

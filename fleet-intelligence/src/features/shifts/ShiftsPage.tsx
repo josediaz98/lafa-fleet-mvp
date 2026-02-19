@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { useCenterFilter } from '@/hooks/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { shiftHours } from '@/lib/date-utils';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/constants';
@@ -31,7 +31,16 @@ export default function ShiftsPage() {
 
   const filteredShifts = filterByCenter(shifts);
 
-  const activeShifts = filteredShifts.filter(s => s.status === 'en_turno');
+  const activeShifts = useMemo(() => {
+    const active = filteredShifts.filter(s => s.status === 'en_turno');
+    return [...active].sort((a, b) => {
+      const aOver = (Date.now() - new Date(a.checkIn).getTime()) > SHIFT_WINDOW_MS;
+      const bOver = (Date.now() - new Date(b.checkIn).getTime()) > SHIFT_WINDOW_MS;
+      if (aOver && !bOver) return -1;
+      if (!aOver && bOver) return 1;
+      return new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime();
+    });
+  }, [filteredShifts]);
   const completedShifts = filteredShifts.filter(s => s.status === 'completado');
   const pendingShifts = filteredShifts.filter(s =>
     (s.status === 'en_turno' || s.status === 'pendiente_revision') &&

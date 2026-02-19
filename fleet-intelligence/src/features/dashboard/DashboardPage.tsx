@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { useCenterFilter } from '@/hooks/use-center-filter';
+import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatTime } from '@/lib/date-utils';
 import { formatMXN } from '@/lib/format';
 import { getWeekBounds, shiftHours } from '@/lib/date-utils';
@@ -43,7 +43,13 @@ export default function DashboardPage() {
     (Date.now() - new Date(s.checkIn).getTime()) > SHIFT_WINDOW_MS
   );
 
-  const { startDate: weekStart, endDate: weekEnd } = getWeekBounds();
+  const { startDate: weekStart, endDate: weekEnd, label: weekLabel } = getWeekBounds();
+
+  // D-01: Build set of didiDriverIds from center-filtered drivers to filter trips by center
+  const filteredDriverIds = useMemo(
+    () => new Set(filteredDrivers.map(d => d.didiDriverId)),
+    [filteredDrivers]
+  );
 
   const driversNear6K = useMemo(() => {
     return filteredDrivers
@@ -64,11 +70,12 @@ export default function DashboardPage() {
   }, [filteredDrivers, trips, weekStart, weekEnd]);
 
   const weekTrips = useMemo(() => trips.filter(t => {
+    if (!filteredDriverIds.has(t.driverId)) return false;
     const parts = t.fecha.split('/');
     if (parts.length !== 3) return false;
     const tripDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
     return tripDate >= weekStart && tripDate < weekEnd;
-  }), [trips, weekStart, weekEnd]);
+  }), [trips, filteredDriverIds, weekStart, weekEnd]);
   const weekBilling = weekTrips.reduce((sum, t) => sum + t.costo, 0);
 
   const kpiCards = [
@@ -76,7 +83,7 @@ export default function DashboardPage() {
     { label: 'Conductores en turno', value: `${driversInShift} / ${activeDriversCount}`, icon: Users, color: 'text-[#8B5CF6]', bg: 'bg-[rgba(139,92,246,0.15)]' },
     { label: 'Veh\u00edculos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-[#22C55E]', bg: 'bg-[rgba(34,197,94,0.15)]' },
     { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-[#EF4444]', bg: 'bg-[rgba(239,68,68,0.15)]' },
-    { label: 'Facturaci\u00f3n semana', value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
+    { label: 'Facturaci\u00f3n semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
   ];
 
   async function handleCloseShift(shiftId: string) {
@@ -114,7 +121,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-        {kpiCards.map(({ label, value, icon: Icon, color, bg }) => (
+        {kpiCards.map(({ label, subtitle, value, icon: Icon, color, bg }) => (
           <div key={label} className="bg-lafa-surface border border-lafa-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs text-lafa-text-secondary">{label}</span>
@@ -123,6 +130,7 @@ export default function DashboardPage() {
               </div>
             </div>
             <p className="text-xl font-bold text-lafa-text-primary">{value}</p>
+            {subtitle && <p className="text-[10px] text-lafa-text-secondary/70 mt-0.5">{subtitle}</p>}
           </div>
         ))}
       </div>

@@ -143,13 +143,14 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
         </div>
       </div>
       {isAdmin && driver.status === 'activo' && (
-        <div className="flex gap-3">
+        <div className="flex items-center gap-3">
           <button
             onClick={openEdit}
-            className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
           >
             Editar
           </button>
+          <div className="flex-1" />
           <button
             onClick={onDeactivate}
             className="px-4 py-2 text-sm font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
