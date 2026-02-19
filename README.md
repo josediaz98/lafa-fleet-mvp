@@ -8,6 +8,33 @@ Evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin A
 
 ---
 
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) >= 20
+
+## Quick Start
+
+```bash
+npm install
+cd fleet-intelligence && npm install && cd ..
+
+npm run dev
+# → http://localhost:5173/fleet-intelligence/
+```
+
+> **Demo login:** `admin@lafa-mx.com` / `admin123` — full demo data (30 drivers, 18 vehicles, shifts, payroll), no signup needed.
+
+### Full stack (Express + marketing site + fleet app)
+
+```bash
+npm run build
+npm run start   # http://localhost:3000
+```
+
+Serves landing page at `/`, prototypes at `/demos/*`, fleet app at `/fleet-intelligence/`.
+
+---
+
 ## Investment Thesis
 
 The core evaluation, structured in 8 chapters:
@@ -113,6 +140,8 @@ Static HTML/JS + Tailwind CDN (no build step). Prototypes:
 Live React + TypeScript + Vite app for fleet operations: [fleet-intelligence/](fleet-intelligence/)
 
 **Live URL:** [lafa-production.up.railway.app](https://lafa-production.up.railway.app/)
+
+> **Demo login:** `admin@lafa-mx.com` / `admin123` — full demo data, no signup needed.
 
 Core features: payroll processing, shift dispatch, driver management, vehicle tracking, CSV data import. Built as the [technical challenge](content/hiring/README.md) for Jose's interview process. Uses Supabase for persistence (falls back to mock data).
 

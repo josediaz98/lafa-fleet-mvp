@@ -5,6 +5,7 @@
     "node": ">=20.0.0"
   },
   "scripts": {
+    "dev": "cd fleet-intelligence && npm run dev",
     "build": "cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/fleet-intelligence/",
     "start": "node server.js"
   },
