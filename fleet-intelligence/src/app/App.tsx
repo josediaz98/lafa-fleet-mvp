@@ -7,6 +7,7 @@ import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/features/auth/LoginPage';
+import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage';
 import DashboardPage from '@/features/dashboard/DashboardPage';
 import ShiftsPage from '@/features/shifts/ShiftsPage';
 import CsvUploadPage from '@/features/csv-upload/CsvUploadPage';
@@ -74,6 +75,7 @@ function AppRoutes() {
       <AuthRestorer />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route
           element={
             <RequireAuth>

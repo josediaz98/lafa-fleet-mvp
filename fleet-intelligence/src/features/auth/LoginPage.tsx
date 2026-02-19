@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
+import { Eye, EyeOff, Loader2, ExternalLink } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { useToast } from '@/app/providers/ToastProvider';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
@@ -16,6 +17,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState(import.meta.env.DEV ? 'admin123' : '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -115,9 +117,18 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-lafa-bg flex items-center justify-center p-4">
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-lafa-accent" />
-      <div className="w-full max-w-xs">
+      <div className="w-full max-w-sm animate-fade-in">
         <div className="flex justify-center mb-10">
           <LafaLogo className="h-10 w-auto" />
+        </div>
+
+        <div className="text-center mb-6">
+          <h1 className="text-lg font-semibold text-lafa-text-primary">
+            Iniciar sesión
+          </h1>
+          <p className="text-sm text-lafa-text-secondary mt-1">
+            Gestión inteligente de flota
+          </p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-3">
@@ -126,24 +137,71 @@ export default function LoginPage() {
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder="correo@ejemplo.com"
-            className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:bg-lafa-surface transition-colors"
+            className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
           />
-          <input
-            type="password"
-            value={password}
-            onChange={e => setPassword(e.target.value)}
-            placeholder="Contraseña"
-            className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:bg-lafa-surface transition-colors"
-          />
-          {error && <p className="text-sm text-status-danger">{error}</p>}
+          <div className="relative">
+            <input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={e => setPassword(e.target.value)}
+              placeholder="Contraseña"
+              className="w-full px-4 py-3 pr-11 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors"
+              tabIndex={-1}
+            >
+              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="flex justify-end">
+            <Link
+              to="/forgot-password"
+              className="text-xs text-lafa-text-secondary hover:text-lafa-accent transition-colors"
+            >
+              ¿Olvidaste tu contraseña?
+            </Link>
+          </div>
+
+          {error && (
+            <p className="text-sm text-status-danger animate-fade-in">{error}</p>
+          )}
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-2 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-semibold rounded-lg text-sm transition-colors disabled:opacity-50"
+            className="w-full py-3 mt-2 bg-lafa-accent hover:bg-lafa-accent-hover active:scale-[0.98] text-white font-semibold rounded-lg text-sm transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
           >
-            {loading ? 'Iniciando...' : 'Iniciar sesión'}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Iniciando...
+              </>
+            ) : (
+              'Iniciar sesión'
+            )}
           </button>
         </form>
+
+        <p className="mt-5 text-center text-xs text-lafa-text-secondary/70">
+          ¿No tienes cuenta?{' '}
+          <span className="text-lafa-text-secondary">Contacta a tu administrador.</span>
+        </p>
+
+        <div className="mt-6 text-center">
+          <a
+            href="https://lafa-production.up.railway.app/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors"
+          >
+            Conoce LAFA
+            <ExternalLink className="w-3 h-3" />
+          </a>
+        </div>
       </div>
     </div>
   );
