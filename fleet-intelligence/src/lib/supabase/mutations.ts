@@ -144,6 +144,10 @@ export async function persistTrips(
   })).filter(r => r.driver_id !== '');
 
   if (rows.length === 0 && trips.length > 0) {
+    // ISSUE-3 fix: Mark orphaned upload as 'error' before returning
+    if (uploadId) {
+      await supabase.from('csv_uploads').update({ status: 'error', valid_count: 0 }).eq('id', uploadId);
+    }
     return { error: new Error(`0 de ${trips.length} viajes pudieron mapearse a conductores`) };
   }
 

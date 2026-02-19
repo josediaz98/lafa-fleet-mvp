@@ -72,7 +72,7 @@ export async function fetchAllData(): Promise<HydrateData> {
 
   const range = getDateRange(WEEKS_TO_FETCH);
 
-  const [centersRes, driversRes, vehiclesRes, profilesRes, shiftsRes, tripsRes, payrollRes] =
+  const [centersRes, driversRes, vehiclesRes, profilesRes, shiftsRes, tripsRes, payrollRes, activeShiftsRes] =
     await Promise.all([
       // Static data - fetch all
       supabase.from('centers').select('*'),
@@ -101,6 +101,12 @@ export async function fetchAllData(): Promise<HydrateData> {
         .gte('week_start', range.start)
         .order('week_start', { ascending: false })
         .limit(PAGE_SIZE),
+
+      // ISSUE-2 fix: Dedicated query for active shifts (no date filter) — prevents false reconciliation
+      supabase
+        .from('shifts')
+        .select('vehicle_id')
+        .eq('status', 'en_turno'),
     ]);
 
   // C4: Check individual query errors — critical tables throw, non-critical degrade gracefully
@@ -111,6 +117,7 @@ export async function fetchAllData(): Promise<HydrateData> {
   if (shiftsRes.error) criticalErrors.push(`shifts: ${shiftsRes.error.message}`);
   if (tripsRes.error) criticalErrors.push(`trips: ${tripsRes.error.message}`);
   if (payrollRes.error) criticalErrors.push(`weekly_payroll: ${payrollRes.error.message}`);
+  if (activeShiftsRes.error) criticalErrors.push(`active_shifts: ${activeShiftsRes.error.message}`);
   if (criticalErrors.length > 0) {
     throw new Error(`Failed to fetch data: ${criticalErrors.join('; ')}`);
   }
@@ -131,8 +138,9 @@ export async function fetchAllData(): Promise<HydrateData> {
   setLookupMaps(centers, drivers, vehicles, profiles);
 
   // BUG-1 fix: Reconcile vehicle status — if a vehicle is 'en_turno' but has no active shift, reset to 'disponible'
+  // ISSUE-2 fix: Use dedicated active shifts query (no date filter) instead of windowed shifts
   const activeShiftVehicleIds = new Set(
-    shifts.filter(s => s.status === 'en_turno').map(s => s.vehicle_id),
+    ((activeShiftsRes.data ?? []) as { vehicle_id: string }[]).map(s => s.vehicle_id),
   );
   for (const v of vehicles) {
     if (v.status === 'en_turno' && !activeShiftVehicleIds.has(v.id)) {
