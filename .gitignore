@@ -1,6 +1,7 @@
 # System
 .DS_Store
-.claude/
+.claude/*
+!.claude/settings.json
 
 # Dependencies
 node_modules/
