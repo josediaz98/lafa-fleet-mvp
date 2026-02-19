@@ -8,7 +8,7 @@ React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CL
 |-----------|------|---------|
 | `app/` | Entry point, App.tsx (router), providers (AppProvider, ToastProvider) | `App.tsx` defines all routes |
 | `components/` | Shared UI: `layout/` (AppLayout, Sidebar) + `ui/` (Modal, StatusBadge, etc.) | Reusable UI components |
-| `features/` | Feature modules — one dir per domain (8 total) | `payroll/`, `drivers/`, `shifts/` |
+| `features/` | Feature modules — one dir per domain (8 total, singular names) | `payroll/`, `driver/`, `shift/` |
 | `lib/` | Service layer, utils, hooks, Supabase client + queries/mutations | `actions/` (domain files + barrel) is the entry point |
 | `types/` | Domain types, AppState, Action union — single source in `shared.ts` | Import types from `@/types` |
 | `data/` | Business constants (`constants.ts`) + dev seed data (`dev-seed.ts`) | `CENTERS` used across app, seed only in AppProvider |
@@ -40,12 +40,12 @@ React Router v6 with basename from `BASE_URL` (`/fleet-intelligence/` in product
 | `/reset-password` | auth | None |
 | `/accept-invite` | auth | None |
 | `/dashboard` | dashboard | RequireAuth |
-| `/shifts` | shifts | RequireAuth |
-| `/drivers` | drivers | RequireAuth |
-| `/vehicles` | vehicles | RequireAuth |
+| `/shifts` | shift | RequireAuth |
+| `/drivers` | driver | RequireAuth |
+| `/vehicles` | vehicle | RequireAuth |
 | `/payroll` | payroll | RequireAuth |
 | `/csv-upload` | csv-upload | RequireAuth + RequireAdmin |
-| `/users` | users | RequireAuth + RequireAdmin |
+| `/users` | user | RequireAuth + RequireAdmin |
 
 All routes except auth are nested inside `RequireAuth` via `AppLayout`. `RequireAdmin` wraps individual routes within that layout. `RequireAuth` redirects to `/login`. `RequireAdmin` redirects to `/dashboard`.
 

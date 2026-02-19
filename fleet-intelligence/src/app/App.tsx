@@ -16,12 +16,12 @@ import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage';
 import ResetPasswordPage from '@/features/auth/ResetPasswordPage';
 import AcceptInvitePage from '@/features/auth/AcceptInvitePage';
 import DashboardPage from '@/features/dashboard/DashboardPage';
-import ShiftsPage from '@/features/shifts/ShiftsPage';
+import ShiftsPage from '@/features/shift/ShiftsPage';
 import CsvUploadPage from '@/features/csv-upload/CsvUploadPage';
 import PayrollPage from '@/features/payroll/PayrollPage';
-import DriversPage from '@/features/drivers/DriversPage';
-import VehiclesPage from '@/features/vehicles/VehiclesPage';
-import UsersPage from '@/features/users/UsersPage';
+import DriversPage from '@/features/driver/DriversPage';
+import VehiclesPage from '@/features/vehicle/VehiclesPage';
+import UsersPage from '@/features/user/UsersPage';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, authChecked } = useAppState();

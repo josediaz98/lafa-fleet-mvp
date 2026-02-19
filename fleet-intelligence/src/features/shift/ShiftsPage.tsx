@@ -4,7 +4,7 @@ import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
 import { useActionContext } from '@/lib/action-context';
-import { useShiftCheckOut } from '@/lib/use-shift-checkout';
+import { useShiftCheckOut } from './lib/use-shift-checkout';
 import type { Shift } from '@/types';
 import { actionCheckIn } from '@/lib/actions';
 import { useShiftFilters } from './lib/use-shift-filters';

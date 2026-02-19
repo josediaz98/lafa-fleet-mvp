@@ -13,9 +13,9 @@ import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatMXN } from '@/lib/format';
 import { getWeekBounds } from '@/lib/date-utils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
-import { useShiftCheckOut } from '@/lib/use-shift-checkout';
+import { useShiftCheckOut } from '@/features/shift/lib/use-shift-checkout';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
-import { ShiftCard } from '@/features/shifts';
+import { ShiftCard } from '@/features/shift';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function DashboardPage() {
