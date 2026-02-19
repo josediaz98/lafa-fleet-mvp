@@ -11,9 +11,13 @@ app.use(express.json());
 const supabaseUrl = process.env.SUPABASE_URL || '';
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabaseAdmin =
-  supabaseUrl && supabaseServiceKey
+  supabaseUrl && supabaseServiceKey && /^https?:\/\//.test(supabaseUrl)
     ? createClient(supabaseUrl, supabaseServiceKey, { auth: { autoRefreshToken: false, persistSession: false } })
     : null;
+
+if (!supabaseAdmin) {
+  console.warn('Supabase admin client not initialized — check SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY');
+}
 
 // --- Auth helpers ---
 async function requireAdmin(req) {
