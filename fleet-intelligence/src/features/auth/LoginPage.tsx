@@ -12,7 +12,7 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@lafa.mx' : '');
+  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@lafa-mx.com' : '');
   const [password, setPassword] = useState(import.meta.env.DEV ? 'admin123' : '');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);

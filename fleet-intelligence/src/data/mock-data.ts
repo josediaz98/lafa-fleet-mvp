@@ -161,10 +161,10 @@ export interface MockUser {
 }
 
 export const MOCK_USERS: MockUser[] = [
-  { id: 'u1', name: 'Admin LAFA', email: 'admin@lafa.mx', role: 'admin', centerId: null, status: 'activo', password: 'admin123' },
-  { id: 'u2', name: 'María Supervisor', email: 'maria@lafa.mx', role: 'supervisor', centerId: 'c1', status: 'activo', password: 'super123' },
-  { id: 'u3', name: 'Carlos Supervisor', email: 'carlos@lafa.mx', role: 'supervisor', centerId: 'c2', status: 'activo', password: 'super123' },
-  { id: 'u4', name: 'Ana Supervisor', email: 'ana@lafa.mx', role: 'supervisor', centerId: 'c3', status: 'activo', password: 'super123' },
+  { id: 'u1', name: 'Admin LAFA', email: 'admin@lafa-mx.com', role: 'admin', centerId: null, status: 'activo', password: 'admin123' },
+  { id: 'u2', name: 'María Supervisor', email: 'maria@lafa-mx.com', role: 'supervisor', centerId: 'c1', status: 'activo', password: 'super123' },
+  { id: 'u3', name: 'Carlos Supervisor', email: 'carlos@lafa-mx.com', role: 'supervisor', centerId: 'c2', status: 'activo', password: 'super123' },
+  { id: 'u4', name: 'Ana Supervisor', email: 'ana@lafa-mx.com', role: 'supervisor', centerId: 'c3', status: 'activo', password: 'super123' },
 ];
 
 // ---- Trips (current week: 16/02/2026 – 22/02/2026) ----

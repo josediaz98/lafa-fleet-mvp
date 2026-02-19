@@ -212,21 +212,21 @@ CREATE POLICY "payroll: admin delete" ON weekly_payroll FOR DELETE TO authentica
 -- STEP 3: Auth Users
 -- ============================================================
 -- Creates 4 auth users with deterministic UUIDs matching seed profiles.
--- Passwords: admin@lafa.mx = admin123, all others = super123
+-- Passwords: admin@lafa-mx.com = admin123, all others = super123
 
 INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a001', 'authenticated', 'authenticated', 'admin@lafa.mx',  crypt('admin123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a002', 'authenticated', 'authenticated', 'maria@lafa.mx',  crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a003', 'authenticated', 'authenticated', 'carlos@lafa.mx', crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a004', 'authenticated', 'authenticated', 'ana@lafa.mx',    crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a001', 'authenticated', 'authenticated', 'admin@lafa-mx.com',  crypt('admin123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a002', 'authenticated', 'authenticated', 'maria@lafa-mx.com',  crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a003', 'authenticated', 'authenticated', 'carlos@lafa-mx.com', crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a004', 'authenticated', 'authenticated', 'ana@lafa-mx.com',    crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
 
 INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES
-  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000a001', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a001', 'email', 'admin@lafa.mx'),  'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a002', '00000000-0000-0000-0000-00000000a002', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a002', 'email', 'maria@lafa.mx'),  'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a003', '00000000-0000-0000-0000-00000000a003', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a003', 'email', 'carlos@lafa.mx'), 'email', now(), now(), now()),
-  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a004', '00000000-0000-0000-0000-00000000a004', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a004', 'email', 'ana@lafa.mx'),    'email', now(), now(), now());
+  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a001', '00000000-0000-0000-0000-00000000a001', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a001', 'email', 'admin@lafa-mx.com'),  'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a002', '00000000-0000-0000-0000-00000000a002', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a002', 'email', 'maria@lafa-mx.com'),  'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a003', '00000000-0000-0000-0000-00000000a003', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a003', 'email', 'carlos@lafa-mx.com'), 'email', now(), now(), now()),
+  (gen_random_uuid(), '00000000-0000-0000-0000-00000000a004', '00000000-0000-0000-0000-00000000a004', jsonb_build_object('sub', '00000000-0000-0000-0000-00000000a004', 'email', 'ana@lafa-mx.com'),    'email', now(), now(), now());
 
 
 -- ============================================================
@@ -241,10 +241,10 @@ INSERT INTO centers (id, name, address, lat, lng) VALUES
 
 -- 4.2 Profiles
 INSERT INTO profiles (id, name, email, role, center_id, status) VALUES
-  ('00000000-0000-0000-0000-00000000a001', 'Admin LAFA',        'admin@lafa.mx',   'admin',      NULL,                                          'activo'),
-  ('00000000-0000-0000-0000-00000000a002', 'María Supervisor',  'maria@lafa.mx',   'supervisor', '00000000-0000-0000-0000-00000000c001',        'activo'),
-  ('00000000-0000-0000-0000-00000000a003', 'Carlos Supervisor', 'carlos@lafa.mx',  'supervisor', '00000000-0000-0000-0000-00000000c002',        'activo'),
-  ('00000000-0000-0000-0000-00000000a004', 'Ana Supervisor',    'ana@lafa.mx',     'supervisor', '00000000-0000-0000-0000-00000000c003',        'activo');
+  ('00000000-0000-0000-0000-00000000a001', 'Admin LAFA',        'admin@lafa-mx.com',   'admin',      NULL,                                          'activo'),
+  ('00000000-0000-0000-0000-00000000a002', 'María Supervisor',  'maria@lafa-mx.com',   'supervisor', '00000000-0000-0000-0000-00000000c001',        'activo'),
+  ('00000000-0000-0000-0000-00000000a003', 'Carlos Supervisor', 'carlos@lafa-mx.com',  'supervisor', '00000000-0000-0000-0000-00000000c002',        'activo'),
+  ('00000000-0000-0000-0000-00000000a004', 'Ana Supervisor',    'ana@lafa-mx.com',     'supervisor', '00000000-0000-0000-0000-00000000c003',        'activo');
 
 -- 4.3 Drivers (30 total: 10 per center)
 -- Vallejo (c1)
