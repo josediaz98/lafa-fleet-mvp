@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
-import { formatTime } from '@/lib/date-utils';
 import { formatMXN } from '@/lib/format';
 import { getWeekBounds, shiftHours } from '@/lib/date-utils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
@@ -15,7 +14,7 @@ import ShiftCard from '@/features/shifts/components/ShiftCard';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function DashboardPage() {
-  const { shifts, vehicles, trips, drivers } = useAppState();
+  const { shifts, vehicles, trips, drivers, hydrated } = useAppState();
   const dispatch = useAppDispatch();
   const { filterByCenter } = useCenterFilter();
   const { showToast } = useToast();
@@ -51,24 +50,6 @@ export default function DashboardPage() {
     [filteredDrivers]
   );
 
-  const driversNear6K = useMemo(() => {
-    return filteredDrivers
-      .filter(d => d.status === 'activo')
-      .map(driver => {
-        const billing = trips
-          .filter(t => {
-            if (t.driverId !== driver.didiDriverId) return false;
-            const parts = t.fecha.split('/');
-            if (parts.length !== 3) return false;
-            const tripDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
-            return tripDate >= weekStart && tripDate < weekEnd;
-          })
-          .reduce((sum, t) => sum + t.costo, 0);
-        return { name: driver.fullName, billing };
-      })
-      .filter(d => d.billing >= 4500 && d.billing < 6000);
-  }, [filteredDrivers, trips, weekStart, weekEnd]);
-
   const weekTrips = useMemo(() => trips.filter(t => {
     if (!filteredDriverIds.has(t.driverId)) return false;
     const parts = t.fecha.split('/');
@@ -86,8 +67,6 @@ export default function DashboardPage() {
     { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-status-alert', bg: 'bg-status-alert/15' },
   ];
 
-  const [closingShiftId, setClosingShiftId] = useState<string | null>(null);
-
   async function handleCloseShift(shiftId: string) {
     const shift = shifts.find(s => s.id === shiftId);
     if (!shift) return;
@@ -104,26 +83,52 @@ export default function DashboardPage() {
       if (!ok) return;
     }
 
-    setClosingShiftId(shiftId);
-    try {
-      const checkOutTime = new Date().toISOString();
-      await actionCheckOut(
-        { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
-        dispatch,
-        showToast,
-      );
-    } finally {
-      setClosingShiftId(null);
-    }
+    const checkOutTime = new Date().toISOString();
+    await actionCheckOut(
+      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+      dispatch,
+      showToast,
+    );
+  }
+
+  if (!hydrated) {
+    return (
+      <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div className="h-8 w-40 bg-lafa-surface rounded-lg animate-pulse" />
+          <div className="h-9 w-48 bg-lafa-surface rounded-lg animate-pulse" />
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-lafa-surface border border-lafa-border rounded-xl p-5 animate-pulse">
+              <div className="flex items-center justify-between mb-3">
+                <div className="h-3 w-20 bg-lafa-border/50 rounded" />
+                <div className="w-9 h-9 bg-lafa-border/50 rounded-lg" />
+              </div>
+              <div className="h-8 w-16 bg-lafa-border/50 rounded mt-1" />
+            </div>
+          ))}
+        </div>
+        <div>
+          <div className="h-3 w-28 bg-lafa-surface rounded mb-4 animate-pulse" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {Array.from({ length: 2 }).map((_, i) => (
+              <div key={i} className="bg-lafa-surface border border-lafa-border rounded-xl p-4 animate-pulse">
+                <div className="h-4 w-32 bg-lafa-border/50 rounded mb-2" />
+                <div className="h-3 w-48 bg-lafa-border/50 rounded mb-3" />
+                <div className="h-3 w-20 bg-lafa-border/50 rounded" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-2xl font-semibold text-lafa-text-primary">Dashboard</h1>
-          <p className="text-sm text-lafa-text-secondary mt-1">Resumen operativo en tiempo real</p>
-        </div>
+        <h1 className="text-2xl font-semibold text-lafa-text-primary">Dashboard</h1>
         <CenterFilterDropdown variant="pills" />
       </div>
 
@@ -142,10 +147,10 @@ export default function DashboardPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+      <div className={`grid grid-cols-1 ${alertShifts.length > 0 ? 'lg:grid-cols-3' : ''} gap-6`}>
+        <div className={alertShifts.length > 0 ? 'lg:col-span-2' : ''}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-lafa-text-primary">Turnos activos</h2>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-lafa-text-secondary">Turnos activos</h2>
             {enTurno.length > 6 && (
               <button
                 onClick={() => navigate('/shifts')}
@@ -166,52 +171,16 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div>
-          <h2 className="text-lg font-semibold text-lafa-text-primary mb-4">Alertas</h2>
-          <div className="space-y-3">
-            {alertShifts.map(shift => (
-              <div key={shift.id} className="bg-status-danger/[0.08] border border-status-danger/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle size={16} className="text-status-danger" />
-                  <span className="text-sm font-semibold text-status-danger">Turno abierto +{Math.floor(shiftHours(shift.checkIn))}h</span>
-                </div>
-                <p className="text-xs text-lafa-text-secondary mb-3">
-                  {shift.driverName} - {shift.plate} {'·'} Check-in: {formatTime(shift.checkIn)}.
-                  <br />Sin check-out registrado.
-                </p>
-                <button
-                  onClick={() => handleCloseShift(shift.id)}
-                  disabled={closingShiftId === shift.id}
-                  className="px-3 py-1.5 text-xs font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150 disabled:opacity-50"
-                >
-                  {closingShiftId === shift.id ? 'Cerrando...' : 'Cerrar turno'}
-                </button>
-              </div>
-            ))}
-            {alertShifts.length === 0 && (
-              <EmptyState icon={AlertTriangle} title="Sin alertas activas" description="Todos los turnos están dentro del rango normal." />
-            )}
-
-            {driversNear6K.length > 0 && (
-              <div className="mt-4 bg-status-alert/[0.08] border border-status-alert/20 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-3">
-                  <DollarSign size={16} className="text-status-alert" />
-                  <span className="text-sm font-semibold text-status-alert">Cerca del umbral $6K</span>
-                </div>
-                <div className="space-y-2">
-                  {driversNear6K.map(d => (
-                    <div key={d.name} className="flex items-center justify-between text-xs">
-                      <span className="text-lafa-text-primary font-medium">{d.name}</span>
-                      <span className="text-lafa-text-secondary">
-                        {formatMXN(d.billing)} — faltan {formatMXN(6000 - d.billing)}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
+        {alertShifts.length > 0 && (
+          <div>
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-lafa-text-secondary mb-4">Alertas</h2>
+            <div className="space-y-3">
+              {alertShifts.map(shift => (
+                <ShiftCard key={shift.id} shift={shift} variant="alert" onClose={handleCloseShift} />
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
