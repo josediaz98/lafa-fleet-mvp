@@ -60,9 +60,14 @@ export default function ShiftsPage() {
     });
   }, [searchFiltered]);
 
-  const completedShifts = searchFiltered.filter(
-    (s) => s.status === 'completado',
-  );
+  const completedShifts = useMemo(() => {
+    const today = new Date().toDateString();
+    return searchFiltered.filter(
+      (s) =>
+        s.status === 'completado' &&
+        new Date(s.checkIn).toDateString() === today,
+    );
+  }, [searchFiltered]);
 
   const pendingShifts = searchFiltered.filter(
     (s) =>
