@@ -13,15 +13,17 @@ import {
   actionUpdateDriver,
   actionDeactivateDriver,
 } from '@/lib/actions';
+import {
+  useDriverFilters,
+  STATUS_FILTERS,
+  SHIFT_FILTERS,
+} from './lib/use-driver-filters';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
 import PaginationControls from '@/components/ui/PaginationControls';
 import SlidePanel from '@/components/ui/SlidePanel';
 import DriverCreateModal from './components/DriverCreateModal';
 import DriverDetailPanel from './components/DriverDetailPanel';
-
-type StatusFilter = 'todos' | 'activo' | 'inactivo';
-type ShiftFilter = 'todos' | 'diurno' | 'nocturno';
 
 interface DriverFormState {
   fullName: string;
@@ -37,31 +39,21 @@ export default function DriversPage() {
   const { isAdmin, effectiveCenterId, filterByCenter } = useCenterFilter();
   const { confirm } = useConfirmDialog();
 
-  const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
-  const [shiftFilter, setShiftFilter] = useState<ShiftFilter>('todos');
+  const centeredDrivers = filterByCenter(drivers);
+  const {
+    filtered,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    shiftFilter,
+    setShiftFilter,
+    hasActiveFilters,
+    clearFilters,
+  } = useDriverFilters(centeredDrivers);
+
   const [selectedDriver, setSelectedDriver] = useState<Driver | null>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
-
-  const centeredDrivers = filterByCenter(drivers);
-  const filtered = useMemo(() => {
-    let result = centeredDrivers;
-    if (statusFilter !== 'todos') {
-      result = result.filter((d) => d.status === statusFilter);
-    }
-    if (shiftFilter !== 'todos') {
-      result = result.filter((d) => d.defaultShift === shiftFilter);
-    }
-    if (search) {
-      const q = search.toLowerCase();
-      result = result.filter(
-        (d) =>
-          d.fullName.toLowerCase().includes(q) ||
-          d.didiDriverId.toString().includes(q),
-      );
-    }
-    return result;
-  }, [centeredDrivers, statusFilter, shiftFilter, search]);
 
   const {
     paginatedItems: paginatedDrivers,
@@ -150,18 +142,6 @@ export default function DriversPage() {
     setSelectedDriver(null);
   }
 
-  const statusFilters: { key: StatusFilter; label: string }[] = [
-    { key: 'todos', label: 'Todos' },
-    { key: 'activo', label: 'Activos' },
-    { key: 'inactivo', label: 'Inactivos' },
-  ];
-
-  const shiftFilters: { key: ShiftFilter; label: string }[] = [
-    { key: 'todos', label: 'Todos' },
-    { key: 'diurno', label: 'Diurno' },
-    { key: 'nocturno', label: 'Nocturno' },
-  ];
-
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
@@ -202,7 +182,7 @@ export default function DriversPage() {
         </div>
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5">
-            {statusFilters.map((f) => (
+            {STATUS_FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
@@ -217,7 +197,7 @@ export default function DriversPage() {
             ))}
           </div>
           <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5">
-            {shiftFilters.map((f) => (
+            {SHIFT_FILTERS.map((f) => (
               <button
                 key={f.key}
                 onClick={() => setShiftFilter(f.key)}
@@ -296,15 +276,9 @@ export default function DriversPage() {
             {rangeStart}–{rangeEnd} de {filtered.length} conductores
           </span>
           <div className="flex items-center gap-3">
-            {(statusFilter !== 'todos' ||
-              shiftFilter !== 'todos' ||
-              search) && (
+            {hasActiveFilters && (
               <button
-                onClick={() => {
-                  setSearch('');
-                  setStatusFilter('todos');
-                  setShiftFilter('todos');
-                }}
+                onClick={clearFilters}
                 className="text-xs text-lafa-accent hover:underline"
               >
                 Limpiar filtros

@@ -97,10 +97,6 @@ export function addToProfilesMap(user: User) {
   });
 }
 
-export function getCenterName(centerId: string): string | undefined {
-  return centersMap.get(centerId)?.name;
-}
-
 export function mapCenter(row: DbCenter): Center {
   return { id: row.id, name: row.name };
 }

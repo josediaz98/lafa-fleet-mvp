@@ -18,19 +18,20 @@ export function buildShiftSummaries(
   drivers: Driver[],
   shifts: Shift[],
 ): { driverId: string; totalHours: number }[] {
-  return drivers.map((driver) => {
-    const driverShifts = shifts.filter(
-      (s) =>
-        s.driverId === driver.id && s.status === 'completado' && s.hoursWorked,
-    );
-    return {
-      driverId: driver.id,
-      totalHours: driverShifts.reduce(
-        (sum, s) => sum + (s.hoursWorked ?? 0),
-        0,
-      ),
-    };
-  });
+  // Pre-index completed shifts by driverId for O(n+m) instead of O(n*m)
+  const hoursByDriver = new Map<string, number>();
+  for (const s of shifts) {
+    if (s.status === 'completado' && s.hoursWorked) {
+      hoursByDriver.set(
+        s.driverId,
+        (hoursByDriver.get(s.driverId) ?? 0) + (s.hoursWorked ?? 0),
+      );
+    }
+  }
+  return drivers.map((driver) => ({
+    driverId: driver.id,
+    totalHours: hoursByDriver.get(driver.id) ?? 0,
+  }));
 }
 
 export function formatTime(isoString: string): string {

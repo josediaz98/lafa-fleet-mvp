@@ -7,6 +7,7 @@ import {
   persistDeleteShift,
 } from '@/lib/supabase/mutations';
 import { updateVehicleStatusInMap } from '@/lib/mappers';
+import { withOptimistic } from '@/lib/actions/with-optimistic';
 
 export async function actionCheckIn(
   shift: Shift,
@@ -64,28 +65,36 @@ export async function actionCheckOut(
   },
   ctx: ActionContext,
 ) {
-  ctx.dispatch({
-    type: 'CLOSE_SHIFT',
-    payload: {
-      shiftId: params.shiftId,
-      checkOut: params.checkOut,
-      hoursWorked: params.hoursWorked,
+  // Track whether the main persist succeeded so we can do post-success vehicle update
+  let persistSucceeded = false;
+
+  await withOptimistic(ctx, {
+    optimistic: () =>
+      ctx.dispatch({
+        type: 'CLOSE_SHIFT',
+        payload: {
+          shiftId: params.shiftId,
+          checkOut: params.checkOut,
+          hoursWorked: params.hoursWorked,
+        },
+      }),
+    persist: async () => {
+      const result = await persistCheckOut(
+        params.shiftId,
+        params.checkOut,
+        params.hoursWorked,
+      );
+      if (!result.error) persistSucceeded = true;
+      return result;
     },
+    rollback: () =>
+      ctx.dispatch({ type: 'REVERT_CLOSE_SHIFT', payload: params.shiftId }),
+    successMsg: `Turno cerrado: ${params.driverName} — ${params.hoursWorked}h`,
+    errorMsg: 'Error al cerrar turno',
   });
-  const { error } = await persistCheckOut(
-    params.shiftId,
-    params.checkOut,
-    params.hoursWorked,
-  );
-  if (error) {
-    console.error('[actionCheckOut] persist failed:', error.message, {
-      shiftId: params.shiftId,
-    });
-    ctx.dispatch({ type: 'REVERT_CLOSE_SHIFT', payload: params.shiftId });
-    ctx.showToast('error', `Error al cerrar turno: ${error.message}`);
-    return;
-  }
-  if (params.vehicleId) {
+
+  // Post-success: update vehicle status (independent of the core checkout)
+  if (persistSucceeded && params.vehicleId) {
     ctx.dispatch({
       type: 'UPDATE_VEHICLE_STATUS',
       payload: { vehicleId: params.vehicleId, status: 'disponible' },
@@ -116,12 +125,7 @@ export async function actionCheckOut(
           'warning',
           'Turno cerrado, pero el status del vehículo no se pudo sincronizar. Se corregirá automáticamente.',
         );
-        return;
       }
     }
   }
-  ctx.showToast(
-    'success',
-    `Turno cerrado: ${params.driverName} — ${params.hoursWorked}h`,
-  );
 }

@@ -14,84 +14,81 @@ export interface PaginatedResult<T> {
   oldestDate: string | null;
 }
 
-export async function fetchShiftsPage(
+// ── Generic paginated fetch ──────────────────────────────────
+
+async function fetchPage<TDb, TApp>(config: {
+  table: string;
+  dateColumn: keyof TDb & string;
+  beforeDate: string;
+  limit: number;
+  mapper: (row: TDb) => TApp;
+  postProcess?: (rows: TDb[]) => TDb[];
+}): Promise<PaginatedResult<TApp>> {
+  if (!supabase) throw new Error('Supabase not configured');
+
+  const res = await supabase
+    .from(config.table)
+    .select('*')
+    .lt(config.dateColumn, config.beforeDate)
+    .order(config.dateColumn, { ascending: false })
+    .limit(config.limit + 1);
+
+  if (res.error) throw new Error(res.error.message);
+
+  const rows = (res.data ?? []) as TDb[];
+  const hasMore = rows.length > config.limit;
+  const trimmed = hasMore ? rows.slice(0, config.limit) : rows;
+  const processed = config.postProcess ? config.postProcess(trimmed) : trimmed;
+
+  return {
+    data: processed.map(config.mapper),
+    hasMore,
+    oldestDate:
+      trimmed.length > 0
+        ? String(trimmed[trimmed.length - 1][config.dateColumn])
+        : null,
+  };
+}
+
+// ── Exported per-domain functions ────────────────────────────
+
+export function fetchShiftsPage(
   beforeDate: string,
   limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<Shift>> {
-  if (!supabase) throw new Error('Supabase not configured');
-
-  const res = await supabase
-    .from('shifts')
-    .select('*')
-    .lt('check_in', beforeDate)
-    .order('check_in', { ascending: false })
-    .limit(limit + 1); // Fetch one extra to check if there's more
-
-  if (res.error) throw new Error(res.error.message);
-
-  const shifts = (res.data ?? []) as DbShift[];
-  const hasMore = shifts.length > limit;
-  const trimmed = hasMore ? shifts.slice(0, limit) : shifts;
-
-  return {
-    data: trimmed.map(mapShift),
-    hasMore,
-    oldestDate:
-      trimmed.length > 0 ? trimmed[trimmed.length - 1].check_in : null,
-  };
+  return fetchPage<DbShift, Shift>({
+    table: 'shifts',
+    dateColumn: 'check_in',
+    beforeDate,
+    limit,
+    mapper: mapShift,
+  });
 }
 
-export async function fetchTripsPage(
+export function fetchTripsPage(
   beforeDate: string,
   limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<Trip>> {
-  if (!supabase) throw new Error('Supabase not configured');
-
-  const res = await supabase
-    .from('trips')
-    .select('*')
-    .lt('date', beforeDate)
-    .order('date', { ascending: false })
-    .limit(limit + 1);
-
-  if (res.error) throw new Error(res.error.message);
-
-  const trips = (res.data ?? []) as DbTrip[];
-  const hasMore = trips.length > limit;
-  const trimmed = hasMore ? trips.slice(0, limit) : trips;
-
-  return {
-    data: trimmed.map(mapTrip),
-    hasMore,
-    oldestDate: trimmed.length > 0 ? trimmed[trimmed.length - 1].date : null,
-  };
+  return fetchPage<DbTrip, Trip>({
+    table: 'trips',
+    dateColumn: 'date',
+    beforeDate,
+    limit,
+    mapper: mapTrip,
+  });
 }
 
-export async function fetchPayrollPage(
+export function fetchPayrollPage(
   beforeDate: string,
   limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<PayrollRecord>> {
-  if (!supabase) throw new Error('Supabase not configured');
-
-  const res = await supabase
-    .from('weekly_payroll')
-    .select('*')
-    .lt('week_start', beforeDate)
-    .order('week_start', { ascending: false })
-    .limit(limit + 1);
-
-  if (res.error) throw new Error(res.error.message);
-
-  const payroll = (res.data ?? []) as DbWeeklyPayroll[];
-  const hasMore = payroll.length > limit;
-  const trimmed = hasMore ? payroll.slice(0, limit) : payroll;
-  // BUG-2 fix: Deduplicate paginated payroll too
-  const deduped = deduplicatePayroll(trimmed);
-
-  return {
-    data: deduped.map(mapPayroll),
-    hasMore,
-    oldestDate:
-      trimmed.length > 0 ? trimmed[trimmed.length - 1].week_start : null,
-  };
+  return fetchPage<DbWeeklyPayroll, PayrollRecord>({
+    table: 'weekly_payroll',
+    dateColumn: 'week_start',
+    beforeDate,
+    limit,
+    mapper: mapPayroll,
+    // BUG-2 fix: Deduplicate paginated payroll too
+    postProcess: deduplicatePayroll,
+  });
 }

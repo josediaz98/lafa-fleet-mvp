@@ -1,16 +1,14 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { Upload, CheckCircle } from 'lucide-react';
-import type { PayrollRecord } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useActionContext } from '@/lib/action-context';
-import {
-  calculateWeeklyPay,
-  exportPayrollCsv,
-} from '@/features/payroll/lib/payroll';
+import { calculateWeeklyPay } from '@/features/payroll/lib/payroll';
+import { exportPayrollCsv } from '@/features/payroll/lib/payroll-export';
 import { buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
 import { usePayrollData, usePayrollStats } from './lib/use-payroll-data';
+import { usePayrollWeek } from './lib/use-payroll-week';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import EmptyState from '@/components/ui/EmptyState';
@@ -18,8 +16,6 @@ import PayrollSummaryCards from './components/PayrollSummaryCards';
 import PayrollDetailPanel from './components/PayrollDetailPanel';
 import PayrollTable from './components/PayrollTable';
 import SlidePanel from '@/components/ui/SlidePanel';
-
-type PayrollTab = 'actual' | 'cerradas';
 
 export default function PayrollPage() {
   const {
@@ -39,17 +35,20 @@ export default function PayrollPage() {
   const { isAdmin } = useCenterFilter();
   const { confirm } = useConfirmDialog();
 
-  const [tab, setTab] = useState<PayrollTab>('actual');
-  const [selectedRow, setSelectedRow] = useState<PayrollRecord | null>(null);
+  const {
+    tab,
+    setTab,
+    selectedRow,
+    setSelectedRow,
+    selectedWeek,
+    setSelectedWeek,
+    currentClosed,
+    displayData,
+    weekOptions,
+    selectedRowTrips,
+  } = usePayrollWeek(closedWeeks, livePayroll, filterByCenter, drivers, trips);
+
   const [isClosing, setIsClosing] = useState(false);
-
-  const [selectedWeek, setSelectedWeek] = useState<string>(() => {
-    const keys = Array.from(closedWeeks.keys());
-    return keys[keys.length - 1] ?? '';
-  });
-
-  const currentClosed = filterByCenter(closedWeeks.get(selectedWeek) ?? []);
-  const displayData = tab === 'actual' ? livePayroll : currentClosed;
 
   const {
     weekSummary,
@@ -59,13 +58,6 @@ export default function PayrollPage() {
     totalBilled,
     avgPerHour,
   } = usePayrollStats(displayData);
-
-  const selectedRowTrips = useMemo(() => {
-    if (!selectedRow) return [];
-    const driver = drivers.find((d) => d.fullName === selectedRow.driverName);
-    if (!driver) return [];
-    return trips.filter((t) => t.didiDriverId === driver.didiDriverId);
-  }, [selectedRow, drivers, trips]);
 
   async function handleCloseWeek() {
     if (isCurrentWeekClosed) return;
@@ -152,8 +144,6 @@ export default function PayrollPage() {
     exportPayrollCsv(displayData, tab);
     ctx.showToast('success', 'CSV exportado.');
   }
-
-  const weekOptions = Array.from(closedWeeks.keys());
 
   return (
     <div>

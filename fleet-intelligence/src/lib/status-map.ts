@@ -4,7 +4,6 @@ export const PALETTE = {
   success: '#22C55E',
   alert: '#EAB308',
   danger: '#EF4444',
-  info: '#8B5CF6',
   purple: '#A855F7',
 } as const;
 

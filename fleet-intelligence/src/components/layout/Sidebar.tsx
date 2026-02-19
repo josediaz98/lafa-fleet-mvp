@@ -14,8 +14,7 @@ import {
 import LafaLogo from '@/components/ui/LafaLogo';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
-import { CENTERS } from '@/data/constants';
-import { getCenterName } from '@/lib/mappers';
+import { getCenterName } from '@/lib/format';
 
 interface NavItem {
   to: string;
@@ -92,9 +91,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
       .slice(0, 2)
       .toUpperCase() ?? '';
   const centerName = session?.centerId
-    ? (getCenterName(session.centerId) ??
-      CENTERS.find((c) => c.id === session.centerId)?.name ??
-      '—')
+    ? (getCenterName(session.centerId) || '—')
     : null;
 
   function handleLogout() {

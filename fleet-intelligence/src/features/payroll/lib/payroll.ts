@@ -35,6 +35,73 @@ function countWeekdays(start: Date, end: Date): number {
 }
 
 /**
+ * Prorate hours and revenue thresholds for drivers who started mid-week.
+ * Returns the (possibly prorated) thresholds based on working days remaining.
+ */
+function prorateThresholds(
+  driver: Driver,
+  weekStartDate: Date,
+  weekEndDate: Date,
+): { hoursThreshold: number; revenueThreshold: number } {
+  let hoursThreshold = OVERTIME_THRESHOLD_HOURS;
+  let revenueThreshold = GOAL_THRESHOLD;
+  const driverStartDate = new Date(driver.startDate);
+
+  // Bug D fix: Use working days (Mon-Fri = 5) instead of calendar days (7)
+  if (driverStartDate > weekStartDate && driverStartDate <= weekEndDate) {
+    const daysWorked = Math.max(
+      1,
+      countWeekdays(driverStartDate, weekEndDate),
+    );
+    const prorateFactor = Math.min(daysWorked / WORKING_DAYS_PER_WEEK, 1);
+    hoursThreshold =
+      Math.round(OVERTIME_THRESHOLD_HOURS * prorateFactor * 10) / 10;
+    revenueThreshold = Math.round(GOAL_THRESHOLD * prorateFactor);
+  }
+
+  return { hoursThreshold, revenueThreshold };
+}
+
+/**
+ * Compute productivity bonus based on revenue exceeding the threshold.
+ * Bug E fix: Uses prorated revenueThreshold instead of full GOAL_THRESHOLD.
+ */
+function computeProductivityBonus(
+  totalBilled: number,
+  revenueThreshold: number,
+  goalMet: boolean,
+): number {
+  if (!goalMet) return 0;
+  const excess = totalBilled - revenueThreshold;
+  if (excess <= 0) return 0;
+  const units = Math.floor(excess / PRODUCTIVITY_UNIT);
+  return units * PRODUCTIVITY_BONUS_PER_UNIT;
+}
+
+/**
+ * Compute overtime pay. Requires current goal met, hours above 40,
+ * AND previous week >= 40h. Capped at 8 overtime hours.
+ */
+function computeOvertimePay(
+  hoursWorked: number,
+  goalMet: boolean,
+  previousWeekHours: number,
+): number {
+  if (
+    !goalMet ||
+    hoursWorked <= OVERTIME_THRESHOLD_HOURS ||
+    previousWeekHours < OVERTIME_THRESHOLD_HOURS
+  ) {
+    return 0;
+  }
+  const otHours = Math.min(
+    hoursWorked - OVERTIME_THRESHOLD_HOURS,
+    OVERTIME_CAP_HOURS,
+  );
+  return Math.round(otHours * OVERTIME_RATE_PER_HOUR);
+}
+
+/**
  * Check if a trip falls within the payroll week.
  * Week boundary: Monday 00:00 – Sunday 20:00 CDMX.
  * Trips are assigned to the week based on their start time (horaInicio).
@@ -92,52 +159,29 @@ export function calculateWeeklyPay(
       const shiftData = shiftSummaries.find((s) => s.driverId === driver.id);
       const hoursWorked = shiftData?.totalHours ?? 0;
 
-      // Prorate thresholds for first-week drivers
-      let hoursThreshold = OVERTIME_THRESHOLD_HOURS;
-      let revenueThreshold = GOAL_THRESHOLD;
-      const driverStartDate = new Date(driver.startDate);
-
-      // Bug D fix: Use working days (Mon-Fri = 5) instead of calendar days (7)
-      if (driverStartDate > weekStartDate && driverStartDate <= weekEndDate) {
-        const daysWorked = Math.max(
-          1,
-          countWeekdays(driverStartDate, weekEndDate),
-        );
-        const prorateFactor = Math.min(daysWorked / WORKING_DAYS_PER_WEEK, 1);
-        hoursThreshold =
-          Math.round(OVERTIME_THRESHOLD_HOURS * prorateFactor * 10) / 10;
-        revenueThreshold = Math.round(GOAL_THRESHOLD * prorateFactor);
-      }
+      const { hoursThreshold, revenueThreshold } = prorateThresholds(
+        driver,
+        weekStartDate,
+        weekEndDate,
+      );
 
       // Conjunctive goal check: BOTH hours AND billing must be met
       const goalMet =
         hoursWorked >= hoursThreshold && totalBilled >= revenueThreshold;
       const baseSalary = goalMet ? BASE_SALARY : 0;
 
-      // Bug E fix: Use prorated revenueThreshold instead of full GOAL_THRESHOLD
-      let productivityBonus = 0;
-      if (goalMet) {
-        const excess = totalBilled - revenueThreshold;
-        if (excess > 0) {
-          const units = Math.floor(excess / PRODUCTIVITY_UNIT);
-          productivityBonus = units * PRODUCTIVITY_BONUS_PER_UNIT;
-        }
-      }
+      const productivityBonus = computeProductivityBonus(
+        totalBilled,
+        revenueThreshold,
+        goalMet,
+      );
 
-      // Overtime requires previous week >= 40h
-      let overtimePay = 0;
       const prevWeekHours = previousWeekHours?.get(driver.id) ?? 0;
-      if (
-        goalMet &&
-        hoursWorked > OVERTIME_THRESHOLD_HOURS &&
-        prevWeekHours >= OVERTIME_THRESHOLD_HOURS
-      ) {
-        const otHours = Math.min(
-          hoursWorked - OVERTIME_THRESHOLD_HOURS,
-          OVERTIME_CAP_HOURS,
-        );
-        overtimePay = Math.round(otHours * OVERTIME_RATE_PER_HOUR);
-      }
+      const overtimePay = computeOvertimePay(
+        hoursWorked,
+        goalMet,
+        prevWeekHours,
+      );
 
       const totalPay = goalMet
         ? baseSalary + productivityBonus + overtimePay
@@ -175,64 +219,4 @@ export function calculateWeeklyPay(
         aiExplanation: generateExplanation(record),
       };
     });
-}
-
-// L3: Add Tips column to CSV export
-export function exportPayrollCsv(
-  records: PayrollRecord[],
-  tab?: 'actual' | 'cerradas',
-): void {
-  const headers = [
-    'Conductor',
-    'Centro',
-    'Horas',
-    'Meta horas',
-    'Facturación',
-    'Meta facturación',
-    'Propinas',
-    'Meta cumplida',
-    'Salario Base',
-    'Bono',
-    'Horas extra',
-    'Apoyo',
-    'Pago Total',
-    'Status',
-  ];
-  const csvRows = [headers.join(',')];
-
-  for (const r of records) {
-    const apoyo = r.goalMet ? 0 : SUPPORT_AMOUNT;
-    const status =
-      tab === 'actual'
-        ? 'Borrador'
-        : r.status === 'cerrado'
-          ? 'Cerrado'
-          : 'Superseded';
-    csvRows.push(
-      [
-        `"${r.driverName}"`,
-        `"${r.center}"`,
-        r.hoursWorked,
-        r.hoursThreshold,
-        r.totalBilled,
-        r.revenueThreshold,
-        r.tipsTotal,
-        r.goalMet ? 'Sí' : 'No',
-        r.baseSalary,
-        r.productivityBonus,
-        r.overtimePay,
-        apoyo,
-        r.totalPay,
-        status,
-      ].join(','),
-    );
-  }
-
-  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `nomina_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
 }

@@ -13,6 +13,7 @@ import {
   actionDeactivateUser,
 } from '@/lib/actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
+import { useUserFilters } from './lib/use-user-filters';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import SlidePanel from '@/components/ui/SlidePanel';
@@ -31,18 +32,13 @@ export default function UsersPage() {
   const ctx = useActionContext();
   const { confirm } = useConfirmDialog();
 
-  const [search, setSearch] = useState('');
+  const { filtered, search, setSearch } = useUserFilters(users);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState<UserFormData>(emptyForm);
   const [formError, setFormError] = useState('');
-
-  const filtered = users.filter(
-    (u) =>
-      u.name.toLowerCase().includes(search.toLowerCase()) ||
-      u.email.toLowerCase().includes(search.toLowerCase()),
-  );
 
   function handleCreateUser(user: User) {
     actionAddUser(user, ctx, isSupabaseConfigured);
