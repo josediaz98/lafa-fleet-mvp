@@ -118,16 +118,16 @@ export default function LoginPage() {
     <div className="min-h-screen bg-lafa-bg flex items-center justify-center p-4">
       <div className="fixed top-0 left-0 right-0 h-0.5 bg-lafa-accent" />
       <div className="w-full max-w-sm animate-fade-in">
-        <div className="flex justify-center mb-10">
+        <div className="flex justify-center mb-8">
           <LafaLogo className="h-10 w-auto" />
         </div>
 
-        <div className="text-center mb-6">
+        <div className="text-center mb-5">
           <h1 className="text-lg font-semibold text-lafa-text-primary">
-            Iniciar sesión
+            Bienvenido
           </h1>
           <p className="text-sm text-lafa-text-secondary mt-1">
-            Gestión inteligente de flota
+            Accede al portal de gestión de flotas y nóminas
           </p>
         </div>
 
@@ -186,12 +186,12 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-5 text-center text-xs text-lafa-text-secondary/70">
+        <p className="mt-4 text-center text-xs text-lafa-text-secondary/70">
           ¿No tienes cuenta?{' '}
           <span className="text-lafa-text-secondary">Contacta a tu administrador.</span>
         </p>
 
-        <div className="mt-6 text-center">
+        <div className="mt-5 text-center">
           <a
             href="https://lafa-production.up.railway.app/"
             target="_blank"
