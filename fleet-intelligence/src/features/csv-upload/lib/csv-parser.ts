@@ -17,6 +17,8 @@ export interface ParsedRow {
   pickupLng?: number;
   estado: 'valido' | 'warning' | 'error';
   errorMsg?: string;
+  matchedDriverName?: string;
+  matchType?: 'exact' | 'fuzzy';
 }
 
 export function findClosestDriverId(input: number, activeDrivers: { didiDriverId: number }[]): number | null {
@@ -50,13 +52,23 @@ export function levenshtein(a: string, b: string): number {
   return dp[m][n];
 }
 
-export function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTripIds: Set<string>, activeDrivers: { didiDriverId: number }[]): ParsedRow {
-  const driverExists = activeDrivers.some(d => d.didiDriverId === row.driverId);
-  if (!driverExists) {
+export function validateRow(
+  row: ParsedRow,
+  allTripIds: Set<string>,
+  existingTripIds: Set<string>,
+  activeDrivers: { didiDriverId: number; fullName?: string }[],
+  currentWeekStart?: string,
+  currentWeekEnd?: string,
+): ParsedRow {
+  // Driver matching with match type tracking
+  const exactMatch = activeDrivers.find(d => d.didiDriverId === row.driverId);
+  if (!exactMatch) {
     const suggestion = findClosestDriverId(row.driverId, activeDrivers);
     const hint = suggestion ? ` \u00bfQuisiste decir ${suggestion}?` : '';
     return { ...row, estado: 'error', errorMsg: `Driver ID no encontrado${hint}` };
   }
+  row.matchedDriverName = exactMatch.fullName ?? `Driver ${exactMatch.didiDriverId}`;
+  row.matchType = 'exact';
 
   if (existingTripIds.has(row.tripId) || allTripIds.has(row.tripId)) {
     return { ...row, estado: 'error', errorMsg: 'Trip ID duplicado' };
@@ -90,6 +102,14 @@ export function validateRow(row: ParsedRow, allTripIds: Set<string>, existingTri
     if (row.pickupLat < CDMX_LAT_MIN || row.pickupLat > CDMX_LAT_MAX ||
         row.pickupLng < CDMX_LNG_MIN || row.pickupLng > CDMX_LNG_MAX) {
       return { ...row, estado: 'warning', errorMsg: 'Coordenadas fuera de CDMX' };
+    }
+  }
+
+  // Date range validation: warn if trip is outside current week
+  if (currentWeekStart && currentWeekEnd && parts.length === 3) {
+    const isoDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+    if (isoDate < currentWeekStart || isoDate > currentWeekEnd) {
+      return { ...row, estado: 'warning', errorMsg: `Fecha fuera de la semana actual (${currentWeekStart} a ${currentWeekEnd})` };
     }
   }
 

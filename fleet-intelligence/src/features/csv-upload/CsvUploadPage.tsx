@@ -6,6 +6,7 @@ import { MOCK_DRIVERS } from '@/data/mock-data';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { actionImportTrips } from '@/lib/actions';
+import { getWeekBounds } from '@/lib/date-utils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
 import { parseCsvText, validateRow, CSV_TEMPLATE, type ParsedRow } from './lib/csv-parser';
 
@@ -46,8 +47,9 @@ export default function CsvUploadPage() {
 
       const seenIds = new Set<string>();
       const driversForValidation = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
+      const week = getWeekBounds();
       const validated = parsed.map(row => {
-        const result = validateRow(row, seenIds, existingTripIds, driversForValidation);
+        const result = validateRow(row, seenIds, existingTripIds, driversForValidation, week.start, week.end);
         seenIds.add(row.tripId);
         return result;
       });
@@ -211,6 +213,7 @@ export default function CsvUploadPage() {
                 <thead className="sticky top-0 bg-lafa-surface z-10">
                   <tr className="border-b border-lafa-border">
                     <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Driver ID</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Conductor</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Fecha</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Trip ID</th>
                     <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Hora inicio</th>
@@ -235,6 +238,10 @@ export default function CsvUploadPage() {
                       }`}
                     >
                       <td className="px-4 py-3 text-lafa-text-primary font-mono">{row.driverId}</td>
+                      <td className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-[#EAB308]' : 'text-lafa-text-secondary'}`}>
+                        {row.matchedDriverName ?? '\u2014'}
+                        {row.matchType === 'fuzzy' && <span className="text-[10px] ml-1">(fuzzy)</span>}
+                      </td>
                       <td className="px-4 py-3 text-lafa-text-secondary">{row.fecha}</td>
                       <td className="px-4 py-3 text-lafa-text-secondary font-mono text-xs">{row.tripId}</td>
                       <td className="px-4 py-3 text-lafa-text-secondary">{row.horaInicio}</td>
@@ -274,7 +281,7 @@ export default function CsvUploadPage() {
           </div>
           <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">{'Importaci\u00f3n completada'}</h2>
           <div className="bg-lafa-accent/10 border border-lafa-accent/20 rounded-xl p-3 mb-4 text-sm text-lafa-text-primary text-center max-w-lg">
-            {importableCount} viajes cargados para {uniqueDrivers} conductores. {formatMXN(totalBilling)} facturados.
+            {importableCount} viajes importados, mapeados a {uniqueDrivers} conductores. {formatMXN(totalBilling)} facturados.
             {warningCount > 0 ? ` ${warningCount} advertencia${warningCount !== 1 ? 's' : ''}.` : ''}
             {errorCount > 0 ? ` ${errorCount} registro${errorCount !== 1 ? 's' : ''} con error descartado${errorCount !== 1 ? 's' : ''}.` : ''}
           </div>

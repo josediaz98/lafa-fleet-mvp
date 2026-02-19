@@ -161,7 +161,12 @@ export async function actionClosePayroll(
   weekLabel: string,
   dispatch: AppDispatch,
   showToast: ShowToast,
+  role?: string,
 ) {
+  if (role && role !== 'admin') {
+    showToast('error', 'Solo administradores pueden cerrar la semana.');
+    return;
+  }
   dispatch({ type: 'CLOSE_PAYROLL_WEEK', payload: records });
   const { error } = await persistClosePayroll(records, closedById);
   if (error) { showToast('error', `Error al cerrar semana: ${error.message}`); return; }
@@ -176,7 +181,12 @@ export async function actionRerunPayroll(
   version: number,
   dispatch: AppDispatch,
   showToast: ShowToast,
+  role?: string,
 ) {
+  if (role && role !== 'admin') {
+    showToast('error', 'Solo administradores pueden re-ejecutar la n\u00f3mina.');
+    return;
+  }
   dispatch({ type: 'RERUN_PAYROLL_CLOSE', payload: { weekLabel, newRecords } });
   const { error } = await persistRerunPayroll(weekStart, newRecords, closedById);
   if (error) { showToast('error', `Error al re-ejecutar nómina: ${error.message}`); return; }

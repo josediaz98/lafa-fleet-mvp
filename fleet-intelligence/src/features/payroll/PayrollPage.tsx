@@ -115,7 +115,7 @@ export default function PayrollPage() {
     const activeDrivers = drivers.filter(d => d.status === 'activo');
     const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
     const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
-    await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast);
+    await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast, session?.role);
     setTab('cerradas');
     setSelectedWeek(week.label);
   }
@@ -136,11 +136,11 @@ export default function PayrollPage() {
     const activeDrivers = drivers.filter(d => d.status === 'activo');
     const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
     const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
-    await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast);
+    await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast, session?.role);
   }
 
   function handleExport() {
-    exportPayrollCsv(displayData);
+    exportPayrollCsv(displayData, tab);
     showToast('success', 'CSV exportado.');
   }
 
@@ -306,8 +306,14 @@ export default function PayrollPage() {
                     >
                       <td className="px-4 py-3 text-lafa-text-primary font-medium whitespace-nowrap">{row.driverName}</td>
                       <td className="px-4 py-3 text-lafa-text-secondary">{row.center}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary">{row.hoursWorked}h</td>
-                      <td className="px-4 py-3 text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalBilled)}</td>
+                      <td className="px-4 py-3 text-lafa-text-secondary" title={`Meta: ${row.hoursThreshold}h`}>
+                        {row.hoursWorked}h
+                        <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{row.hoursThreshold}h</span>
+                      </td>
+                      <td className="px-4 py-3 text-lafa-text-primary whitespace-nowrap" title={`Meta: ${formatMXN(row.revenueThreshold)}`}>
+                        {formatMXN(row.totalBilled)}
+                        <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{formatMXN(row.revenueThreshold)}</span>
+                      </td>
                       <td className="px-4 py-3 text-center">
                         {row.goalMet ? (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">{'\u00a0S\u00ed\u00a0'}</span>

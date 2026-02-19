@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { calculateWeeklyPay } from '@/features/payroll/lib/payroll';
+import { calculateWeeklyPay, isTripInWeek } from '@/features/payroll/lib/payroll';
 import type { Driver, Trip } from '@/types';
 
 // ---- Helpers ----
@@ -305,6 +305,188 @@ describe('calculateWeeklyPay', () => {
       const r = runPayroll({ hours: 30, revenue: 3000 });
       expect(r.aiExplanation).toBeDefined();
       expect(r.aiExplanation).toContain('apoyo econ');
+    });
+  });
+
+  describe('Edge Case 17: tip exclusion from billing', () => {
+    it('trip with $400 cost + $100 tip → only $400 counts toward billing', () => {
+      // The Trip type has `costo` (cost) and `propina` (tip) as separate fields.
+      // calculateWeeklyPay sums t.costo, NOT t.costo + t.propina.
+      const driver = makeDriver();
+      const trips: Trip[] = [];
+      // Create trips totaling $6,000 in costo but with tips added
+      for (let i = 0; i < 5; i++) {
+        const date = new Date(2026, 1, 16 + i);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        trips.push({
+          id: `t-${i}`,
+          driverId: driver.didiDriverId,
+          fecha: `${dd}/${mm}/${date.getFullYear()}`,
+          tripId: `trip-${i}`,
+          horaInicio: '06:00',
+          horaFin: '17:00',
+          costo: 1200,
+          propina: 100,
+        });
+      }
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(6000); // tips NOT included
+      expect(results[0].goalMet).toBe(true);
+    });
+  });
+
+  describe('Edge Case 2b: $5,999.99 precision', () => {
+    it('revenue $5,999.99 → goal NOT met', () => {
+      const driver = makeDriver();
+      // Use 5 trips of $1199.998 each → total = 5999.99
+      const trips: Trip[] = [];
+      for (let i = 0; i < 5; i++) {
+        const date = new Date(2026, 1, 16 + i);
+        const dd = String(date.getDate()).padStart(2, '0');
+        const mm = String(date.getMonth() + 1).padStart(2, '0');
+        trips.push({
+          id: `t-${i}`,
+          driverId: driver.didiDriverId,
+          fecha: `${dd}/${mm}/${date.getFullYear()}`,
+          tripId: `trip-${i}`,
+          horaInicio: '06:00',
+          horaFin: '17:00',
+          costo: i < 4 ? 1200 : 1199.99,
+          propina: 0,
+        });
+      }
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBeCloseTo(5999.99, 2);
+      expect(results[0].goalMet).toBe(false);
+      expect(results[0].totalPay).toBe(1000);
+    });
+  });
+
+  describe('Edge Case 15: Sunday 20:00 cutoff', () => {
+    it('trip starting Sunday at 19:50 → counts this week', () => {
+      const driver = makeDriver();
+      // Sunday is 2026-02-22 (weekEnd)
+      const trips: Trip[] = [{
+        id: 't-sun-1950',
+        driverId: driver.didiDriverId,
+        fecha: '22/02/2026',
+        tripId: 'trip-sun-1950',
+        horaInicio: '19:50',
+        horaFin: '20:30',
+        costo: 6000,
+        propina: 0,
+      }];
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(6000);
+      expect(results[0].goalMet).toBe(true);
+    });
+
+    it('trip starting Sunday at 20:10 → does NOT count this week', () => {
+      const driver = makeDriver();
+      const trips: Trip[] = [{
+        id: 't-sun-2010',
+        driverId: driver.didiDriverId,
+        fecha: '22/02/2026',
+        tripId: 'trip-sun-2010',
+        horaInicio: '20:10',
+        horaFin: '21:00',
+        costo: 6000,
+        propina: 0,
+      }];
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(0);
+      expect(results[0].goalMet).toBe(false);
+      expect(results[0].totalPay).toBe(1000);
+    });
+
+    it('trip starting Sunday at exactly 20:00 → does NOT count', () => {
+      const driver = makeDriver();
+      const trips: Trip[] = [{
+        id: 't-sun-2000',
+        driverId: driver.didiDriverId,
+        fecha: '22/02/2026',
+        tripId: 'trip-sun-2000',
+        horaInicio: '20:00',
+        horaFin: '20:45',
+        costo: 6000,
+        propina: 0,
+      }];
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(0);
+      expect(results[0].goalMet).toBe(false);
+    });
+  });
+
+  describe('Edge Case 14: overnight trip assignment', () => {
+    it('trip 23:50→00:35 assigned based on start date (fecha)', () => {
+      const driver = makeDriver();
+      // Trip on Saturday night crossing into Sunday — should count (within week)
+      const trips: Trip[] = [{
+        id: 't-overnight',
+        driverId: driver.didiDriverId,
+        fecha: '21/02/2026', // Saturday (within week)
+        tripId: 'trip-overnight',
+        horaInicio: '23:50',
+        horaFin: '00:35',
+        costo: 6000,
+        propina: 0,
+      }];
+      const shiftSummaries = [makeShiftSummary(driver.id, 40)];
+      const results = calculateWeeklyPay(
+        [driver], trips, shiftSummaries,
+        WEEK_LABEL, WEEK_START, WEEK_END,
+        'Admin', 1, new Map(), CENTERS,
+      );
+      expect(results[0].totalBilled).toBe(6000);
+      expect(results[0].goalMet).toBe(true);
+    });
+  });
+
+  describe('isTripInWeek helper', () => {
+    it('weekday trip within bounds → true', () => {
+      const trip: Trip = { id: 't1', driverId: 1, fecha: '18/02/2026', tripId: 'x', horaInicio: '10:00', horaFin: '11:00', costo: 100, propina: 0 };
+      expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(true);
+    });
+
+    it('trip before week start → false', () => {
+      const trip: Trip = { id: 't1', driverId: 1, fecha: '15/02/2026', tripId: 'x', horaInicio: '10:00', horaFin: '11:00', costo: 100, propina: 0 };
+      expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(false);
+    });
+
+    it('Sunday trip before 20:00 → true', () => {
+      const trip: Trip = { id: 't1', driverId: 1, fecha: '22/02/2026', tripId: 'x', horaInicio: '19:59', horaFin: '20:30', costo: 100, propina: 0 };
+      expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(true);
+    });
+
+    it('Sunday trip at 20:00 → false', () => {
+      const trip: Trip = { id: 't1', driverId: 1, fecha: '22/02/2026', tripId: 'x', horaInicio: '20:00', horaFin: '20:30', costo: 100, propina: 0 };
+      expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(false);
     });
   });
 });

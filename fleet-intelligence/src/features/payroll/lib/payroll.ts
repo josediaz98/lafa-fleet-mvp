@@ -33,6 +33,27 @@ function countWeekdays(start: Date, end: Date): number {
   return count;
 }
 
+/**
+ * Check if a trip falls within the payroll week.
+ * Week boundary: Monday 00:00 – Sunday 20:00 CDMX.
+ * Trips are assigned to the week based on their start time (horaInicio).
+ * A Sunday trip starting at or after 20:00 falls outside the week.
+ */
+export function isTripInWeek(t: Trip, weekStart: string, weekEnd: string): boolean {
+  const tripDate = parseFechaToISO(t.fecha);
+  if (tripDate < weekStart || tripDate > weekEnd) return false;
+
+  // On the last day of the week (Sunday = weekEnd), enforce 20:00 cutoff
+  if (tripDate === weekEnd && t.horaInicio) {
+    const [h, m] = t.horaInicio.split(':').map(Number);
+    const startMinutes = h * 60 + (m || 0);
+    // 20:00 = 1200 minutes from midnight
+    if (startMinutes >= 1200) return false;
+  }
+
+  return true;
+}
+
 export function calculateWeeklyPay(
   drivers: Driver[],
   trips: Trip[],
@@ -51,11 +72,10 @@ export function calculateWeeklyPay(
   return drivers
     .filter(d => d.status === 'activo')
     .map(driver => {
-      // Bug A fix: Filter trips by week bounds
+      // Filter trips by week bounds with Sunday 20:00 cutoff
       const driverTrips = trips.filter(t => {
         if (t.driverId !== driver.didiDriverId) return false;
-        const tripDate = parseFechaToISO(t.fecha);
-        return tripDate >= weekStart && tripDate <= weekEnd;
+        return isTripInWeek(t, weekStart, weekEnd);
       });
       const totalBilled = driverTrips.reduce((sum, t) => sum + t.costo, 0);
       const shiftData = shiftSummaries.find(s => s.driverId === driver.id);
@@ -130,21 +150,30 @@ export function calculateWeeklyPay(
     });
 }
 
-export function exportPayrollCsv(records: PayrollRecord[]): void {
-  const headers = ['Conductor', 'Centro', 'Horas', 'Facturación', 'Meta', 'Salario Base', 'Bono', 'Horas extra', 'Pago Total'];
+export function exportPayrollCsv(records: PayrollRecord[], tab?: 'actual' | 'cerradas'): void {
+  const headers = [
+    'Conductor', 'Centro', 'Horas', 'Meta horas', 'Facturación', 'Meta facturación',
+    'Meta cumplida', 'Salario Base', 'Bono', 'Horas extra', 'Apoyo', 'Pago Total', 'Status',
+  ];
   const csvRows = [headers.join(',')];
 
   for (const r of records) {
+    const apoyo = r.goalMet ? 0 : SUPPORT_AMOUNT;
+    const status = tab === 'actual' ? 'Borrador' : (r.status === 'cerrado' ? 'Cerrado' : 'Superseded');
     csvRows.push([
-      r.driverName,
-      r.center,
+      `"${r.driverName}"`,
+      `"${r.center}"`,
       r.hoursWorked,
+      r.hoursThreshold,
       r.totalBilled,
+      r.revenueThreshold,
       r.goalMet ? 'Sí' : 'No',
       r.baseSalary,
       r.productivityBonus,
       r.overtimePay,
+      apoyo,
       r.totalPay,
+      status,
     ].join(','));
   }
 
