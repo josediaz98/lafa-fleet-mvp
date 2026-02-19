@@ -93,7 +93,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
           <Select
             value={form.role}
-            onChange={e => { setForm({ ...form, role: e.target.value }); setFormError(''); }}
+            onChange={e => { setForm({ ...form, role: e.target.value as 'admin' | 'supervisor' }); setFormError(''); }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
             <option value="admin">Admin</option>

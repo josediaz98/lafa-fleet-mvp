@@ -70,7 +70,7 @@ export function addToProfilesMap(user: User) {
     id: user.id,
     name: user.name,
     email: user.email,
-    role: user.role as 'admin' | 'supervisor',
+    role: user.role,
     center_id: user.centerId,
     status: user.status,
     created_at: new Date().toISOString(),

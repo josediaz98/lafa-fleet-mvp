@@ -5,6 +5,7 @@ export type VehicleStatus = 'disponible' | 'en_turno' | 'cargando' | 'mantenimie
 export type ShiftStatus = 'en_turno' | 'completado' | 'pendiente_revision';
 export type UserStatus = 'activo' | 'inactivo' | 'invitado';
 export type PayrollStatus = 'borrador' | 'cerrado' | 'superseded';
+export type UserRole = 'admin' | 'supervisor';
 
 // ---- Domain Types ----
 
@@ -51,7 +52,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: string;
+  role: UserRole;
   centerId: string | null;
   status: UserStatus;
   password?: string;
@@ -97,7 +98,7 @@ export interface PayrollRecord {
 export interface Session {
   userId: string;
   name: string;
-  role: string;
+  role: UserRole;
   centerId: string | null;
 }
 

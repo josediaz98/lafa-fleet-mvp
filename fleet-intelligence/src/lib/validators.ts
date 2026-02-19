@@ -66,7 +66,7 @@ export function isLafaEmail(email: string): boolean {
 export interface UserFormData {
   name: string;
   email: string;
-  role: string;
+  role: 'admin' | 'supervisor';
   centerId: string;
 }
 

@@ -76,14 +76,14 @@ export default function PayrollPage() {
 
   const displayData = tab === 'actual' ? livePayroll : currentClosed;
 
-  const sorted = [...displayData].sort((a, b) => {
+  const sorted = useMemo(() => [...displayData].sort((a, b) => {
     const aVal = a[sortKey];
     const bVal = b[sortKey];
     if (typeof aVal === 'string' && typeof bVal === 'string') {
       return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
     }
     return sortAsc ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
-  });
+  }), [displayData, sortKey, sortAsc]);
 
   const weekSummary = useMemo(() => generateWeekSummary(displayData), [displayData]);
   const totalNomina = weekSummary.totalPayroll;

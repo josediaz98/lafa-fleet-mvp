@@ -4,6 +4,7 @@ export type {
   ShiftStatus,
   UserStatus,
   PayrollStatus,
+  UserRole,
   Center,
   Driver,
   Vehicle,

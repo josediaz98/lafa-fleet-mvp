@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase/client';
 import { useAppDispatch } from '@/app/providers/AppProvider';
 import { useToast } from '@/app/providers/ToastProvider';
 import { fetchAllData } from '@/lib/supabase/queries';
+import type { UserRole } from '@/types';
 
 export default function AcceptInvitePage() {
   const navigate = useNavigate();
@@ -104,7 +105,7 @@ export default function AcceptInvitePage() {
     if (profile) {
       const session = {
         userId: profile.id, name: profile.name,
-        role: profile.role, centerId: profile.center_id,
+        role: profile.role as UserRole, centerId: profile.center_id,
       };
       localStorage.setItem('lafa_session', JSON.stringify(session));
       dispatch({ type: 'LOGIN', payload: session });
