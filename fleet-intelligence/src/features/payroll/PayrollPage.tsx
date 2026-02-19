@@ -31,6 +31,7 @@ export default function PayrollPage() {
   const [sortKey, setSortKey] = useState<SortKey>('driverName');
   const [sortAsc, setSortAsc] = useState(true);
   const [selectedRow, setSelectedRow] = useState<PayrollRecord | null>(null);
+  const [isClosing, setIsClosing] = useState(false);
 
   const week = getWeekBounds();
 
@@ -113,12 +114,17 @@ export default function PayrollPage() {
     });
     if (!ok) return;
 
-    const activeDrivers = filterByCenter(drivers).filter(d => d.status === 'activo');
-    const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
-    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
-    await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast, session?.role);
-    setTab('cerradas');
-    setSelectedWeek(week.label);
+    setIsClosing(true);
+    try {
+      const activeDrivers = filterByCenter(drivers).filter(d => d.status === 'activo');
+      const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
+      const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
+      await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast, session?.role);
+      setTab('cerradas');
+      setSelectedWeek(week.label);
+    } finally {
+      setIsClosing(false);
+    }
   }
 
   async function handleRerun() {
@@ -130,14 +136,19 @@ export default function PayrollPage() {
     });
     if (!ok) return;
 
-    const closedForWeek = closedPayroll.filter(p => p.weekLabel === selectedWeek && p.status === 'cerrado');
-    const latestVersion = Math.max(...closedForWeek.map(p => p.version ?? 1), 0);
-    const rerunWeekStart = closedForWeek[0]?.weekStart ?? week.start;
-    const rerunWeekEnd = closedForWeek[0]?.weekEnd ?? week.end;
-    const activeDrivers = drivers.filter(d => d.status === 'activo');
-    const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
-    const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
-    await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast, session?.role);
+    setIsClosing(true);
+    try {
+      const closedForWeek = closedPayroll.filter(p => p.weekLabel === selectedWeek && p.status === 'cerrado');
+      const latestVersion = Math.max(...closedForWeek.map(p => p.version ?? 1), 0);
+      const rerunWeekStart = closedForWeek[0]?.weekStart ?? week.start;
+      const rerunWeekEnd = closedForWeek[0]?.weekEnd ?? week.end;
+      const activeDrivers = drivers.filter(d => d.status === 'activo');
+      const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
+      const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
+      await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast, session?.role);
+    } finally {
+      setIsClosing(false);
+    }
   }
 
   function handleExport() {
@@ -167,17 +178,19 @@ export default function PayrollPage() {
           {tab === 'actual' && isAdmin && (
             <button
               onClick={handleCloseWeek}
+              disabled={isClosing}
               className="px-4 py-2 text-sm font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Cerrar semana
+              {isClosing ? 'Cerrando...' : 'Cerrar semana'}
             </button>
           )}
           {tab === 'cerradas' && isAdmin && currentClosed.length > 0 && (
             <button
               onClick={handleRerun}
-              className="px-4 py-2 text-sm font-medium text-status-alert border border-status-alert/30 rounded hover:bg-status-alert/10 transition-colors duration-150"
+              disabled={isClosing}
+              className="px-4 py-2 text-sm font-medium text-status-alert border border-status-alert/30 rounded hover:bg-status-alert/10 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Re-ejecutar cierre
+              {isClosing ? 'Re-ejecutando...' : 'Re-ejecutar cierre'}
             </button>
           )}
           <button

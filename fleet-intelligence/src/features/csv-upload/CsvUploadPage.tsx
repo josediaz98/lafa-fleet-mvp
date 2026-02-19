@@ -28,6 +28,7 @@ export default function CsvUploadPage() {
   const [showOnlyErrors, setShowOnlyErrors] = useState(false);
   const [dragging, setDragging] = useState(false);
   const [historyKey, setHistoryKey] = useState(0);
+  const [isImporting, setIsImporting] = useState(false);
 
   const existingTripIds = new Set(trips.map(t => t.tripId));
 
@@ -88,6 +89,7 @@ export default function CsvUploadPage() {
   }
 
   async function handleImport() {
+    setIsImporting(true);
     const validRows = rows.filter(r => r.estado !== 'error');
     const newTrips: Trip[] = validRows.map(r => ({
       id: `t-${r.tripId}`,
@@ -110,6 +112,8 @@ export default function CsvUploadPage() {
       setActiveStep(3);
     } catch {
       showToast('error', 'Error al importar viajes. Intenta de nuevo.');
+    } finally {
+      setIsImporting(false);
     }
     setHistoryKey(k => k + 1);
   }
@@ -293,10 +297,10 @@ export default function CsvUploadPage() {
             </button>
             <button
               onClick={handleImport}
-              disabled={importableCount === 0}
+              disabled={importableCount === 0 || isImporting}
               className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Importar {importableCount} viajes &rarr;
+              {isImporting ? 'Importando...' : <>Importar {importableCount} viajes &rarr;</>}
             </button>
           </div>
         </>

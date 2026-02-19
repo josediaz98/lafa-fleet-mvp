@@ -25,6 +25,7 @@ export default function ShiftsPage() {
   const [tab, setTab] = useState<ShiftTab>('activos');
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
+  const [closingShiftId, setClosingShiftId] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -80,7 +81,7 @@ export default function ShiftsPage() {
     { key: 'pendientes', label: 'Pendientes de revisión', count: pendingShifts.length },
   ];
 
-  function handleCheckIn(driverId: string, vehicleId: string) {
+  async function handleCheckIn(driverId: string, vehicleId: string) {
     const driver = drivers.find(d => d.id === driverId);
     const vehicle = vehicles.find(v => v.id === vehicleId);
     if (!driver || !vehicle) return;
@@ -99,7 +100,7 @@ export default function ShiftsPage() {
       status: 'en_turno',
     };
 
-    actionCheckIn(newShift, vehicle.id, session?.userId ?? '', dispatch, showToast);
+    await actionCheckIn(newShift, vehicle.id, session?.userId ?? '', dispatch, showToast);
   }
 
   async function handleCheckOut(shiftId: string) {
@@ -117,12 +118,17 @@ export default function ShiftsPage() {
       if (!ok) return;
     }
 
-    const checkOutTime = new Date().toISOString();
-    await actionCheckOut(
-      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
-      dispatch,
-      showToast,
-    );
+    setClosingShiftId(shiftId);
+    try {
+      const checkOutTime = new Date().toISOString();
+      await actionCheckOut(
+        { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+        dispatch,
+        showToast,
+      );
+    } finally {
+      setClosingShiftId(null);
+    }
   }
 
   return (
@@ -178,7 +184,7 @@ export default function ShiftsPage() {
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
             <div className="divide-y divide-lafa-border/50">
               {activeShifts.map(shift => (
-                <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
+                <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} disabled={closingShiftId === shift.id} />
               ))}
             </div>
             <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
@@ -210,7 +216,7 @@ export default function ShiftsPage() {
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
             <div className="divide-y divide-lafa-border/50">
               {pendingShifts.map(shift => (
-                <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
+                <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} disabled={closingShiftId === shift.id} />
               ))}
             </div>
             <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">

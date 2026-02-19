@@ -13,9 +13,10 @@ interface ShiftRowProps {
   };
   variant: 'active' | 'alert';
   onClose?: (shiftId: string) => void;
+  disabled?: boolean;
 }
 
-export default function ShiftRow({ shift, variant, onClose }: ShiftRowProps) {
+export default function ShiftRow({ shift, variant, onClose, disabled }: ShiftRowProps) {
   const isOvertime = Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
   const showWarning = variant === 'alert' || isOvertime;
 
@@ -58,9 +59,10 @@ export default function ShiftRow({ shift, variant, onClose }: ShiftRowProps) {
       {onClose && (
         <button
           onClick={() => onClose(shift.id)}
-          className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150 shrink-0"
+          disabled={disabled}
+          className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          Cerrar
+          {disabled ? 'Cerrando...' : 'Cerrar'}
         </button>
       )}
 

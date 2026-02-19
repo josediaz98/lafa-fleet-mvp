@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, CheckCircle2 } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import LafaLogo from '@/components/ui/LafaLogo';
 import { supabase } from '@/lib/supabase/client';
 import { useAppDispatch } from '@/app/providers/AppProvider';
@@ -18,6 +18,7 @@ export default function AcceptInvitePage() {
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState('');
+  const [expired, setExpired] = useState(false);
 
   useEffect(() => {
     if (!supabase) {
@@ -25,8 +26,11 @@ export default function AcceptInvitePage() {
       return;
     }
 
+    let handled = false;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
+      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+        handled = true;
         // Fetch profile to confirm invite status and get name
         const { data: profile } = await supabase!.from('profiles')
           .select('name, status')
@@ -43,7 +47,14 @@ export default function AcceptInvitePage() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    const timer = setTimeout(() => {
+      if (!handled) setExpired(true);
+    }, 8000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timer);
+    };
   }, [navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -110,8 +121,33 @@ export default function AcceptInvitePage() {
           <div className="flex justify-center mb-10">
             <LafaLogo className="h-10 w-auto" />
           </div>
-          <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
-          <p className="text-sm text-lafa-text-secondary">Verificando invitación...</p>
+          {expired ? (
+            <div className="space-y-4">
+              <div className="flex justify-center">
+                <div className="w-12 h-12 rounded-full bg-status-danger/10 flex items-center justify-center">
+                  <AlertCircle className="w-6 h-6 text-status-danger" />
+                </div>
+              </div>
+              <h1 className="text-lg font-semibold text-lafa-text-primary">
+                Enlace no válido
+              </h1>
+              <p className="text-sm text-lafa-text-secondary">
+                El enlace de invitación ha expirado o ya fue utilizado.
+                Solicita una nueva invitación a tu administrador.
+              </p>
+              <Link
+                to="/login"
+                className="inline-block mt-2 px-6 py-2.5 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-semibold rounded-lg text-sm transition-all duration-200"
+              >
+                Ir al inicio de sesión
+              </Link>
+            </div>
+          ) : (
+            <>
+              <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
+              <p className="text-sm text-lafa-text-secondary">Verificando invitación...</p>
+            </>
+          )}
         </div>
       </div>
     );

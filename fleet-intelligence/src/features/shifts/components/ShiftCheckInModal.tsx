@@ -12,19 +12,21 @@ interface ShiftCheckInModalProps {
   drivers: Driver[];
   vehicles: Vehicle[];
   shifts: { driverId: string; status: string; checkIn: string }[];
-  onCheckIn: (driverId: string, vehicleId: string) => void;
+  onCheckIn: (driverId: string, vehicleId: string) => Promise<void> | void;
 }
 
 export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, shifts, onCheckIn }: ShiftCheckInModalProps) {
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [formError, setFormError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (open) {
       setSelectedDriverId('');
       setSelectedVehicleId('');
       setFormError('');
+      setIsSubmitting(false);
     }
   }, [open]);
 
@@ -60,14 +62,19 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
     return shifts.some(s => s.driverId === selectedDriver.id && s.checkIn.startsWith(today) && s.status === 'completado');
   }, [selectedDriver, shifts]);
 
-  function handleSubmit() {
+  async function handleSubmit() {
     setFormError('');
     if (!selectedDriverId || !selectedVehicleId) {
       setFormError('Selecciona conductor y vehículo.');
       return;
     }
-    onCheckIn(selectedDriverId, selectedVehicleId);
-    onClose();
+    setIsSubmitting(true);
+    try {
+      await onCheckIn(selectedDriverId, selectedVehicleId);
+      onClose();
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -141,9 +148,10 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           </button>
           <button
             onClick={handleSubmit}
+            disabled={isSubmitting}
             className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Registrar check-in
+            {isSubmitting ? 'Registrando...' : 'Registrar check-in'}
           </button>
         </div>
       </div>
