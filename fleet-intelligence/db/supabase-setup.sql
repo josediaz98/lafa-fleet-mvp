@@ -33,7 +33,7 @@ CREATE TABLE profiles (
   email      TEXT NOT NULL UNIQUE,
   role       TEXT NOT NULL CHECK (role IN ('admin', 'supervisor')),
   center_id  UUID REFERENCES centers(id),
-  status     TEXT NOT NULL DEFAULT 'activo' CHECK (status IN ('activo', 'inactivo')),
+  status     TEXT NOT NULL DEFAULT 'activo' CHECK (status IN ('activo', 'inactivo', 'invitado')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -169,6 +169,9 @@ CREATE POLICY "centers: admin full access (delete)" ON centers FOR DELETE TO aut
 CREATE POLICY "profiles: users read own" ON profiles FOR SELECT TO authenticated USING (id = auth.uid() OR get_user_role() = 'admin');
 CREATE POLICY "profiles: admin insert" ON profiles FOR INSERT TO authenticated WITH CHECK (get_user_role() = 'admin');
 CREATE POLICY "profiles: admin update" ON profiles FOR UPDATE TO authenticated USING (get_user_role() = 'admin') WITH CHECK (get_user_role() = 'admin');
+CREATE POLICY "profiles: self-activate on invite" ON profiles FOR UPDATE TO authenticated
+  USING (id = auth.uid() AND status = 'invitado')
+  WITH CHECK (id = auth.uid() AND status = 'activo');
 CREATE POLICY "profiles: admin delete" ON profiles FOR DELETE TO authenticated USING (get_user_role() = 'admin');
 
 -- Drivers policies
@@ -258,7 +261,7 @@ INSERT INTO drivers (id, full_name, didi_driver_id, center_id, default_shift, st
   ('00000000-0000-0000-0000-0000000d0014', 'Óscar Navarro',    114971, '00000000-0000-0000-0000-00000000c001', 'nocturno', '2025-11-20', 'activo'),
   ('00000000-0000-0000-0000-0000000d0015', 'Eduardo Ríos',     114972, '00000000-0000-0000-0000-00000000c001', 'diurno',   '2025-12-15', 'activo'),
   ('00000000-0000-0000-0000-0000000d0016', 'Daniel Ortiz',     114973, '00000000-0000-0000-0000-00000000c001', 'nocturno', '2026-01-15', 'activo'),
-  ('00000000-0000-0000-0000-0000000d0017', 'Sergio Guzmán',    114974, '00000000-0000-0000-0000-00000000c001', 'diurno',   '2026-02-10', 'activo');
+  ('00000000-0000-0000-0000-0000000d0017', 'Sergio Guzmán',    114974, '00000000-0000-0000-0000-00000000c001', 'diurno',   '2026-02-18', 'activo');
 
 -- Granada (c2)
 INSERT INTO drivers (id, full_name, didi_driver_id, center_id, default_shift, start_date, status) VALUES
@@ -271,7 +274,7 @@ INSERT INTO drivers (id, full_name, didi_driver_id, center_id, default_shift, st
   ('00000000-0000-0000-0000-0000000d0020', 'Iván Contreras',    114977, '00000000-0000-0000-0000-00000000c002', 'nocturno', '2025-12-08', 'activo'),
   ('00000000-0000-0000-0000-0000000d0021', 'Pablo Herrera',     114978, '00000000-0000-0000-0000-00000000c002', 'diurno',   '2026-01-12', 'activo'),
   ('00000000-0000-0000-0000-0000000d0022', 'Gustavo Salazar',   114979, '00000000-0000-0000-0000-00000000c002', 'nocturno', '2026-01-28', 'activo'),
-  ('00000000-0000-0000-0000-0000000d0023', 'Enrique Medina',    114980, '00000000-0000-0000-0000-00000000c002', 'diurno',   '2026-02-14', 'activo');
+  ('00000000-0000-0000-0000-0000000d0023', 'Enrique Medina',    114980, '00000000-0000-0000-0000-00000000c002', 'diurno',   '2026-02-12', 'activo');
 
 -- Roma (c3)
 INSERT INTO drivers (id, full_name, didi_driver_id, center_id, default_shift, start_date, status) VALUES

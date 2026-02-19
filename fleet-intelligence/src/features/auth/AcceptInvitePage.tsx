@@ -72,9 +72,15 @@ export default function AcceptInvitePage() {
     // Activate profile (uses RLS self-activate policy)
     const { data: { user } } = await supabase!.auth.getUser();
     if (user) {
-      await supabase!.from('profiles')
+      const { error: activateError } = await supabase!.from('profiles')
         .update({ status: 'activo' })
         .eq('id', user.id);
+
+      if (activateError) {
+        setLoading(false);
+        setError('No se pudo activar la cuenta. Contacta a un administrador.');
+        return;
+      }
     }
 
     setLoading(false);
