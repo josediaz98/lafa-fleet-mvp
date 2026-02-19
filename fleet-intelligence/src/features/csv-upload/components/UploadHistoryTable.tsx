@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FileSpreadsheet, RefreshCw } from 'lucide-react';
+import { FileSpreadsheet, History, RefreshCw } from 'lucide-react';
 import {
   fetchUploadHistory,
   type CsvUploadRecord,
@@ -58,17 +58,27 @@ export default function UploadHistoryTable({
   // Mock mode — Supabase not configured
   if (!isSupabaseConfigured) {
     return (
-      <EmptyState
-        icon={FileSpreadsheet}
-        title="Sin historial"
-        description="El historial de cargas se muestra al usar Supabase."
-      />
+      <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-lafa-border flex items-center gap-2">
+          <History size={16} className="text-lafa-text-secondary" />
+          <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
+        </div>
+        <EmptyState
+          icon={FileSpreadsheet}
+          title="Sin historial"
+          description="El historial de cargas se muestra al usar Supabase."
+        />
+      </div>
     );
   }
 
   if (state.kind === 'loading') {
     return (
       <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-lafa-border flex items-center gap-2">
+          <History size={16} className="text-lafa-text-secondary" />
+          <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
+        </div>
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
@@ -100,33 +110,49 @@ export default function UploadHistoryTable({
 
   if (state.kind === 'error') {
     return (
-      <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 text-center">
-        <p className="text-sm text-status-danger mb-2">
-          Error al cargar historial
-        </p>
-        <p className="text-xs text-lafa-text-secondary mb-3">{state.message}</p>
-        <button
-          onClick={load}
-          className="inline-flex items-center gap-1.5 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150"
-        >
-          <RefreshCw size={12} /> Reintentar
-        </button>
+      <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-lafa-border flex items-center gap-2">
+          <History size={16} className="text-lafa-text-secondary" />
+          <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
+        </div>
+        <div className="p-6 text-center">
+          <p className="text-sm text-status-danger mb-2">
+            Error al cargar historial
+          </p>
+          <p className="text-xs text-lafa-text-secondary mb-3">{state.message}</p>
+          <button
+            onClick={load}
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150"
+          >
+            <RefreshCw size={12} /> Reintentar
+          </button>
+        </div>
       </div>
     );
   }
 
   if (records.length === 0) {
     return (
-      <EmptyState
-        icon={FileSpreadsheet}
-        title="Sin cargas previas"
-        description="Importa tu primer archivo CSV arriba."
-      />
+      <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+        <div className="px-4 py-3 border-b border-lafa-border flex items-center gap-2">
+          <History size={16} className="text-lafa-text-secondary" />
+          <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
+        </div>
+        <EmptyState
+          icon={FileSpreadsheet}
+          title="Sin cargas previas"
+          description="Importa tu primer archivo CSV arriba."
+        />
+      </div>
     );
   }
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+      <div className="px-4 py-3 border-b border-lafa-border flex items-center gap-2">
+        <History size={16} className="text-lafa-text-secondary" />
+        <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
+      </div>
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-lafa-surface z-10">

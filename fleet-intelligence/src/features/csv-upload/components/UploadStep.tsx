@@ -39,7 +39,7 @@ export default function UploadStep({ fileRef, onFileSelect }: UploadStepProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center py-16">
+    <div className="flex flex-col items-center justify-center py-8">
       <div
         onClick={() => fileRef.current?.click()}
         onDragOver={(e) => {
@@ -48,14 +48,14 @@ export default function UploadStep({ fileRef, onFileSelect }: UploadStepProps) {
         }}
         onDragLeave={() => setDragging(false)}
         onDrop={handleDrop}
-        className={`w-full max-w-md border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer transition-colors duration-150 ${
+        className={`w-full max-w-lg border-2 border-dashed rounded-xl p-8 flex flex-col items-center gap-3 cursor-pointer transition-colors duration-150 ${
           dragging
             ? 'border-lafa-accent bg-lafa-accent/5'
             : 'border-lafa-border hover:border-lafa-accent/50'
         }`}
       >
-        <div className="w-14 h-14 rounded-full bg-lafa-accent/10 flex items-center justify-center">
-          <Upload size={24} className="text-lafa-accent" />
+        <div className="w-10 h-10 rounded-full bg-lafa-accent/10 flex items-center justify-center">
+          <Upload size={20} className="text-lafa-accent" />
         </div>
         <div className="text-center">
           <p className="text-sm font-medium text-lafa-text-primary mb-1">
@@ -63,7 +63,7 @@ export default function UploadStep({ fileRef, onFileSelect }: UploadStepProps) {
           </p>
           <p className="text-xs text-lafa-text-secondary">
             Formato DiDi: Driver ID, Date, Trip ID, Initial time, Final time,
-            Cost, Tip
+            Cost, Tip · Max 20 MB
           </p>
         </div>
       </div>

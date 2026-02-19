@@ -1,4 +1,4 @@
-import { Download } from 'lucide-react';
+import { Download, FileDown } from 'lucide-react';
 import {
   DEMO_TEMPLATES,
   generateCsvContent,
@@ -24,38 +24,39 @@ function downloadCsv(template: DemoTemplate) {
 
 export default function DemoTemplateCards() {
   return (
-    <div className="mt-6 w-full max-w-3xl">
-      <p className="text-xs text-lafa-text-secondary mb-3 text-center">
-        Plantillas demo con datos de la semana actual
-      </p>
+    <div className="mt-5 w-full max-w-3xl">
+      <div className="flex items-center gap-2 mb-3">
+        <FileDown size={14} className="text-lafa-text-secondary" />
+        <span className="text-xs font-medium text-lafa-text-primary">Plantillas demo</span>
+        <span className="text-xs text-lafa-text-secondary">· datos de la semana actual</span>
+      </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {DEMO_TEMPLATES.map((t) => (
           <div
             key={t.id}
-            className="bg-lafa-surface border border-lafa-border rounded-xl p-4 flex flex-col"
+            onClick={() => downloadCsv(t)}
+            className="bg-lafa-surface border border-lafa-border rounded-xl p-3 flex flex-col cursor-pointer transition-colors duration-150 hover:border-lafa-accent/40 hover:bg-lafa-accent/5"
           >
-            <div className="flex items-start justify-between mb-2">
-              <h3 className="text-sm font-semibold text-lafa-text-primary">
-                {t.title}
-              </h3>
+            <h3 className="text-sm font-semibold text-lafa-text-primary mb-1">
+              {t.title}
+            </h3>
+            <div className="flex items-center gap-1.5 mb-2">
               <span
                 className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full whitespace-nowrap ${BADGE_COLORS[t.badge.color] ?? ''}`}
               >
                 {t.badge.label}
               </span>
+              <span className="text-[10px] text-lafa-text-secondary whitespace-nowrap">
+                {t.rowCount} filas · {t.driverCount} cond.
+              </span>
             </div>
-            <p className="text-xs text-lafa-text-secondary mb-3 flex-1">
+            <p className="text-xs text-lafa-text-secondary flex-1">
               {t.description}
             </p>
-            <div className="text-[10px] text-lafa-text-secondary mb-3">
-              {t.rowCount} filas &middot; {t.driverCount} conductores
+            <div className="flex items-center gap-1.5 pt-2 mt-2 border-t border-lafa-border text-lafa-accent">
+              <Download size={13} />
+              <span className="text-xs font-medium">Descargar CSV</span>
             </div>
-            <button
-              onClick={() => downloadCsv(t)}
-              className="flex items-center justify-center gap-1.5 w-full px-3 py-2 text-xs font-medium text-lafa-accent border border-lafa-accent/30 rounded-lg hover:bg-lafa-accent/5 transition-colors duration-150"
-            >
-              <Download size={12} /> Descargar
-            </button>
           </div>
         ))}
       </div>

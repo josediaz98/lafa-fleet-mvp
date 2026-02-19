@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { CheckCircle, History } from 'lucide-react';
 import type { Trip } from '@/types';
 import { useActionContext } from '@/lib/action-context';
 import { actionImportTrips } from '@/lib/actions';
@@ -85,42 +84,36 @@ export default function CsvUploadPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-lafa-text-primary mb-6">
-        Carga CSV
-      </h1>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold text-lafa-text-primary mb-1">
+          Carga CSV
+        </h1>
+        <p className="text-sm text-lafa-text-secondary">
+          Importa viajes de DiDi para calcular la nómina semanal.
+        </p>
+      </div>
 
-      <div className="flex items-center justify-center gap-4 mb-8">
-        {STEPS.map((step, i) => (
-          <div key={step.num} className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
-                  step.num < activeStep
-                    ? 'bg-status-success text-white'
-                    : step.num === activeStep
-                      ? 'bg-lafa-accent text-white'
-                      : 'bg-lafa-border text-lafa-text-secondary'
-                }`}
-              >
-                {step.num < activeStep ? <CheckCircle size={16} /> : step.num}
-              </div>
-              <span
-                className={`text-sm font-medium ${
-                  step.num === activeStep
-                    ? 'text-lafa-text-primary'
-                    : 'text-lafa-text-secondary'
-                }`}
-              >
-                {step.label}
-              </span>
-            </div>
-            {i < STEPS.length - 1 && (
-              <div
-                className={`w-16 h-0.5 ${
-                  step.num < activeStep ? 'bg-status-success' : 'bg-lafa-border'
-                }`}
-              />
-            )}
+      <div className="flex gap-1 mb-6">
+        {STEPS.map((step) => (
+          <div key={step.num} className="flex-1">
+            <div
+              className={`h-1 rounded-full ${
+                step.num < activeStep
+                  ? 'bg-status-success'
+                  : step.num === activeStep
+                    ? 'bg-lafa-accent'
+                    : 'bg-lafa-border'
+              }`}
+            />
+            <p
+              className={`text-xs mt-1.5 text-center ${
+                step.num === activeStep
+                  ? 'text-lafa-text-primary font-medium'
+                  : 'text-lafa-text-secondary'
+              }`}
+            >
+              {step.label}
+            </p>
           </div>
         ))}
       </div>
@@ -149,11 +142,7 @@ export default function CsvUploadPage() {
         <ConfirmStep rows={parser.rows} onReset={handleReset} />
       )}
 
-      <div className="mt-10">
-        <h2 className="text-lg font-semibold text-lafa-text-primary mb-4 flex items-center gap-2">
-          <History size={20} className="text-lafa-text-secondary" />
-          Historial de cargas
-        </h2>
+      <div className="mt-8">
         <UploadHistoryTable refreshKey={historyKey} />
       </div>
     </div>
