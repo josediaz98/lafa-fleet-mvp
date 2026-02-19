@@ -10,10 +10,12 @@ import {
   LogOut,
   X,
 } from 'lucide-react';
-import StatusBadge from '@/components/ui/StatusBadge';
+
 import LafaLogo from '@/components/ui/LafaLogo';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { MOCK_CENTERS } from '@/data/mock-data';
+import { getCenterName } from '@/lib/mappers';
 
 interface NavItem {
   to: string;
@@ -75,6 +77,11 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
     }))
     .filter(group => group.items.length > 0);
   const initials = session?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '';
+  const centerName = session?.centerId
+    ? getCenterName(session.centerId)
+      ?? MOCK_CENTERS.find(c => c.id === session.centerId)?.name
+      ?? '—'
+    : null;
 
   function handleLogout() {
     if (isSupabaseConfigured && supabase) {
@@ -133,23 +140,33 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        <div className="p-4 border-t border-lafa-border">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-8 h-8 rounded-full bg-lafa-accent/20 flex items-center justify-center text-sm font-semibold text-lafa-accent">
+        <div className="p-3 border-t border-lafa-border">
+          <div className="group flex items-center gap-2.5 rounded-lg px-2 py-2 hover:bg-lafa-border/30 transition-colors cursor-default">
+            {/* Avatar — small & muted */}
+            <div className="w-6 h-6 rounded-full bg-lafa-accent/10 flex items-center justify-center text-[10px] font-semibold text-lafa-accent shrink-0">
               {initials}
             </div>
+
+            {/* Name + role */}
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-lafa-text-primary truncate">{session?.name}</p>
-              <StatusBadge status={session?.role ?? 'admin'} />
+              <p className="text-sm font-medium text-lafa-text-primary truncate">
+                {session?.name}
+              </p>
+              <p className="text-xs text-lafa-text-secondary truncate mt-0.5">
+                {session?.role === 'admin' ? 'Admin' : 'Supervisor'}
+                {centerName && <> · {centerName}</>}
+              </p>
             </div>
+
+            {/* Logout — hidden until group hover */}
+            <button
+              onClick={handleLogout}
+              title="Cerrar sesión"
+              className="p-1 rounded opacity-0 group-hover:opacity-100 hover:bg-red-500/10 text-lafa-text-secondary hover:text-red-400 transition-all shrink-0"
+            >
+              <LogOut size={14} />
+            </button>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-lafa-text-secondary hover:text-red-400 transition-colors w-full"
-          >
-            <LogOut size={16} />
-            <span>{'Cerrar sesión'}</span>
-          </button>
         </div>
       </aside>
     </>
