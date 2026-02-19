@@ -275,5 +275,3 @@ export function parseCsvText(text: string): ParsedRow[] {
     });
 }
 
-export const CSV_TEMPLATE =
-  'Driver ID,Date,Trip ID,Initial time,Final time,Cost,Tip,Initial coordinates,Final coordinates\n114958,16/02/2026,abc123,6:32:00,7:18:00,$195.50,0,"19.4890,-99.1480","19.4170,-99.1620"\n114959,16/02/2026,def456,7:40:00,8:35:00,$228.60,30,"19.4400,-99.1870","19.4890,-99.1480"';

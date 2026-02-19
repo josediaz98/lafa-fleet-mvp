@@ -1,5 +1,8 @@
 import type { Driver, Vehicle, User } from '@/types';
 
+export { DEV_SHIFTS } from './dev-seed-shifts';
+export { DEV_CLOSED_PAYROLL } from './dev-seed-payroll';
+
 export const DEV_DRIVERS: Driver[] = [
   // Vallejo (c1)
   {

@@ -6,10 +6,24 @@ import {
   type ReactNode,
   type Dispatch,
 } from 'react';
-import { DEV_DRIVERS, DEV_VEHICLES, DEV_ADMIN } from '@/data/dev-seed';
+import {
+  DEV_DRIVERS,
+  DEV_VEHICLES,
+  DEV_ADMIN,
+  DEV_SHIFTS,
+  DEV_CLOSED_PAYROLL,
+} from '@/data/dev-seed';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { fetchAllData } from '@/lib/supabase/queries';
-import type { Driver, Vehicle, User, AppState, Action } from '@/types';
+import type {
+  Driver,
+  Vehicle,
+  User,
+  Shift,
+  PayrollRecord,
+  AppState,
+  Action,
+} from '@/types';
 import { appReducer, initialState } from './app-reducer';
 
 // ---- Context ----
@@ -27,10 +41,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         payload: {
           drivers: DEV_DRIVERS as Driver[],
           vehicles: DEV_VEHICLES as Vehicle[],
-          shifts: [],
+          shifts: DEV_SHIFTS as Shift[],
           users: [DEV_ADMIN as User],
           trips: [],
-          closedPayroll: [],
+          closedPayroll: DEV_CLOSED_PAYROLL as PayrollRecord[],
           dataSource: 'mock' as const,
         },
       });
