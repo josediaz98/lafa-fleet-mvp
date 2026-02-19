@@ -80,6 +80,7 @@ Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --b
 - **Status values are Spanish:** `'activo'`, `'inactivo'`, `'en_turno'`, `'completado'`, etc. Must match Supabase enums.
 - **DB↔App mapping:** DB uses `snake_case`, app uses `camelCase`. All mapping in `lib/mappers.ts`.
 - See `content/hiring/technical-challenge/CLAUDE.md` for payroll logic and challenge details
+- See `fleet-intelligence/CLAUDE.md` for architecture, routing, and feature module patterns
 
 ## Content Conventions
 
