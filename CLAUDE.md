@@ -26,7 +26,7 @@ npx serve .
 cd fleet-intelligence && npm install   # first time only
 cd fleet-intelligence && npm run dev   # localhost:5173 — works without Supabase (falls back to mock data)
 cd fleet-intelligence && npm run build # production → dist/
-cd fleet-intelligence && npm run test  # vitest — payroll logic tests (run after any payroll change)
+cd fleet-intelligence && npm run test  # vitest — payroll logic only (no other features have tests yet)
 ```
 
 ## Environment Variables

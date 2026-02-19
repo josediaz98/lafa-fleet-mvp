@@ -5,7 +5,7 @@ import { CENTERS } from '@/data/constants';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { validateUserCreate, type UserFormData } from '@/lib/validators';
 import Modal from '@/components/ui/Modal';
-import Select from '@/components/ui/Select';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 interface UserCreateModalProps {
   open: boolean;
@@ -89,30 +89,24 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           />
           <p className="text-xs text-lafa-text-secondary mt-1">Email corporativo del usuario</p>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
-          <Select
-            value={form.role}
-            onChange={e => { setForm({ ...form, role: e.target.value as 'admin' | 'supervisor' }); setFormError(''); }}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-          >
-            <option value="admin">Admin</option>
-            <option value="supervisor">Supervisor</option>
-          </Select>
-        </div>
+        <SearchableSelect
+          label="Rol"
+          options={[
+            { value: 'admin', label: 'Admin' },
+            { value: 'supervisor', label: 'Supervisor' },
+          ]}
+          value={form.role}
+          onChange={v => { setForm({ ...form, role: v as 'admin' | 'supervisor' }); setFormError(''); }}
+          searchable={false}
+        />
         {form.role === 'supervisor' && (
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-            <Select
-              value={form.centerId}
-              onChange={e => { setForm({ ...form, centerId: e.target.value }); setFormError(''); }}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            >
-              {CENTERS.map(c => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </Select>
-          </div>
+          <SearchableSelect
+            label="Centro"
+            options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+            value={form.centerId}
+            onChange={v => { setForm({ ...form, centerId: v }); setFormError(''); }}
+            searchable={false}
+          />
         )}
         {formError && <p className="text-sm text-status-danger">{formError}</p>}
         <div className="flex items-center justify-end gap-3 pt-2">

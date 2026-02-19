@@ -4,7 +4,7 @@ import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { validateDriverEdit } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
-import Select from '@/components/ui/Select';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 interface DriverFormState {
   fullName: string;
@@ -73,29 +73,23 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-          <Select
-            value={form.centerId}
-            onChange={e => setForm({ ...form, centerId: e.target.value })}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-          >
-            {CENTERS.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Turno default</label>
-          <Select
-            value={form.defaultShift}
-            onChange={e => setForm({ ...form, defaultShift: e.target.value })}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-          >
-            <option value="diurno">Diurno</option>
-            <option value="nocturno">Nocturno</option>
-          </Select>
-        </div>
+        <SearchableSelect
+          label="Centro"
+          options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+          value={form.centerId}
+          onChange={v => setForm({ ...form, centerId: v })}
+          searchable={false}
+        />
+        <SearchableSelect
+          label="Turno default"
+          options={[
+            { value: 'diurno', label: 'Diurno' },
+            { value: 'nocturno', label: 'Nocturno' },
+          ]}
+          value={form.defaultShift}
+          onChange={v => setForm({ ...form, defaultShift: v })}
+          searchable={false}
+        />
         {formError && <p className="text-sm text-status-danger">{formError}</p>}
         <div className="flex gap-3">
           <button

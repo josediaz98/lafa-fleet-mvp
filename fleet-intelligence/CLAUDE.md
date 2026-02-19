@@ -68,10 +68,3 @@ Page → action*() (lib/actions.ts) → supabase/{queries,mutations}.ts → Supa
 4. Add sidebar link in `components/layout/Sidebar.tsx`
 5. If it needs persistence: add `action*()` in `lib/actions.ts` + queries/mutations in `lib/supabase/`
 6. If it has business logic: add `lib/` subfolder with tests
-
-## Type Conventions
-
-- All domain types live in `types/shared.ts` — import from `@/types`
-- `AppState` holds: drivers, vehicles, shifts, users, trips, closedPayroll, session, hydrated, dataSource
-- `Action` is a discriminated union — add new variants here when extending state
-- Path alias: `@/` maps to `src/` (configured in tsconfig + vite)

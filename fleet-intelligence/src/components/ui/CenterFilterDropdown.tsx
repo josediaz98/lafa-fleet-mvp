@@ -1,6 +1,6 @@
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
-import Select from '@/components/ui/Select';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 interface CenterFilterDropdownProps {
   variant?: 'select' | 'pills';
@@ -10,10 +10,6 @@ export default function CenterFilterDropdown({ variant = 'select' }: CenterFilte
   const { isAdmin, effectiveCenterId, setCenterFilter } = useCenterFilter();
 
   if (!isAdmin) return null;
-
-  const selectedCenterName = effectiveCenterId
-    ? CENTERS.find(c => c.id === effectiveCenterId)?.name ?? 'Todos'
-    : 'Todos';
 
   if (variant === 'pills') {
     const options = [{ id: null, name: 'Todos' }, ...CENTERS.map(c => ({ id: c.id as string | null, name: c.name }))];
@@ -39,22 +35,29 @@ export default function CenterFilterDropdown({ variant = 'select' }: CenterFilte
     );
   }
 
+  const selectedCenterName = effectiveCenterId
+    ? CENTERS.find(c => c.id === effectiveCenterId)?.name ?? 'Todos'
+    : 'Todos';
+
+  const filterOptions = [
+    { value: '__todos__', label: 'Todos' },
+    ...CENTERS.map(c => ({ value: c.name, label: c.name })),
+  ];
+
+  const filterValue = selectedCenterName === 'Todos' ? '__todos__' : selectedCenterName;
+
   return (
-    <Select
-      value={selectedCenterName}
-      onChange={e => {
-        const name = e.target.value;
-        if (name === 'Todos') setCenterFilter(null);
+    <SearchableSelect
+      options={filterOptions}
+      value={filterValue}
+      onChange={v => {
+        if (v === '__todos__') setCenterFilter(null);
         else {
-          const center = CENTERS.find(c => c.name === name);
+          const center = CENTERS.find(c => c.name === v);
           setCenterFilter(center?.id ?? null);
         }
       }}
-      className="px-3 py-2 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-    >
-      {['Todos', ...CENTERS.map(c => c.name)].map(c => (
-        <option key={c} value={c}>{c}</option>
-      ))}
-    </Select>
+      searchable={false}
+    />
   );
 }

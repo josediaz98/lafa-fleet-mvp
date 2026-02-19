@@ -5,7 +5,7 @@ import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
 import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
-import Select from '@/components/ui/Select';
+import SearchableSelect from '@/components/ui/SearchableSelect';
 
 const ALL_STATUSES: VehicleStatus[] = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
 const SUPERVISOR_STATUSES: VehicleStatus[] = ['disponible', 'cargando', 'mantenimiento'];
@@ -101,18 +101,13 @@ export default function VehicleDetailPanel({
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
-        <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-          <Select
-            value={editForm.centerId}
-            onChange={e => setEditForm({ ...editForm, centerId: e.target.value })}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-          >
-            {CENTERS.map(c => (
-              <option key={c.id} value={c.id}>{c.name}</option>
-            ))}
-          </Select>
-        </div>
+        <SearchableSelect
+          label="Centro"
+          options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+          value={editForm.centerId}
+          onChange={v => setEditForm({ ...editForm, centerId: v })}
+          searchable={false}
+        />
         {editError && <p className="text-sm text-status-danger">{editError}</p>}
         <div className="flex gap-3">
           <button

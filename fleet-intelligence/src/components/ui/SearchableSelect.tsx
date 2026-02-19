@@ -13,21 +13,25 @@ interface SearchableSelectProps {
   onChange: (value: string) => void;
   placeholder?: string;
   label?: string;
+  searchable?: boolean;
 }
 
-export default function SearchableSelect({ options, value, onChange, placeholder, label }: SearchableSelectProps) {
+export default function SearchableSelect({ options, value, onChange, placeholder, label, searchable = true }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
   const listboxId = useId();
   const optionIdPrefix = useId();
 
-  const filtered = options.filter(o =>
-    o.label.toLowerCase().includes(query.toLowerCase()) ||
-    (o.sublabel?.toLowerCase().includes(query.toLowerCase()) ?? false)
-  );
+  const filtered = searchable
+    ? options.filter(o =>
+        o.label.toLowerCase().includes(query.toLowerCase()) ||
+        (o.sublabel?.toLowerCase().includes(query.toLowerCase()) ?? false)
+      )
+    : options;
 
   const selected = options.find(o => o.value === value);
 
@@ -45,12 +49,19 @@ export default function SearchableSelect({ options, value, onChange, placeholder
 
   useEffect(() => {
     if (open) {
-      inputRef.current?.focus();
+      if (searchable) {
+        inputRef.current?.focus();
+      }
       setActiveIndex(-1);
     }
-  }, [open]);
+  }, [open, searchable]);
 
   function handleKeyDown(e: React.KeyboardEvent) {
+    if (!open && (e.key === 'ArrowDown' || e.key === 'ArrowUp' || e.key === 'Enter' || e.key === ' ')) {
+      e.preventDefault();
+      setOpen(true);
+      return;
+    }
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       setActiveIndex(prev => (prev < filtered.length - 1 ? prev + 1 : 0));
@@ -80,8 +91,10 @@ export default function SearchableSelect({ options, value, onChange, placeholder
         <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{label}</label>
       )}
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => { setOpen(!open); setQuery(''); }}
+        onKeyDown={!searchable ? handleKeyDown : undefined}
         aria-haspopup="listbox"
         aria-expanded={open}
         className="w-full flex items-center justify-between px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-left focus:outline-none focus:border-lafa-accent transition-colors duration-150"
@@ -93,24 +106,26 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       </button>
 
       {open && (
-        <div className="absolute z-50 mt-1 w-full bg-lafa-surface border border-lafa-border rounded-lg shadow-xl overflow-hidden">
-          <div className="p-2 border-b border-lafa-border">
-            <div className="relative">
-              <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
-              <input
-                ref={inputRef}
-                type="text"
-                value={query}
-                onChange={e => { setQuery(e.target.value); setActiveIndex(-1); }}
-                onKeyDown={handleKeyDown}
-                placeholder="Buscar..."
-                aria-controls={listboxId}
-                aria-activedescendant={activeOptionId}
-                className="w-full pl-8 pr-3 py-2 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
-              />
+        <div className="absolute z-50 mt-1 w-full bg-lafa-surface border border-lafa-border rounded-lg shadow-xl">
+          {searchable && (
+            <div className="p-2 border-b border-lafa-border">
+              <div className="relative">
+                <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={query}
+                  onChange={e => { setQuery(e.target.value); setActiveIndex(-1); }}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Buscar..."
+                  aria-controls={listboxId}
+                  aria-activedescendant={activeOptionId}
+                  className="w-full pl-8 pr-3 py-2 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+                />
+              </div>
             </div>
-          </div>
-          <div id={listboxId} role="listbox" className="max-h-48 overflow-y-auto">
+          )}
+          <div id={listboxId} role="listbox" className="max-h-60 overflow-y-auto overscroll-contain">
             {filtered.length === 0 && (
               <p className="px-3 py-4 text-xs text-lafa-text-secondary text-center">Sin resultados</p>
             )}

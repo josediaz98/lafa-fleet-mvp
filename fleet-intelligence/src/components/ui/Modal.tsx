@@ -28,8 +28,9 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <>
       <div className="fixed inset-0 z-[80] bg-black/50" onClick={onClose} />
-      <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-[81] flex items-center justify-center p-4" onClick={onClose}>
         <div
+          onClick={e => e.stopPropagation()}
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
