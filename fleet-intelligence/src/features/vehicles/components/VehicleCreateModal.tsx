@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { Vehicle } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import Modal from '@/components/ui/Modal';
 import Select from '@/components/ui/Select';
@@ -81,7 +81,7 @@ export default function VehicleCreateModal({ open, onClose, existingPlates, defa
             onChange={e => setForm({ ...form, centerId: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
-            {MOCK_CENTERS.map(c => (
+            {CENTERS.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </Select>

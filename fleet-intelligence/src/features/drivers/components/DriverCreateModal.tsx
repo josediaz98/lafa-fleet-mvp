@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { validateDriverCreate, type DriverFormData } from '@/lib/validators';
 import Select from '@/components/ui/Select';
 
@@ -19,7 +19,7 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
   const [form, setForm] = useState<DriverFormState>({
     fullName: '',
     didiDriverId: '',
-    centerId: defaultCenterId || MOCK_CENTERS[0]?.id || '',
+    centerId: defaultCenterId || CENTERS[0]?.id || '',
     defaultShift: 'diurno',
     startDate: new Date().toISOString().slice(0, 10),
   });
@@ -66,7 +66,7 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
                 onChange={e => setForm({ ...form, centerId: e.target.value })}
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               >
-                {MOCK_CENTERS.map(c => (
+                {CENTERS.map(c => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </Select>

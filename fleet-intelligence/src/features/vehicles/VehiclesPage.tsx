@@ -3,7 +3,7 @@ import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Vehicle } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '@/lib/actions';
@@ -174,7 +174,7 @@ export default function VehiclesPage() {
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
         existingPlates={vehicles.map(v => v.plate)}
-        defaultCenterId={effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? ''}
+        defaultCenterId={effectiveCenterId ?? CENTERS[0]?.id ?? ''}
         onCreate={handleCreateVehicle}
       />
     </div>

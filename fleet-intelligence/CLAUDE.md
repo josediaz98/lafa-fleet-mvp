@@ -11,7 +11,7 @@ React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CL
 | `features/` | Feature modules — one dir per domain (8 total) | `payroll/`, `drivers/`, `shifts/` |
 | `lib/` | Service layer, utils, hooks, Supabase client + queries/mutations | `actions.ts` is the main entry point |
 | `types/` | Domain types, AppState, Action union — single source in `shared.ts` | Import types from `@/types` |
-| `data/` | Mock data fallback (`mock-data.ts`) — also exports base types | Types re-exported via `types/shared.ts` |
+| `data/` | Business constants (`constants.ts`) + dev seed data (`dev-seed.ts`) | `CENTERS` used across app, seed only in AppProvider |
 
 ## Feature Module Pattern
 

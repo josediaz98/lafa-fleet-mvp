@@ -3,7 +3,7 @@ import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -264,7 +264,7 @@ export default function DriversPage() {
 
       {showCreateModal && (
         <DriverCreateModal
-          defaultCenterId={effectiveCenterId ?? MOCK_CENTERS[0]?.id ?? ''}
+          defaultCenterId={effectiveCenterId ?? CENTERS[0]?.id ?? ''}
           drivers={drivers}
           onClose={() => setShowCreateModal(false)}
           onCreate={handleCreateDriver}

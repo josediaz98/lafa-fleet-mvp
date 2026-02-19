@@ -208,11 +208,7 @@ export async function actionAddUser(
     dispatch({ type: 'ADD_USER', payload: { ...user, id: userId ?? user.id, status: 'invitado' } });
     showToast('success', `Invitación enviada a ${user.email}`);
   } else {
-    // Mock mode: optimistic dispatch
-    dispatch({ type: 'ADD_USER', payload: { ...user, status: 'invitado' } });
-    const { error } = await persistNewUser(user);
-    if (error) { showToast('error', `Error al crear usuario: ${error.message}`); return; }
-    showToast('success', `Usuario ${user.name} creado.`);
+    showToast('error', 'No se puede invitar usuarios: la conexión con Supabase no está configurada.');
   }
 }
 

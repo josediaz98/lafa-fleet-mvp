@@ -14,7 +14,7 @@ import {
 import LafaLogo from '@/components/ui/LafaLogo';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/mappers';
 
 interface NavItem {
@@ -79,7 +79,7 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const initials = session?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '';
   const centerName = session?.centerId
     ? getCenterName(session.centerId)
-      ?? MOCK_CENTERS.find(c => c.id === session.centerId)?.name
+      ?? CENTERS.find(c => c.id === session.centerId)?.name
       ?? '—'
     : null;
 

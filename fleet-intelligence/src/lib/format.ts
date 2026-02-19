@@ -1,8 +1,8 @@
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 
 export function getCenterName(centerId: string | null): string {
   if (!centerId) return 'Todos';
-  return MOCK_CENTERS.find(c => c.id === centerId)?.name ?? '';
+  return CENTERS.find(c => c.id === centerId)?.name ?? '';
 }
 
 export function formatMXN(amount: number): string {

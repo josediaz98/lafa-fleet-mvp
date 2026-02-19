@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Plus, Search, Shield } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { User } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { useToast } from '@/app/providers/ToastProvider';
 import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -50,7 +50,7 @@ export default function UsersPage() {
       name: selectedUser.name,
       email: selectedUser.email,
       role: selectedUser.role,
-      centerId: selectedUser.centerId ?? MOCK_CENTERS[0]?.id ?? '',
+      centerId: selectedUser.centerId ?? CENTERS[0]?.id ?? '',
     });
     setFormError('');
     setEditMode(true);
@@ -236,7 +236,7 @@ export default function UsersPage() {
                   onChange={e => setForm({ ...form, centerId: e.target.value })}
                   className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
                 >
-                  {MOCK_CENTERS.map(c => (
+                  {CENTERS.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
                 </Select>

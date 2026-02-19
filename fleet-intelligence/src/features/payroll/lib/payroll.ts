@@ -1,5 +1,5 @@
 import type { Trip, PayrollRecord, Driver } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { generateExplanation } from './explanation';
 import { parseFechaToISO } from '@/lib/date-utils';
 
@@ -117,7 +117,7 @@ export function calculateWeeklyPay(
       }
 
       const totalPay = goalMet ? baseSalary + productivityBonus + overtimePay : SUPPORT_AMOUNT;
-      const center = (centers ?? MOCK_CENTERS).find(c => c.id === driver.centerId);
+      const center = (centers ?? CENTERS).find(c => c.id === driver.centerId);
 
       const record = {
         id: `pr-${driver.id}-${Date.now()}`,

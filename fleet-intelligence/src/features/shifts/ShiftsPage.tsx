@@ -3,7 +3,7 @@ import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { shiftHours } from '@/lib/date-utils';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/constants';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -85,7 +85,7 @@ export default function ShiftsPage() {
     const vehicle = vehicles.find(v => v.id === vehicleId);
     if (!driver || !vehicle) return;
 
-    const center = MOCK_CENTERS.find(c => c.id === driver.centerId);
+    const center = CENTERS.find(c => c.id === driver.centerId);
     const newShift = {
       id: `s-${Date.now()}`,
       driverId: driver.id,

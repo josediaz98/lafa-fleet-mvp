@@ -1,16 +1,9 @@
 import { createContext, useContext, useReducer, useEffect, type ReactNode, type Dispatch } from 'react';
-import {
-  MOCK_DRIVERS,
-  MOCK_VEHICLES,
-  MOCK_SHIFTS,
-  MOCK_USERS,
-  MOCK_TRIPS,
-  MOCK_PAYROLL,
-} from '@/data/mock-data';
+import { DEV_DRIVERS, DEV_VEHICLES, DEV_ADMIN } from '@/data/dev-seed';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { fetchAllData } from '@/lib/supabase/queries';
 import type {
-  Driver, Vehicle, Shift, User, Trip, PayrollRecord, Session, AppState, Action,
+  Driver, Vehicle, User, Session, AppState, Action,
 } from '@/types';
 
 // ---- Reducer ----
@@ -159,16 +152,16 @@ function loadSession(): Session | null {
 }
 
 const initialState: AppState = {
-  drivers: MOCK_DRIVERS as Driver[],
-  vehicles: MOCK_VEHICLES as Vehicle[],
-  shifts: MOCK_SHIFTS as Shift[],
-  users: MOCK_USERS as User[],
-  trips: MOCK_TRIPS as Trip[],
-  closedPayroll: MOCK_PAYROLL as PayrollRecord[],
+  drivers: [],
+  vehicles: [],
+  shifts: [],
+  users: [],
+  trips: [],
+  closedPayroll: [],
   session: loadSession(),
-  hydrated: !isSupabaseConfigured,
-  authChecked: !!loadSession() || !isSupabaseConfigured,
-  dataSource: 'mock',
+  hydrated: false,
+  authChecked: !!loadSession(),
+  dataSource: isSupabaseConfigured ? 'supabase' : 'mock',
 };
 
 // ---- Context ----
@@ -180,19 +173,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) return;
+    if (!isSupabaseConfigured) {
+      dispatch({ type: 'HYDRATE', payload: {
+        drivers: DEV_DRIVERS as Driver[],
+        vehicles: DEV_VEHICLES as Vehicle[],
+        shifts: [],
+        users: [DEV_ADMIN as User],
+        trips: [],
+        closedPayroll: [],
+        dataSource: 'mock' as const,
+      }});
+      return;
+    }
     fetchAllData()
       .then(data => dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } }))
       .catch(err => {
-        console.error('Failed to load from Supabase, using mock data:', err);
+        console.error('Failed to load from Supabase:', err);
         dispatch({ type: 'HYDRATE', payload: {
-          drivers: MOCK_DRIVERS as Driver[],
-          vehicles: MOCK_VEHICLES as Vehicle[],
-          shifts: MOCK_SHIFTS as Shift[],
-          users: MOCK_USERS as User[],
-          trips: MOCK_TRIPS as Trip[],
-          closedPayroll: MOCK_PAYROLL as PayrollRecord[],
-          dataSource: 'mock' as const,
+          drivers: [],
+          vehicles: [],
+          shifts: [],
+          users: [],
+          trips: [],
+          closedPayroll: [],
+          dataSource: 'supabase' as const,
         }});
       });
   }, []);

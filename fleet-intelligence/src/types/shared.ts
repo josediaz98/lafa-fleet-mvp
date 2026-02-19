@@ -1,10 +1,3 @@
-import type {
-  MockDriver,
-  MockVehicle,
-  MockShift,
-  MockUser,
-} from '@/data/mock-data';
-
 // ---- Domain Types ----
 
 export interface Center {
@@ -12,10 +5,49 @@ export interface Center {
   name: string;
 }
 
-export type Driver = MockDriver;
-export type Vehicle = MockVehicle;
-export type Shift = MockShift;
-export type User = MockUser;
+export interface Driver {
+  id: string;
+  fullName: string;
+  didiDriverId: number;
+  centerId: string;
+  defaultShift: string;
+  startDate: string;
+  status: string;
+}
+
+export interface Vehicle {
+  id: string;
+  plate: string;
+  model: string;
+  oem: string;
+  centerId: string;
+  status: string;
+}
+
+export interface Shift {
+  id: string;
+  driverId: string;
+  driverName: string;
+  vehicleId: string;
+  plate: string;
+  model: string;
+  center: string;
+  centerId: string;
+  checkIn: string;
+  checkOut?: string;
+  hoursWorked?: number;
+  status: string;
+}
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  centerId: string | null;
+  status: string;
+  password?: string;
+}
 
 export interface Trip {
   id: string;

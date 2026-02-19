@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { Vehicle, Shift } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
 import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
@@ -108,7 +108,7 @@ export default function VehicleDetailPanel({
             onChange={e => setEditForm({ ...editForm, centerId: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
-            {MOCK_CENTERS.map(c => (
+            {CENTERS.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </Select>

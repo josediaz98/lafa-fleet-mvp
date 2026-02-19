@@ -2,7 +2,6 @@ import { useState, useRef } from 'react';
 import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter, History } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Trip } from '@/types';
-import { MOCK_DRIVERS } from '@/data/mock-data';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { actionImportTrips } from '@/lib/actions';
@@ -46,7 +45,7 @@ export default function CsvUploadPage() {
       const parsed = parseCsvText(text);
 
       const seenIds = new Set<string>();
-      const driversForValidation = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
+      const driversForValidation = stateDrivers;
       const week = getWeekBounds();
       const validated = parsed.map(row => {
         const result = validateRow(row, seenIds, existingTripIds, driversForValidation, week.start, week.end);
@@ -102,7 +101,7 @@ export default function CsvUploadPage() {
     }));
 
     const didiToDriverId = new Map<number, string>();
-    const driversForMap = stateDrivers.length > 0 ? stateDrivers : MOCK_DRIVERS;
+    const driversForMap = stateDrivers;
     for (const d of driversForMap) {
       didiToDriverId.set(d.didiDriverId, d.id);
     }

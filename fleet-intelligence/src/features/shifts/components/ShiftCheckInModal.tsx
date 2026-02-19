@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import type { Driver, Vehicle } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import StatusBadge from '@/components/ui/StatusBadge';
 import Modal from '@/components/ui/Modal';
@@ -37,7 +37,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
   }, [selectedDriverId, selectedVehicleId]);
 
   const driverOptions = useMemo(() => drivers.map(d => {
-    const center = MOCK_CENTERS.find(c => c.id === d.centerId)?.name ?? '';
+    const center = CENTERS.find(c => c.id === d.centerId)?.name ?? '';
     return {
       value: d.id,
       label: d.fullName,
@@ -46,7 +46,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
   }), [drivers]);
 
   const vehicleOptions = useMemo(() => vehicles.map(v => {
-    const center = MOCK_CENTERS.find(c => c.id === v.centerId)?.name ?? '';
+    const center = CENTERS.find(c => c.id === v.centerId)?.name ?? '';
     return {
       value: v.id,
       label: `${v.plate} · ${v.model}`,
@@ -85,7 +85,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Centro</span>
-              <span className="text-lafa-text-primary font-medium">{MOCK_CENTERS.find(c => c.id === selectedDriver.centerId)?.name}</span>
+              <span className="text-lafa-text-primary font-medium">{CENTERS.find(c => c.id === selectedDriver.centerId)?.name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Turno default</span>
@@ -112,7 +112,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Centro</span>
-              <span className="text-lafa-text-primary font-medium">{MOCK_CENTERS.find(c => c.id === selectedVehicle.centerId)?.name}</span>
+              <span className="text-lafa-text-primary font-medium">{CENTERS.find(c => c.id === selectedVehicle.centerId)?.name}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">OEM</span>

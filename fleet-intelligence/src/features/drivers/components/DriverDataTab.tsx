@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Driver } from '@/types';
-import { MOCK_CENTERS } from '@/data/mock-data';
+import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { validateDriverEdit } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -80,7 +80,7 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
             onChange={e => setForm({ ...form, centerId: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
-            {MOCK_CENTERS.map(c => (
+            {CENTERS.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </Select>
