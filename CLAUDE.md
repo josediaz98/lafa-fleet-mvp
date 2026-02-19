@@ -6,6 +6,7 @@ Research + strategy repo for evaluating the AI Product Engineer role at LAFA (La
 
 | Area | Stack |
 |------|-------|
+| Runtime | Node.js >=20, Express 4 |
 | `site/` | Vanilla HTML + JS, Tailwind CDN, ApexCharts, Leaflet.js |
 | `fleet-intelligence/` | React 18 + TypeScript + Vite 6 + Tailwind CSS + lucide-react + Supabase |
 | `content/` | Markdown research files |
@@ -15,7 +16,10 @@ Research + strategy repo for evaluating the AI Product Engineer role at LAFA (La
 ## Commands
 
 ```bash
-# Static site (no build step)
+# Full app (Express on port 3000)
+npm run start
+
+# Static site only (local dev, no build step)
 npx serve .
 
 # Fleet Intelligence MVP
@@ -38,6 +42,7 @@ Optional — app falls back to mock data when not configured.
 
 Express server (`server.js`) on Railway with Railpack builder. Config in `railway.toml`.
 Build: `npm install && npm run build` → Start: `npm run start`
+Health check: `/api/health`
 Public URL: `https://lafa-production.up.railway.app/`
 
 ## Directory Layout
@@ -73,4 +78,4 @@ Public URL: `https://lafa-production.up.railway.app/`
 ## Tooling
 
 No linter, no CI pipeline, no git hooks. Railway auto-deploys from `main`.
-Payroll logic has unit tests — run `npm run test` in `fleet-intelligence/` after modifying payroll code.
+Run `npm run test` in `fleet-intelligence/` after modifying payroll code.

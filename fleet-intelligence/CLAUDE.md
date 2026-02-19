@@ -7,7 +7,7 @@ React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CL
 | Directory | Owns | Example |
 |-----------|------|---------|
 | `app/` | Entry point, App.tsx (router), providers (AppProvider, ToastProvider) | `App.tsx` defines all routes |
-| `components/` | Shared UI: `layout/` (AppLayout, Sidebar) + `ui/` (Modal, StatusBadge, etc.) | 12 reusable components |
+| `components/` | Shared UI: `layout/` (AppLayout, Sidebar) + `ui/` (Modal, StatusBadge, etc.) | Reusable UI components |
 | `features/` | Feature modules — one dir per domain (8 total) | `payroll/`, `drivers/`, `shifts/` |
 | `lib/` | Service layer, utils, Supabase client + queries/mutations | `actions.ts` is the main entry point |
 | `types/` | Domain types, AppState, Action union — single source in `shared.ts` | Import types from `@/types` |
