@@ -25,6 +25,8 @@ export const STATUS_CONFIG: Record<string, { bg: string; text: string; label: st
   nocturno: { bg: 'bg-status-info/15', text: 'text-status-info', label: 'Nocturno' },
   alerta: { bg: 'bg-status-danger/15', text: 'text-status-danger', label: 'Alerta' },
   cerrado: { bg: 'bg-status-success/15', text: 'text-status-success', label: 'Cerrado' },
+  procesado: { bg: 'bg-status-success/15', text: 'text-status-success', label: 'Procesado' },
+  error: { bg: 'bg-status-danger/15', text: 'text-status-danger', label: 'Error' },
 };
 
 export const STATUS_LABELS: Record<string, string> = Object.fromEntries(

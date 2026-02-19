@@ -69,6 +69,19 @@ export interface DbTrip {
   created_at: string;
 }
 
+export interface DbCsvUpload {
+  id: string;
+  filename: string;
+  uploaded_by: string;
+  uploaded_at: string;
+  record_count: number;
+  valid_count: number;
+  warning_count: number;
+  error_count: number;
+  status: 'procesado' | 'error';
+  created_at: string;
+}
+
 export interface DbWeeklyPayroll {
   id: string;
   driver_id: string;
