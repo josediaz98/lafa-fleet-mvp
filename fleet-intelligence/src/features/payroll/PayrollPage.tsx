@@ -26,7 +26,7 @@ export default function PayrollPage() {
   const { showToast } = useToast();
   const { confirm } = useConfirmDialog();
 
-  const [tab, setTab] = useState<PayrollTab>('cerradas');
+  const [tab, setTab] = useState<PayrollTab>('actual');
   const [sortKey, setSortKey] = useState<SortKey>('driverName');
   const [sortAsc, setSortAsc] = useState(true);
   const [selectedRow, setSelectedRow] = useState<PayrollRecord | null>(null);

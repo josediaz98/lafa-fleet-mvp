@@ -3,6 +3,7 @@ import { Outlet } from 'react-router-dom';
 import { Menu, AlertTriangle, Loader2, X } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAppState } from '@/app/providers/AppProvider';
+import { CenterFilterProvider } from '@/components/ui/use-center-filter';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -45,7 +46,9 @@ export default function AppLayout() {
             </button>
           </div>
         )}
-        <Outlet />
+        <CenterFilterProvider>
+          <Outlet />
+        </CenterFilterProvider>
       </main>
     </div>
   );

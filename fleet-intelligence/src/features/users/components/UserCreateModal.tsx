@@ -56,7 +56,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
           <input
             value={form.name}
-            onChange={e => setForm({ ...form, name: e.target.value })}
+            onChange={e => { setForm({ ...form, name: e.target.value }); setFormError(''); }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
@@ -65,8 +65,10 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           <input
             type="email"
             value={form.email}
-            onChange={e => setForm({ ...form, email: e.target.value })}
-            className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
+            onChange={e => { setForm({ ...form, email: e.target.value }); setFormError(''); }}
+            className={`w-full px-3 py-2.5 bg-lafa-bg border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent ${
+              formError.toLowerCase().includes('email') ? 'border-[#EF4444]' : 'border-lafa-border'
+            }`}
           />
         </div>
         <div>
@@ -74,7 +76,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           <input
             type="password"
             value={form.password}
-            onChange={e => setForm({ ...form, password: e.target.value })}
+            onChange={e => { setForm({ ...form, password: e.target.value }); setFormError(''); }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
           <p className="text-xs text-lafa-text-secondary mt-1">{'Mínimo 6 caracteres'}</p>
@@ -83,7 +85,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
           <select
             value={form.role}
-            onChange={e => setForm({ ...form, role: e.target.value })}
+            onChange={e => { setForm({ ...form, role: e.target.value }); setFormError(''); }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
             <option value="admin">Admin</option>
@@ -95,7 +97,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
             <select
               value={form.centerId}
-              onChange={e => setForm({ ...form, centerId: e.target.value })}
+              onChange={e => { setForm({ ...form, centerId: e.target.value }); setFormError(''); }}
               className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
             >
               {MOCK_CENTERS.map(c => (

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import type { Driver, Vehicle } from '@/types';
 import { MOCK_CENTERS } from '@/data/mock-data';
@@ -21,12 +21,16 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
   const centerMismatch = selectedDriver && selectedVehicle && selectedDriver.centerId !== selectedVehicle.centerId;
 
+  useEffect(() => {
+    if (formError) setFormError('');
+  }, [selectedDriverId, selectedVehicleId]);
+
   const driverOptions = useMemo(() => drivers.map(d => {
     const center = MOCK_CENTERS.find(c => c.id === d.centerId)?.name ?? '';
     return {
       value: d.id,
       label: d.fullName,
-      sublabel: `${center} \u00b7 ${d.defaultShift === 'diurno' ? 'Diurno' : 'Nocturno'}`,
+      sublabel: `${center} · ${d.defaultShift === 'diurno' ? 'Diurno' : 'Nocturno'}`,
     };
   }), [drivers]);
 
@@ -34,8 +38,8 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
     const center = MOCK_CENTERS.find(c => c.id === v.centerId)?.name ?? '';
     return {
       value: v.id,
-      label: `${v.plate} \u00b7 ${v.model}`,
-      sublabel: `${center} \u00b7 ${v.oem}`,
+      label: `${v.plate} · ${v.model}`,
+      sublabel: `${center} · ${v.oem}`,
     };
   }), [vehicles]);
 
@@ -48,7 +52,7 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
   function handleCheckIn() {
     setFormError('');
     if (!selectedDriverId || !selectedVehicleId) {
-      setFormError('Selecciona conductor y veh\u00edculo.');
+      setFormError('Selecciona conductor y vehículo.');
       return;
     }
     onCheckIn(selectedDriverId, selectedVehicleId);
@@ -89,11 +93,11 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
         )}
 
         <SearchableSelect
-          label={'Veh\u00edculo'}
+          label="Vehículo"
           options={vehicleOptions}
           value={selectedVehicleId}
           onChange={setSelectedVehicleId}
-          placeholder="Seleccionar veh\u00edculo..."
+          placeholder="Seleccionar vehículo..."
         />
 
         {selectedVehicle && (
@@ -112,7 +116,7 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
         {centerMismatch && (
           <div className="flex items-center gap-2 bg-[rgba(234,179,8,0.1)] border border-[rgba(234,179,8,0.2)] rounded-lg p-3 text-xs text-[#EAB308]">
             <AlertTriangle size={14} className="shrink-0" />
-            <span>El conductor y el veh\u00edculo pertenecen a centros diferentes.</span>
+            <span>El conductor y el vehículo pertenecen a centros diferentes.</span>
           </div>
         )}
 

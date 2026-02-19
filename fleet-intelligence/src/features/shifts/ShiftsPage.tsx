@@ -64,7 +64,7 @@ export default function ShiftsPage() {
   const tabs: { key: ShiftTab; label: string; count: number }[] = [
     { key: 'activos', label: 'Activos', count: activeShifts.length },
     { key: 'completados', label: 'Completados hoy', count: completedShifts.length },
-    { key: 'pendientes', label: 'Pendientes revisi\u00f3n', count: pendingShifts.length },
+    { key: 'pendientes', label: 'Pendientes de revisión', count: pendingShifts.length },
   ];
 
   const completedTotalHours = completedShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0);
@@ -99,7 +99,7 @@ export default function ShiftsPage() {
     if (hours < 1) {
       const ok = await confirm({
         title: 'Turno muy corto',
-        description: `Este turno tiene menos de 1 hora (${hours}h). \u00bfSeguro que deseas cerrarlo?`,
+        description: `Este turno tiene menos de 1 hora (${hours}h). ¿Seguro que deseas cerrarlo?`,
         confirmLabel: 'Cerrar turno',
         variant: 'danger',
       });
@@ -117,7 +117,7 @@ export default function ShiftsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">Gesti{'o\u0301'}n de Turnos</h1>
+        <h1 className="text-2xl font-bold text-lafa-text-primary">Gestión de Turnos</h1>
         <CenterFilterDropdown />
       </div>
 
@@ -128,7 +128,7 @@ export default function ShiftsPage() {
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+                className={`px-4 py-2.5 text-sm font-medium transition-colors relative whitespace-nowrap ${
                   tab === t.key
                     ? 'text-lafa-accent'
                     : 'text-lafa-text-secondary hover:text-lafa-text-primary'
@@ -169,7 +169,7 @@ export default function ShiftsPage() {
               <EmptyState icon={Clock} title="Sin turnos completados hoy" />
             )}
             {tab === 'pendientes' && pendingShifts.length === 0 && (
-              <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisi\u00f3n" description="Todos los turnos est\u00e1n al d\u00eda." />
+              <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisión" description="Todos los turnos están al día." />
             )}
           </div>
         </div>

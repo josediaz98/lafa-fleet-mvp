@@ -124,22 +124,24 @@ export default function UsersPage() {
         </button>
       </div>
 
-      <div className="relative mb-4 max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
-        <input
-          type="text"
-          placeholder="Buscar por nombre o email..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+      <div className="relative z-[75]">
+        <div className="relative mb-4 max-w-sm">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+          <input
+            type="text"
+            placeholder="Buscar por nombre o email..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+          />
+        </div>
+
+        <UserTable
+          users={filtered}
+          session={session}
+          onSelect={(user) => { setSelectedUser(user); setEditMode(false); }}
         />
       </div>
-
-      <UserTable
-        users={filtered}
-        session={session}
-        onSelect={(user) => { setSelectedUser(user); setEditMode(false); }}
-      />
 
       <SlidePanel
         open={!!selectedUser}
