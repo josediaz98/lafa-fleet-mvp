@@ -101,7 +101,6 @@ export function mapProfile(row: DbProfile): User {
     role: row.role,
     centerId: row.center_id,
     status: row.status,
-    password: '', // Not stored client-side with Supabase auth
   };
 }
 

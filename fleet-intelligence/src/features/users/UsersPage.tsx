@@ -20,7 +20,6 @@ const emptyForm: UserFormData = {
   email: '',
   role: 'supervisor',
   centerId: '',
-  password: '',
 };
 
 export default function UsersPage() {
@@ -41,8 +40,8 @@ export default function UsersPage() {
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
-  function handleCreateUser(user: User, password: string) {
-    actionAddUser(user, password, dispatch, showToast, isSupabaseConfigured);
+  function handleCreateUser(user: User) {
+    actionAddUser(user, dispatch, showToast, isSupabaseConfigured);
   }
 
   function openEdit() {
@@ -52,7 +51,6 @@ export default function UsersPage() {
       email: selectedUser.email,
       role: selectedUser.role,
       centerId: selectedUser.centerId ?? MOCK_CENTERS[0]?.id ?? '',
-      password: '',
     });
     setFormError('');
     setEditMode(true);

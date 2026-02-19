@@ -155,7 +155,7 @@ export interface MockUser {
   role: string;
   centerId: string | null;
   status: string;
-  password: string;
+  password?: string;
 }
 
 export const MOCK_USERS: MockUser[] = [

@@ -194,7 +194,7 @@ export async function persistRerunPayroll(
 
 type InviteResult = { userId?: string; error: Error | null };
 
-export async function persistNewUser(user: User, _password: string): Promise<InviteResult> {
+export async function persistNewUser(user: User): Promise<InviteResult> {
   if (!supabase) return { error: null };
 
   // Supabase mode: call Express invite endpoint (creates auth user + profile)

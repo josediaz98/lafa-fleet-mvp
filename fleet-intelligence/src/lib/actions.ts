@@ -197,21 +197,20 @@ export async function actionRerunPayroll(
 
 export async function actionAddUser(
   user: User,
-  password: string,
   dispatch: AppDispatch,
   showToast: ShowToast,
   supabaseMode = false,
 ) {
   if (supabaseMode) {
     // Supabase: call API first, get real UUID, then dispatch
-    const { userId, error } = await persistNewUser(user, password);
+    const { userId, error } = await persistNewUser(user);
     if (error) { showToast('error', `Error al enviar invitación: ${error.message}`); return; }
     dispatch({ type: 'ADD_USER', payload: { ...user, id: userId ?? user.id, status: 'invitado' } });
     showToast('success', `Invitación enviada a ${user.email}`);
   } else {
     // Mock mode: optimistic dispatch
-    dispatch({ type: 'ADD_USER', payload: user });
-    const { error } = await persistNewUser(user, password);
+    dispatch({ type: 'ADD_USER', payload: { ...user, status: 'invitado' } });
+    const { error } = await persistNewUser(user);
     if (error) { showToast('error', `Error al crear usuario: ${error.message}`); return; }
     showToast('success', `Usuario ${user.name} creado.`);
   }

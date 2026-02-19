@@ -68,7 +68,6 @@ export interface UserFormData {
   email: string;
   role: string;
   centerId: string;
-  password?: string;
 }
 
 export interface UserRecord {
@@ -82,30 +81,17 @@ export interface UserRecord {
 export function validateUserCreate(
   form: UserFormData,
   users: UserRecord[],
-  supabaseMode = false,
 ): string | null {
-  if (supabaseMode) {
-    if (!isRequired(form.name) || !isRequired(form.email)) {
-      return 'Nombre y email son obligatorios.';
-    }
-    if (!isValidEmail(form.email)) {
-      return 'Formato de email inválido.';
-    }
-    // TODO: re-enable for production
-    // if (!isLafaEmail(form.email)) {
-    //   return 'Solo correos @lafa-mx.com permitidos.';
-    // }
-  } else {
-    if (!isRequired(form.name) || !isRequired(form.email) || !isRequired(form.password)) {
-      return 'Nombre, email y contraseña son obligatorios.';
-    }
-    if (!isValidEmail(form.email)) {
-      return 'Formato de email inválido.';
-    }
-    if (!isMinLength(form.password!, 6)) {
-      return 'La contraseña debe tener al menos 6 caracteres.';
-    }
+  if (!isRequired(form.name) || !isRequired(form.email)) {
+    return 'Nombre y email son obligatorios.';
   }
+  if (!isValidEmail(form.email)) {
+    return 'Formato de email inválido.';
+  }
+  // TODO: re-enable for production
+  // if (!isLafaEmail(form.email)) {
+  //   return 'Solo correos @lafa-mx.com permitidos.';
+  // }
 
   const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase());
   if (emailExists) {

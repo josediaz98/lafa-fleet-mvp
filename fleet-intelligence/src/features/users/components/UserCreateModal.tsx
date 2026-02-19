@@ -11,7 +11,7 @@ interface UserCreateModalProps {
   open: boolean;
   onClose: () => void;
   users: Array<{ id: string; email: string; role: string; status: string; centerId: string | null }>;
-  onCreate: (user: User, password: string) => void;
+  onCreate: (user: User) => void;
 }
 
 const emptyForm: UserFormData = {
@@ -19,7 +19,6 @@ const emptyForm: UserFormData = {
   email: '',
   role: 'supervisor',
   centerId: '',
-  password: '',
 };
 
 export default function UserCreateModal({ open, onClose, users, onCreate }: UserCreateModalProps) {
@@ -35,7 +34,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
   }, [open]);
 
   function handleCreate() {
-    const error = validateUserCreate(form, users, supabaseMode);
+    const error = validateUserCreate(form, users);
     if (error) {
       setFormError(error);
       return;
@@ -46,24 +45,21 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
       email: form.email.trim(),
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
-      status: supabaseMode ? 'invitado' : 'activo',
-      password: supabaseMode ? '' : form.password!,
+      status: 'invitado',
     };
-    onCreate(newUser, form.password ?? '');
+    onCreate(newUser);
     onClose();
   }
 
   return (
     <Modal open={open} onClose={onClose} title={supabaseMode ? 'Invitar usuario' : 'Nuevo usuario'}>
       <div className="space-y-4">
-        {supabaseMode && (
-          <div className="flex items-start gap-2.5 p-3 bg-lafa-accent/5 border border-lafa-accent/20 rounded-lg">
-            <Mail className="w-4 h-4 text-lafa-accent mt-0.5 shrink-0" />
-            <p className="text-xs text-lafa-text-secondary leading-relaxed">
-              Se enviará un correo de invitación para que el usuario configure su contraseña.
-            </p>
-          </div>
-        )}
+        <div className="flex items-start gap-2.5 p-3 bg-lafa-accent/5 border border-lafa-accent/20 rounded-lg">
+          <Mail className="w-4 h-4 text-lafa-accent mt-0.5 shrink-0" />
+          <p className="text-xs text-lafa-text-secondary leading-relaxed">
+            Se enviará un correo de invitación para que el usuario configure su contraseña.
+          </p>
+        </div>
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
           <input
@@ -82,22 +78,8 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
               formError.toLowerCase().includes('email') ? 'border-status-danger' : 'border-lafa-border'
             }`}
           />
-          {supabaseMode && (
-            <p className="text-xs text-lafa-text-secondary mt-1">Email corporativo del usuario</p>
-          )}
+          <p className="text-xs text-lafa-text-secondary mt-1">Email corporativo del usuario</p>
         </div>
-        {!supabaseMode && (
-          <div>
-            <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">{'Contraseña'}</label>
-            <input
-              type="password"
-              value={form.password}
-              onChange={e => { setForm({ ...form, password: e.target.value }); setFormError(''); }}
-              className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            />
-            <p className="text-xs text-lafa-text-secondary mt-1">{'Mínimo 6 caracteres'}</p>
-          </div>
-        )}
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
           <Select
