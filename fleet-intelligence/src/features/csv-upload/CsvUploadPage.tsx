@@ -1,10 +1,10 @@
 import { useState, useRef } from 'react';
 import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter, History } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import type { Trip } from '@/types';
 import { formatMXN } from '@/lib/format';
 import { usePagination } from '@/lib/use-pagination';
-import { useToast } from '@/app/providers/ToastProvider';
+import { useActionContext } from '@/lib/action-context';
 import { actionImportTrips } from '@/lib/actions';
 import { getWeekBounds } from '@/lib/date-utils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
@@ -19,9 +19,8 @@ const STEPS = [
 ];
 
 export default function CsvUploadPage() {
-  const { trips, drivers: stateDrivers, session } = useAppState();
-  const dispatch = useAppDispatch();
-  const { showToast } = useToast();
+  const { trips, drivers: stateDrivers } = useAppState();
+  const ctx = useActionContext();
   const fileRef = useRef<HTMLInputElement>(null);
 
   const [activeStep, setActiveStep] = useState(1);
@@ -36,7 +35,7 @@ export default function CsvUploadPage() {
 
   function processFile(file: File) {
     if (file.size > 20 * 1024 * 1024) {
-      showToast('error', 'Archivo muy grande (máx 20MB)');
+      ctx.showToast('error', 'Archivo muy grande (máx 20MB)');
       return;
     }
 
@@ -76,7 +75,7 @@ export default function CsvUploadPage() {
     if (file && file.name.endsWith('.csv')) {
       processFile(file);
     } else {
-      showToast('error', 'Solo se aceptan archivos .csv');
+      ctx.showToast('error', 'Solo se aceptan archivos .csv');
     }
   }
 
@@ -95,7 +94,7 @@ export default function CsvUploadPage() {
     const validRows = rows.filter(r => r.estado !== 'error');
     const newTrips: Trip[] = validRows.map(r => ({
       id: crypto.randomUUID(),
-      driverId: r.driverId,
+      didiDriverId: r.driverId,
       fecha: r.fecha,
       tripId: r.tripId,
       horaInicio: r.horaInicio,
@@ -111,10 +110,10 @@ export default function CsvUploadPage() {
     }
     try {
       // H5: Pass warning/error counts to persist for accurate upload history
-      await actionImportTrips(newTrips, didiToDriverId, session?.userId ?? '', fileName, dispatch, showToast, warningCount, errorCount);
+      await actionImportTrips(newTrips, didiToDriverId, fileName, ctx, warningCount, errorCount);
       setActiveStep(3);
     } catch {
-      showToast('error', 'Error al importar viajes. Intenta de nuevo.');
+      ctx.showToast('error', 'Error al importar viajes. Intenta de nuevo.');
     } finally {
       setIsImporting(false);
     }

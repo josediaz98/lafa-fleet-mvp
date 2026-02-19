@@ -1,14 +1,13 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
-import { shiftHours } from '@/lib/date-utils';
 import { CENTERS } from '@/data/constants';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
-import { useToast } from '@/app/providers/ToastProvider';
-import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useActionContext } from '@/lib/action-context';
+import { useShiftCheckOut } from '@/lib/use-shift-checkout';
 import type { Shift } from '@/types';
-import { actionCheckIn, actionCheckOut } from '@/lib/actions';
+import { actionCheckIn } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
 import ShiftCheckInModal from './components/ShiftCheckInModal';
@@ -18,15 +17,13 @@ import ShiftTable from './components/ShiftTable';
 type ShiftTab = 'activos' | 'completados' | 'pendientes';
 
 export default function ShiftsPage() {
-  const { shifts, drivers, vehicles, session } = useAppState();
-  const dispatch = useAppDispatch();
+  const { shifts, drivers, vehicles } = useAppState();
+  const ctx = useActionContext();
   const { filterByCenter } = useCenterFilter();
-  const { showToast } = useToast();
-  const { confirm } = useConfirmDialog();
+  const { handleCheckOut, closingShiftId } = useShiftCheckOut();
   const [tab, setTab] = useState<ShiftTab>('activos');
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
-  const [closingShiftId, setClosingShiftId] = useState<string | null>(null);
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -101,35 +98,7 @@ export default function ShiftsPage() {
       status: 'en_turno',
     };
 
-    await actionCheckIn(newShift, vehicle.id, session?.userId ?? '', dispatch, showToast);
-  }
-
-  async function handleCheckOut(shiftId: string) {
-    const shift = shifts.find(s => s.id === shiftId);
-    if (!shift) return;
-    const hours = shiftHours(shift.checkIn);
-
-    if (hours < 1) {
-      const ok = await confirm({
-        title: 'Turno muy corto',
-        description: `Este turno tiene menos de 1 hora (${hours}h). ¿Seguro que deseas cerrarlo?`,
-        confirmLabel: 'Cerrar turno',
-        variant: 'danger',
-      });
-      if (!ok) return;
-    }
-
-    setClosingShiftId(shiftId);
-    try {
-      const checkOutTime = new Date().toISOString();
-      await actionCheckOut(
-        { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
-        dispatch,
-        showToast,
-      );
-    } finally {
-      setClosingShiftId(null);
-    }
+    await actionCheckIn(newShift, vehicle.id, ctx);
   }
 
   return (

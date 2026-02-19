@@ -1,24 +1,20 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Clock, Car, AlertTriangle, DollarSign, Users, ArrowRight } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatMXN } from '@/lib/format';
-import { getWeekBounds, shiftHours } from '@/lib/date-utils';
+import { getWeekBounds } from '@/lib/date-utils';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
-import { useToast } from '@/app/providers/ToastProvider';
-import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { actionCheckOut } from '@/lib/actions';
+import { useShiftCheckOut } from '@/lib/use-shift-checkout';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
-import ShiftCard from '@/features/shifts/components/ShiftCard';
+import { ShiftCard } from '@/features/shifts';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function DashboardPage() {
   const { shifts, vehicles, trips, drivers, hydrated } = useAppState();
-  const dispatch = useAppDispatch();
   const { filterByCenter } = useCenterFilter();
-  const { showToast } = useToast();
-  const { confirm } = useConfirmDialog();
+  const { handleCheckOut: handleCloseShift } = useShiftCheckOut();
   const navigate = useNavigate();
   const [, setTick] = useState(0);
 
@@ -51,7 +47,7 @@ export default function DashboardPage() {
   );
 
   const weekTrips = useMemo(() => trips.filter(t => {
-    if (!filteredDriverIds.has(t.driverId)) return false;
+    if (!filteredDriverIds.has(t.didiDriverId)) return false;
     const parts = t.fecha.split('/');
     if (parts.length !== 3) return false;
     const tripDate = new Date(`${parts[2]}-${parts[1]}-${parts[0]}`);
@@ -66,30 +62,6 @@ export default function DashboardPage() {
     { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-status-danger', bg: 'bg-status-danger/15' },
     { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-status-alert', bg: 'bg-status-alert/15' },
   ];
-
-  async function handleCloseShift(shiftId: string) {
-    const shift = shifts.find(s => s.id === shiftId);
-    if (!shift) return;
-
-    const hours = shiftHours(shift.checkIn);
-
-    if (hours < 1) {
-      const ok = await confirm({
-        title: 'Turno muy corto',
-        description: `Este turno tiene menos de 1 hora (${hours}h). ¿Seguro que deseas cerrarlo?`,
-        confirmLabel: 'Cerrar turno',
-        variant: 'danger',
-      });
-      if (!ok) return;
-    }
-
-    const checkOutTime = new Date().toISOString();
-    await actionCheckOut(
-      { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
-      dispatch,
-      showToast,
-    );
-  }
 
   if (!hydrated) {
     return (

@@ -143,7 +143,7 @@ export function mapTrip(row: DbTrip): Trip {
   if (!driver) console.warn(`mapTrip: driver ${row.driver_id} not found in lookup map — trip ${row.didi_trip_id} will be orphaned`);
   return {
     id: row.id,
-    driverId: driver?.didi_driver_id ?? 0,
+    didiDriverId: driver?.didi_driver_id ?? 0,
     fecha: formatDateForUI(row.date),
     tripId: row.didi_trip_id,
     horaInicio: row.initial_time,

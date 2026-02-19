@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Plus, Search, Shield } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import type { User } from '@/types';
 import { CENTERS } from '@/data/constants';
-import { useToast } from '@/app/providers/ToastProvider';
 import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useActionContext } from '@/lib/action-context';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
@@ -24,8 +24,7 @@ const emptyForm: UserFormData = {
 
 export default function UsersPage() {
   const { users, session } = useAppState();
-  const dispatch = useAppDispatch();
-  const { showToast } = useToast();
+  const ctx = useActionContext();
   const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
@@ -41,7 +40,7 @@ export default function UsersPage() {
   );
 
   function handleCreateUser(user: User) {
-    actionAddUser(user, dispatch, showToast, isSupabaseConfigured);
+    actionAddUser(user, ctx, isSupabaseConfigured);
   }
 
   function openEdit() {
@@ -77,7 +76,7 @@ export default function UsersPage() {
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
     };
-    actionUpdateUser(updated, selectedUser, dispatch, showToast);
+    actionUpdateUser(updated, selectedUser, ctx);
     setSelectedUser(updated);
     setEditMode(false);
   }
@@ -85,12 +84,12 @@ export default function UsersPage() {
   async function handleDeactivate() {
     if (!selectedUser) return;
     if (session && selectedUser.id === session.userId) {
-      showToast('error', 'No puedes desactivar tu propia cuenta.');
+      ctx.showToast('error', 'No puedes desactivar tu propia cuenta.');
       return;
     }
     const activeAdmins = users.filter(u => u.role === 'admin' && u.status === 'activo');
     if (selectedUser.role === 'admin' && activeAdmins.length <= 1) {
-      showToast('error', 'No se puede desactivar al último administrador.');
+      ctx.showToast('error', 'No se puede desactivar al último administrador.');
       return;
     }
     const ok = await confirm({
@@ -100,7 +99,7 @@ export default function UsersPage() {
       variant: 'danger',
     });
     if (!ok) return;
-    actionDeactivateUser(selectedUser.id, selectedUser.name, dispatch, showToast);
+    actionDeactivateUser(selectedUser.id, selectedUser.name, ctx);
     setSelectedUser(null);
   }
 

@@ -60,7 +60,7 @@ export interface User {
 
 export interface Trip {
   id: string;
-  driverId: number;
+  didiDriverId: number;
   fecha: string;
   tripId: string;
   horaInicio: string;

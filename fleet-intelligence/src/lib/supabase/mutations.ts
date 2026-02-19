@@ -133,7 +133,7 @@ export async function persistTrips(
 
   // Batch insert trips
   const rows = trips.map(t => ({
-    driver_id: didiToDriverId.get(t.driverId) ?? '',
+    driver_id: didiToDriverId.get(t.didiDriverId) ?? '',
     didi_trip_id: t.tripId,
     date: parseFechaToISO(t.fecha),
     initial_time: t.horaInicio,

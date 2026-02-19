@@ -1,11 +1,11 @@
 import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import type { Vehicle, VehicleStatus } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
-import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useActionContext } from '@/lib/action-context';
 import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '@/lib/actions';
 import { STATUS_LABELS } from '@/lib/status-map';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
@@ -29,9 +29,8 @@ const statusFilters: { key: StatusFilter; label: string }[] = [
 
 export default function VehiclesPage() {
   const { vehicles, shifts } = useAppState();
-  const dispatch = useAppDispatch();
+  const ctx = useActionContext();
   const { isAdmin, effectiveCenterId, filterByCenter } = useCenterFilter();
-  const { showToast } = useToast();
   const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
@@ -84,17 +83,17 @@ export default function VehiclesPage() {
       });
       if (!ok) return;
     }
-    await actionVehicleStatus(vehicle.id, newStatus, vehicle.status, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
+    await actionVehicleStatus(vehicle.id, newStatus, vehicle.status, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, ctx);
     setSelectedVehicle({ ...vehicle, status: newStatus as VehicleStatus });
   }
 
   function handleCreateVehicle(vehicle: Vehicle) {
-    actionAddVehicle(vehicle, dispatch, showToast);
+    actionAddVehicle(vehicle, ctx);
   }
 
   function handleEditVehicle(updated: Vehicle) {
     if (!selectedVehicle) return;
-    actionUpdateVehicle(updated, selectedVehicle, dispatch, showToast);
+    actionUpdateVehicle(updated, selectedVehicle, ctx);
     setSelectedVehicle(updated);
   }
 

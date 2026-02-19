@@ -1,115 +1,56 @@
 import { useState, useMemo } from 'react';
-import { Upload, Receipt, AlertTriangle } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { Upload, CheckCircle } from 'lucide-react';
 import type { PayrollRecord } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
-import { usePagination } from '@/lib/use-pagination';
-import { formatMXN } from '@/lib/format';
-import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { calculateWeeklyPay, exportPayrollCsv, SUPPORT_AMOUNT } from '@/features/payroll/lib/payroll';
-import { getWeekBounds, buildShiftSummaries } from '@/lib/date-utils';
+import { useActionContext } from '@/lib/action-context';
+import { calculateWeeklyPay, exportPayrollCsv } from '@/features/payroll/lib/payroll';
+import { buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
-import { getPayrollFlags, generateWeekSummary } from '@/features/payroll/lib/payroll-flags';
+import { usePayrollData, usePayrollStats } from './lib/use-payroll-data';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import SearchableSelect from '@/components/ui/SearchableSelect';
-import PaginationControls from '@/components/ui/PaginationControls';
-import SlidePanel from '@/components/ui/SlidePanel';
 import EmptyState from '@/components/ui/EmptyState';
 import PayrollSummaryCards from './components/PayrollSummaryCards';
 import PayrollDetailPanel from './components/PayrollDetailPanel';
+import PayrollTable from './components/PayrollTable';
+import SlidePanel from '@/components/ui/SlidePanel';
 
 type PayrollTab = 'actual' | 'cerradas';
-type SortKey = 'driverName' | 'hoursWorked' | 'totalBilled' | 'totalPay';
 
 export default function PayrollPage() {
-  const { drivers, trips, shifts, closedPayroll, session } = useAppState();
-  const dispatch = useAppDispatch();
-  const { isAdmin, filterByCenter } = useCenterFilter();
-  const { showToast } = useToast();
+  const {
+    drivers, trips, shifts, closedPayroll, session,
+    week, isCurrentWeekClosed, previousWeekHours,
+    livePayroll, closedWeeks, filterByCenter,
+  } = usePayrollData();
+  const ctx = useActionContext();
+  const { isAdmin } = useCenterFilter();
   const { confirm } = useConfirmDialog();
 
   const [tab, setTab] = useState<PayrollTab>('actual');
-  const [sortKey, setSortKey] = useState<SortKey>('driverName');
-  const [sortAsc, setSortAsc] = useState(true);
   const [selectedRow, setSelectedRow] = useState<PayrollRecord | null>(null);
   const [isClosing, setIsClosing] = useState(false);
-
-  const week = getWeekBounds();
-
-  const previousWeekHours = useMemo(() => {
-    const map = new Map<string, number>();
-    const closedRecords = closedPayroll.filter(p => p.status === 'cerrado' && p.weekLabel);
-    if (closedRecords.length === 0) return map;
-    const mostRecentWeek = closedRecords.reduce((latest, p) => {
-      if (!latest || (p.weekStart && (!latest.weekStart || p.weekStart > latest.weekStart))) return p;
-      return latest;
-    }).weekLabel;
-    closedRecords
-      .filter(p => p.weekLabel === mostRecentWeek)
-      .forEach(p => map.set(p.driverId, p.hoursWorked));
-    return map;
-  }, [closedPayroll]);
-
-  const livePayroll = useMemo(() => {
-    const filteredDrivers = filterByCenter(drivers);
-    const shiftSummaries = buildShiftSummaries(filteredDrivers, shifts);
-    return calculateWeeklyPay(filteredDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
-  }, [drivers, trips, shifts, filterByCenter, week.label, week.start, week.end, session?.name, previousWeekHours]);
-
-  const closedWeeks = useMemo(() => {
-    const weeks = new Map<string, PayrollRecord[]>();
-    closedPayroll.filter(p => p.status === 'cerrado').forEach(p => {
-      const key = p.weekLabel ?? 'Sin etiqueta';
-      if (!weeks.has(key)) weeks.set(key, []);
-      weeks.get(key)!.push(p);
-    });
-    return weeks;
-  }, [closedPayroll]);
 
   const [selectedWeek, setSelectedWeek] = useState<string>(() => {
     const keys = Array.from(closedWeeks.keys());
     return keys[keys.length - 1] ?? '';
   });
 
-  const currentClosed = filterByCenter(
-    closedWeeks.get(selectedWeek) ?? []
-  );
-
+  const currentClosed = filterByCenter(closedWeeks.get(selectedWeek) ?? []);
   const displayData = tab === 'actual' ? livePayroll : currentClosed;
 
-  const sorted = useMemo(() => [...displayData].sort((a, b) => {
-    const aVal = a[sortKey];
-    const bVal = b[sortKey];
-    if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    }
-    return sortAsc ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
-  }), [displayData, sortKey, sortAsc]);
-
-  const { paginatedItems: paginatedRows, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(sorted);
-
-  const weekSummary = useMemo(() => generateWeekSummary(displayData), [displayData]);
-  const totalNomina = weekSummary.totalPayroll;
-  const driversWithGoal = weekSummary.driversWithGoal;
-  const goalPct = displayData.length > 0 ? Math.round((driversWithGoal / displayData.length) * 100) : 0;
-  const totalHours = displayData.reduce((sum, p) => sum + p.hoursWorked, 0);
-  const totalBilled = displayData.reduce((sum, p) => sum + p.totalBilled, 0);
-  const avgPerHour = totalHours > 0 ? Math.round(totalBilled / totalHours) : 0;
+  const { weekSummary, totalNomina, driversWithGoal, goalPct, totalBilled, avgPerHour } = usePayrollStats(displayData);
 
   const selectedRowTrips = useMemo(() => {
     if (!selectedRow) return [];
     const driver = drivers.find(d => d.fullName === selectedRow.driverName);
     if (!driver) return [];
-    return trips.filter(t => t.driverId === driver.didiDriverId);
+    return trips.filter(t => t.didiDriverId === driver.didiDriverId);
   }, [selectedRow, drivers, trips]);
 
-  function handleSort(key: SortKey) {
-    if (sortKey === key) setSortAsc(!sortAsc);
-    else { setSortKey(key); setSortAsc(true); }
-  }
-
   async function handleCloseWeek() {
+    if (isCurrentWeekClosed) return;
     const ok = await confirm({
       title: 'Cerrar semana',
       description: `Se cerrará la nómina de la semana ${week.label}. Esta acción no se puede deshacer fácilmente.`,
@@ -123,7 +64,7 @@ export default function PayrollPage() {
       const activeDrivers = filterByCenter(drivers).filter(d => d.status === 'activo');
       const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
       const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
-      await actionClosePayroll(records, session?.userId ?? '', week.label, dispatch, showToast, session?.role);
+      await actionClosePayroll(records, week.label, ctx);
       setTab('cerradas');
       setSelectedWeek(week.label);
     } finally {
@@ -149,7 +90,7 @@ export default function PayrollPage() {
       const activeDrivers = drivers.filter(d => d.status === 'activo');
       const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
       const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
-      await actionRerunPayroll(rerunWeekStart, selectedWeek, records, session?.userId ?? '', latestVersion + 1, dispatch, showToast, session?.role);
+      await actionRerunPayroll(rerunWeekStart, selectedWeek, records, latestVersion + 1, ctx);
     } finally {
       setIsClosing(false);
     }
@@ -157,18 +98,7 @@ export default function PayrollPage() {
 
   function handleExport() {
     exportPayrollCsv(displayData, tab);
-    showToast('success', 'CSV exportado.');
-  }
-
-  function SortHeader({ label, field }: { label: string; field: SortKey }) {
-    return (
-      <th
-        className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap"
-        onClick={() => handleSort(field)}
-      >
-        {label} {sortKey === field ? (sortAsc ? '↑' : '↓') : ''}
-      </th>
-    );
+    ctx.showToast('success', 'CSV exportado.');
   }
 
   const weekOptions = Array.from(closedWeeks.keys());
@@ -179,7 +109,7 @@ export default function PayrollPage() {
         <h1 className="text-2xl font-semibold text-lafa-text-primary">{'Nómina'}</h1>
         <div className="flex items-center gap-3 flex-wrap">
           <CenterFilterDropdown />
-          {tab === 'actual' && isAdmin && (
+          {tab === 'actual' && isAdmin && !isCurrentWeekClosed && (
             <button
               onClick={handleCloseWeek}
               disabled={isClosing}
@@ -228,7 +158,7 @@ export default function PayrollPage() {
       </div>
 
       <div className="flex items-center gap-4 mb-4 flex-wrap">
-        {tab === 'actual' && (
+        {tab === 'actual' && !isCurrentWeekClosed && (
           <p className="text-sm text-lafa-text-secondary">
             {'Semana: '}
             <span className="text-lafa-text-primary font-medium">{week.label}</span>
@@ -254,7 +184,22 @@ export default function PayrollPage() {
         )}
       </div>
 
-      {tab === 'actual' && trips.length === 0 && (
+      {tab === 'actual' && isCurrentWeekClosed && (
+        <EmptyState
+          icon={CheckCircle}
+          title="Semana cerrada"
+          description={`La nómina de ${week.label} ya fue cerrada. Revisa los resultados en la pestaña Cerradas.`}
+        >
+          <button
+            onClick={() => { setTab('cerradas'); setSelectedWeek(week.label); }}
+            className="mt-3 px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors duration-150"
+          >
+            Ver en Cerradas
+          </button>
+        </EmptyState>
+      )}
+
+      {tab === 'actual' && !isCurrentWeekClosed && trips.length === 0 && (
         <EmptyState
           icon={Upload}
           title="Sin datos de viajes"
@@ -262,7 +207,7 @@ export default function PayrollPage() {
         />
       )}
 
-      {(tab === 'cerradas' || trips.length > 0) && (
+      {(tab === 'cerradas' || (trips.length > 0 && !isCurrentWeekClosed)) && (
         <>
           {displayData.length > 0 && (
             <>
@@ -284,107 +229,13 @@ export default function PayrollPage() {
             </>
           )}
 
-          <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead className="bg-lafa-surface">
-                  <tr className="border-b border-lafa-border">
-                    <SortHeader label="Conductor" field="driverName" />
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Centro</th>
-                    <SortHeader label="Horas" field="hoursWorked" />
-                    <SortHeader label={'Facturación'} field="totalBilled" />
-                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Meta</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Base</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Bono</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Overtime</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Apoyo</th>
-                    <SortHeader label="Pago total" field="totalPay" />
-                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Flags</th>
-                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.length === 0 && (
-                    <tr>
-                      <td colSpan={12} className="px-4 py-8">
-                        <EmptyState icon={Receipt} title={'Sin registros de nómina'} />
-                      </td>
-                    </tr>
-                  )}
-                  {paginatedRows.map((row, i) => (
-                    <tr
-                      key={row.id}
-                      onClick={() => setSelectedRow(row)}
-                      className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
-                        i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
-                      }`}
-                    >
-                      <td className="px-4 py-3 text-lafa-text-primary font-medium whitespace-nowrap">{row.driverName}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary">{row.center}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary" title={`Meta: ${row.hoursThreshold}h`}>
-                        {row.hoursWorked}h
-                        <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{row.hoursThreshold}h</span>
-                      </td>
-                      <td className="px-4 py-3 text-lafa-text-primary whitespace-nowrap" title={`Meta: ${formatMXN(row.revenueThreshold)}`}>
-                        {formatMXN(row.totalBilled)}
-                        <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{formatMXN(row.revenueThreshold)}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {row.goalMet ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">{'\u00a0Sí\u00a0'}</span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">No</span>
-                        )}
-                      </td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.baseSalary)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.productivityBonus)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.overtimePay)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '—' : formatMXN(SUPPORT_AMOUNT)}</td>
-                      <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalPay)}</td>
-                      <td className="px-4 py-3">
-                        {(() => {
-                          const flags = getPayrollFlags(row, previousWeekHours.get(row.driverId));
-                          if (flags.length === 0) return null;
-                          return (
-                            <div className="flex flex-col gap-0.5">
-                              {flags.map((f, fi) => (
-                                <span key={fi} className="inline-flex items-center gap-1 text-[10px] font-medium whitespace-nowrap" style={{ color: f.color }}>
-                                  <AlertTriangle size={10} />
-                                  {f.label}
-                                </span>
-                              ))}
-                            </div>
-                          );
-                        })()}
-                      </td>
-                      <td className="px-4 py-3 text-center">
-                        {tab === 'actual' ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-alert/15 text-status-alert">Borrador</span>
-                        ) : row.status === 'cerrado' ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">Cerrado</span>
-                        ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">Superseded</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
-              <span className="text-xs text-lafa-text-secondary">
-                {rangeStart}–{rangeEnd} de {displayData.length} conductor{displayData.length !== 1 ? 'es' : ''}
-              </span>
-              <div className="flex items-center gap-3">
-                {displayData.length > 0 && (
-                  <span className="text-xs font-medium text-lafa-text-primary">
-                    {'Total: '}{formatMXN(totalNomina)}
-                  </span>
-                )}
-                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
-              </div>
-            </div>
-          </div>
+          <PayrollTable
+            data={displayData}
+            tab={tab}
+            totalNomina={totalNomina}
+            previousWeekHours={previousWeekHours}
+            onSelectRow={setSelectedRow}
+          />
         </>
       )}
 

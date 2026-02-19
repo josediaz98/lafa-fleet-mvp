@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
-import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { useAppState } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { usePagination } from '@/lib/use-pagination';
 import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
-import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useActionContext } from '@/lib/action-context';
 import { actionAddDriver, actionUpdateDriver, actionDeactivateDriver } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
@@ -29,9 +29,8 @@ interface DriverFormState {
 
 export default function DriversPage() {
   const { drivers, shifts, closedPayroll } = useAppState();
-  const dispatch = useAppDispatch();
+  const ctx = useActionContext();
   const { isAdmin, effectiveCenterId, filterByCenter } = useCenterFilter();
-  const { showToast } = useToast();
   const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
@@ -94,13 +93,13 @@ export default function DriversPage() {
       startDate: createForm.startDate,
       status: 'activo',
     };
-    actionAddDriver(newDriver, dispatch, showToast);
+    actionAddDriver(newDriver, ctx);
     setShowCreateModal(false);
   }
 
   function handleEdit(updated: Driver) {
     if (!selectedDriver) return;
-    actionUpdateDriver(updated, selectedDriver, dispatch, showToast);
+    actionUpdateDriver(updated, selectedDriver, ctx);
     setSelectedDriver(updated);
   }
 
@@ -110,7 +109,7 @@ export default function DriversPage() {
       s => s.driverId === selectedDriver.id && s.status === 'en_turno'
     );
     if (hasActiveShift) {
-      showToast('error', 'No se puede desactivar un conductor con turno activo.');
+      ctx.showToast('error', 'No se puede desactivar un conductor con turno activo.');
       return;
     }
     const ok = await confirm({
@@ -120,7 +119,7 @@ export default function DriversPage() {
       variant: 'danger',
     });
     if (!ok) return;
-    actionDeactivateDriver(selectedDriver.id, selectedDriver.fullName, dispatch, showToast);
+    actionDeactivateDriver(selectedDriver.id, selectedDriver.fullName, ctx);
     setSelectedDriver(null);
   }
 

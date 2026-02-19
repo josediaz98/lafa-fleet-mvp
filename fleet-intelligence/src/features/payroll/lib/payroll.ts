@@ -18,17 +18,14 @@ interface ShiftSummary {
   totalHours: number;
 }
 
-/** Count weekdays (Mon-Fri) between two dates, inclusive. */
+/** Count weekdays (Mon-Fri) between two dates, inclusive. Uses UTC to avoid timezone shift. */
 function countWeekdays(start: Date, end: Date): number {
   let count = 0;
-  const d = new Date(start);
-  d.setHours(0, 0, 0, 0);
-  const endNorm = new Date(end);
-  endNorm.setHours(0, 0, 0, 0);
+  const d = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), start.getUTCDate()));
+  const endNorm = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), end.getUTCDate()));
   while (d <= endNorm) {
-    const day = d.getDay();
-    if (day !== 0 && day !== 6) count++;
-    d.setDate(d.getDate() + 1);
+    if (d.getUTCDay() !== 0 && d.getUTCDay() !== 6) count++;
+    d.setUTCDate(d.getUTCDate() + 1);
   }
   return count;
 }
@@ -74,7 +71,7 @@ export function calculateWeeklyPay(
     .map(driver => {
       // Filter trips by week bounds with Sunday 20:00 cutoff
       const driverTrips = trips.filter(t => {
-        if (t.driverId !== driver.didiDriverId) return false;
+        if (t.didiDriverId !== driver.didiDriverId) return false;
         return isTripInWeek(t, weekStart, weekEnd);
       });
       const totalBilled = Math.round(driverTrips.reduce((sum, t) => sum + t.costo, 0) * 100) / 100;
