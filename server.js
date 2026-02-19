@@ -1,6 +1,8 @@
 const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
+const cron = require('node-cron');
+const { closePayrollWeek } = require('./server/payroll-close');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -93,6 +95,53 @@ app.post('/api/invite-user', async (req, res) => {
   }
 });
 
+// --- Payroll auto-close ---
+
+let lastCronRun = null;
+let lastCronResult = null;
+
+// POST /api/payroll/auto-close — protected by CRON_SECRET or admin Bearer token
+app.post('/api/payroll/auto-close', async (req, res) => {
+  const cronSecret = process.env.CRON_SECRET;
+  const headerSecret = req.headers['x-cron-secret'];
+
+  // Auth: accept CRON_SECRET header or admin Bearer token
+  if (cronSecret && headerSecret === cronSecret) {
+    // OK — authenticated via cron secret
+  } else {
+    try {
+      await requireAdmin(req);
+    } catch (err) {
+      return res.status(401).json({ error: err.message });
+    }
+  }
+
+  try {
+    const result = await closePayrollWeek(supabaseAdmin);
+    lastCronRun = new Date().toISOString();
+    lastCronResult = result;
+    const httpStatus = result.status === 'error' ? 500 : 200;
+    return res.status(httpStatus).json(result);
+  } catch (err) {
+    const errResult = { status: 'error', reason: err.message };
+    lastCronRun = new Date().toISOString();
+    lastCronResult = errResult;
+    return res.status(500).json(errResult);
+  }
+});
+
+// GET /api/payroll/cron-status — read-only status info
+app.get('/api/payroll/cron-status', (_req, res) => {
+  res.json({
+    enabled: !!supabaseAdmin,
+    schedule: 'Sunday 20:00 CDMX',
+    cron: '0 20 * * 0',
+    timezone: 'America/Mexico_City',
+    lastRun: lastCronRun,
+    lastResult: lastCronResult,
+  });
+});
+
 // --- Redirects ---
 
 // /app/* → /fleet-intelligence/*
@@ -168,6 +217,26 @@ app.get('/fleet-intelligence/*', (_req, res) => {
 // --- Start server ---
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`LAFA server listening on port ${PORT}`);
+
+  // Schedule payroll auto-close: Sunday 20:00 CDMX
+  if (supabaseAdmin) {
+    cron.schedule('0 20 * * 0', async () => {
+      console.log('[cron] Payroll auto-close triggered');
+      try {
+        const result = await closePayrollWeek(supabaseAdmin);
+        lastCronRun = new Date().toISOString();
+        lastCronResult = result;
+        console.log(`[cron] Payroll auto-close ${result.status}:`, JSON.stringify(result));
+      } catch (err) {
+        lastCronRun = new Date().toISOString();
+        lastCronResult = { status: 'error', reason: err.message };
+        console.error('[cron] Payroll auto-close error:', err.message);
+      }
+    }, { timezone: 'America/Mexico_City' });
+    console.log('Payroll cron scheduled: Sunday 20:00 CDMX');
+  } else {
+    console.warn('Payroll cron NOT scheduled — Supabase not configured');
+  }
 });
 
 // Graceful shutdown

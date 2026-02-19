@@ -49,6 +49,17 @@ export default function PayrollDetailPanel({
             </p>
           </div>
         )}
+        {record.closedAt && (
+          <div>
+            <p className="text-xs text-lafa-text-secondary">Cerrado por</p>
+            <p className="text-sm font-medium text-lafa-text-primary">
+              {record.closedBy || 'Sistema (auto)'}
+            </p>
+            <p className="text-xs text-lafa-text-secondary mt-0.5">
+              {new Date(record.closedAt).toLocaleString('es-MX')}
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="border-t border-lafa-border pt-4">

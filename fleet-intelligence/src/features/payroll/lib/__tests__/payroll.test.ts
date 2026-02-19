@@ -74,18 +74,18 @@ function runPayroll(opts: {
       ? new Map([[driver.id, opts.previousWeekHours]])
       : new Map<string, number>();
 
-  const results = calculateWeeklyPay(
-    [driver],
+  const results = calculateWeeklyPay({
+    drivers: [driver],
     trips,
     shiftSummaries,
-    WEEK_LABEL,
-    WEEK_START,
-    WEEK_END,
-    'Admin',
-    1,
-    prevMap,
-    CENTERS,
-  );
+    weekLabel: WEEK_LABEL,
+    weekStart: WEEK_START,
+    weekEnd: WEEK_END,
+    closedBy: 'Admin',
+    version: 1,
+    previousWeekHours: prevMap,
+    centers: CENTERS,
+  });
   expect(results).toHaveLength(1);
   return results[0];
 }
@@ -308,18 +308,18 @@ describe('calculateWeeklyPay', () => {
       const driver = makeDriver({ status: 'inactivo' });
       const trips = makeTrips(driver.didiDriverId, 8000, WEEK_START);
       const shiftSummaries = [makeShiftSummary(driver.id, 45)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results).toHaveLength(0);
     });
   });
@@ -340,11 +340,8 @@ describe('calculateWeeklyPay', () => {
 
   describe('Edge Case 17: tip exclusion from billing', () => {
     it('trip with $400 cost + $100 tip → only $400 counts toward billing', () => {
-      // The Trip type has `costo` (cost) and `propina` (tip) as separate fields.
-      // calculateWeeklyPay sums t.costo, NOT t.costo + t.propina.
       const driver = makeDriver();
       const trips: Trip[] = [];
-      // Create trips totaling $6,000 in costo but with tips added
       for (let i = 0; i < 5; i++) {
         const date = new Date(2026, 1, 16 + i);
         const dd = String(date.getDate()).padStart(2, '0');
@@ -361,18 +358,18 @@ describe('calculateWeeklyPay', () => {
         });
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(6000); // tips NOT included
       expect(results[0].goalMet).toBe(true);
     });
@@ -381,7 +378,6 @@ describe('calculateWeeklyPay', () => {
   describe('B1: floating-point rounding before goal check', () => {
     it('revenue that sums to 5999.995 rounds to 6000 → goal met', () => {
       const driver = makeDriver();
-      // 5 trips: 4 × $1200 + 1 × $1199.999 = $5999.999 → rounds to $6000.00
       const trips: Trip[] = [];
       for (let i = 0; i < 5; i++) {
         const date = new Date(2026, 1, 16 + i);
@@ -399,19 +395,18 @@ describe('calculateWeeklyPay', () => {
         });
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
-      // 4800 + 1199.999 = 5999.999 → Math.round(* 100) / 100 = 6000.00
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(6000);
       expect(results[0].goalMet).toBe(true);
       expect(results[0].baseSalary).toBe(2500);
@@ -436,18 +431,18 @@ describe('calculateWeeklyPay', () => {
         });
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(5999.99);
       expect(results[0].goalMet).toBe(false);
       expect(results[0].totalPay).toBe(1000);
@@ -457,7 +452,6 @@ describe('calculateWeeklyPay', () => {
   describe('Edge Case 2b: $5,999.99 precision', () => {
     it('revenue $5,999.99 → goal NOT met', () => {
       const driver = makeDriver();
-      // Use 5 trips of $1199.998 each → total = 5999.99
       const trips: Trip[] = [];
       for (let i = 0; i < 5; i++) {
         const date = new Date(2026, 1, 16 + i);
@@ -475,18 +469,18 @@ describe('calculateWeeklyPay', () => {
         });
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBeCloseTo(5999.99, 2);
       expect(results[0].goalMet).toBe(false);
       expect(results[0].totalPay).toBe(1000);
@@ -496,7 +490,6 @@ describe('calculateWeeklyPay', () => {
   describe('Edge Case 15: Sunday 20:00 cutoff', () => {
     it('trip starting Sunday at 19:50 → counts this week', () => {
       const driver = makeDriver();
-      // Sunday is 2026-02-22 (weekEnd)
       const trips: Trip[] = [
         {
           id: 't-sun-1950',
@@ -510,18 +503,18 @@ describe('calculateWeeklyPay', () => {
         },
       ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(6000);
       expect(results[0].goalMet).toBe(true);
     });
@@ -541,18 +534,18 @@ describe('calculateWeeklyPay', () => {
         },
       ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(0);
       expect(results[0].goalMet).toBe(false);
       expect(results[0].totalPay).toBe(1000);
@@ -573,18 +566,18 @@ describe('calculateWeeklyPay', () => {
         },
       ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(0);
       expect(results[0].goalMet).toBe(false);
     });
@@ -593,7 +586,6 @@ describe('calculateWeeklyPay', () => {
   describe('Edge Case 14: overnight trip assignment', () => {
     it('trip 23:50→00:35 assigned based on start date (fecha)', () => {
       const driver = makeDriver();
-      // Trip on Saturday night crossing into Sunday — should count (within week)
       const trips: Trip[] = [
         {
           id: 't-overnight',
@@ -607,18 +599,18 @@ describe('calculateWeeklyPay', () => {
         },
       ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
-      const results = calculateWeeklyPay(
-        [driver],
+      const results = calculateWeeklyPay({
+        drivers: [driver],
         trips,
         shiftSummaries,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results[0].totalBilled).toBe(6000);
       expect(results[0].goalMet).toBe(true);
     });
@@ -638,8 +630,6 @@ describe('calculateWeeklyPay', () => {
 
   describe('Prorated first-week driver — no OT eligibility', () => {
     it('prorated driver with 45h worked → no OT (no previous week)', () => {
-      // Driver starts Wed → prorated thresholds (24h / $3,600)
-      // 45h > 40 but no previous week → OT ineligible
       const r = runPayroll({
         driver: { startDate: '2026-02-18' },
         hours: 45,
@@ -681,18 +671,18 @@ describe('calculateWeeklyPay', () => {
         ...makeTrips(1002, 4000, WEEK_START),
       ];
       const shifts = [makeShiftSummary('d1', 42), makeShiftSummary('d2', 42)];
-      const results = calculateWeeklyPay(
-        [d1, d2],
+      const results = calculateWeeklyPay({
+        drivers: [d1, d2],
         trips,
-        shifts,
-        WEEK_LABEL,
-        WEEK_START,
-        WEEK_END,
-        'Admin',
-        1,
-        new Map(),
-        CENTERS,
-      );
+        shiftSummaries: shifts,
+        weekLabel: WEEK_LABEL,
+        weekStart: WEEK_START,
+        weekEnd: WEEK_END,
+        closedBy: 'Admin',
+        version: 1,
+        previousWeekHours: new Map(),
+        centers: CENTERS,
+      });
       expect(results).toHaveLength(2);
       const r1 = results.find((r) => r.driverId === 'd1')!;
       const r2 = results.find((r) => r.driverId === 'd2')!;

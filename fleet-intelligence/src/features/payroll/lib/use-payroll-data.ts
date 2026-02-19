@@ -43,17 +43,17 @@ export function usePayrollData() {
   const livePayroll = useMemo(() => {
     const filteredDrivers = filterByCenter(drivers);
     const shiftSummaries = buildShiftSummaries(filteredDrivers, shifts);
-    return calculateWeeklyPay(
-      filteredDrivers,
+    return calculateWeeklyPay({
+      drivers: filteredDrivers,
       trips,
       shiftSummaries,
-      week.label,
-      week.start,
-      week.end,
-      session?.name ?? '',
-      1,
+      weekLabel: week.label,
+      weekStart: week.start,
+      weekEnd: week.end,
+      closedBy: session?.name ?? '',
+      version: 1,
       previousWeekHours,
-    );
+    });
   }, [
     drivers,
     trips,

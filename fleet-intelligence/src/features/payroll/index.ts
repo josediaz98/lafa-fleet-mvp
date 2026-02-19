@@ -7,6 +7,7 @@ export {
   OVERTIME_THRESHOLD_HOURS,
   OVERTIME_RATE_PER_HOUR,
 } from './lib/payroll';
+export type { PayrollInput } from './lib/payroll';
 export { exportPayrollCsv } from './lib/payroll-export';
 export { getPayrollFlags, generateWeekSummary } from './lib/payroll-flags';
 export { generateExplanation } from './lib/explanation';

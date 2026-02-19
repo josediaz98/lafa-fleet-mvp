@@ -217,9 +217,16 @@ export default function PayrollTable({
                       Borrador
                     </span>
                   ) : row.status === 'cerrado' ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">
-                      Cerrado
-                    </span>
+                    <div>
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">
+                        Cerrado
+                      </span>
+                      {row.closedAt && (
+                        <span className="block text-[10px] text-lafa-text-secondary mt-0.5">
+                          {row.closedBy || 'Sistema (auto)'}
+                        </span>
+                      )}
+                    </div>
                   ) : (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">
                       Superseded
