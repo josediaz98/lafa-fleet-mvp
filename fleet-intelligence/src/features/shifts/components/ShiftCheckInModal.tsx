@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import type { Driver, Vehicle } from '@/types';
 import { CENTERS } from '@/data/constants';
@@ -43,10 +43,6 @@ export default function ShiftCheckInModal({
     selectedDriver &&
     selectedVehicle &&
     selectedDriver.centerId !== selectedVehicle.centerId;
-
-  useEffect(() => {
-    if (formError) setFormError('');
-  }, [selectedDriverId, selectedVehicleId]);
 
   const driverOptions = useMemo(
     () =>
@@ -116,7 +112,7 @@ export default function ShiftCheckInModal({
           label="Conductor"
           options={driverOptions}
           value={selectedDriverId}
-          onChange={setSelectedDriverId}
+          onChange={useCallback((v: string) => { setSelectedDriverId(v); setFormError(''); }, [])}
           placeholder="Seleccionar conductor..."
         />
 
@@ -151,7 +147,7 @@ export default function ShiftCheckInModal({
           label="Vehículo"
           options={vehicleOptions}
           value={selectedVehicleId}
-          onChange={setSelectedVehicleId}
+          onChange={useCallback((v: string) => { setSelectedVehicleId(v); setFormError(''); }, [])}
           placeholder="Seleccionar vehículo..."
         />
 

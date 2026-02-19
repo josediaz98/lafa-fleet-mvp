@@ -9,7 +9,7 @@ React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CL
 | `app/` | Entry point, App.tsx (router), providers (AppProvider, ToastProvider) | `App.tsx` defines all routes |
 | `components/` | Shared UI: `layout/` (AppLayout, Sidebar) + `ui/` (Modal, StatusBadge, etc.) | Reusable UI components |
 | `features/` | Feature modules — one dir per domain (8 total) | `payroll/`, `drivers/`, `shifts/` |
-| `lib/` | Service layer, utils, hooks, Supabase client + queries/mutations | `actions.ts` is the main entry point |
+| `lib/` | Service layer, utils, hooks, Supabase client + queries/mutations | `actions/` (domain files + barrel) is the entry point |
 | `types/` | Domain types, AppState, Action union — single source in `shared.ts` | Import types from `@/types` |
 | `data/` | Business constants (`constants.ts`) + dev seed data (`dev-seed.ts`) | `CENTERS` used across app, seed only in AppProvider |
 
@@ -52,13 +52,13 @@ All routes except auth are nested inside `RequireAuth` via `AppLayout`. `Require
 ## Data Flow
 
 ```
-Page → action*() (lib/actions.ts) → supabase/{queries,mutations}.ts → Supabase
+Page → action*() (lib/actions/) → supabase/{queries/,mutations.ts} → Supabase
                                    ↘ dispatch() → AppState (context)
 ```
 
 - **Never call dispatch or Supabase directly from pages** — always go through `action*()`.
 - Actions handle: optimistic UI update → persist to Supabase → error toast on failure.
-- `supabase/queries.ts` = read operations (fetch*). `supabase/mutations.ts` = write operations (persist*).
+- `supabase/queries/` = read operations (hydrate, paginated, csv + barrel). `supabase/mutations.ts` = write operations (persist*).
 
 ## Adding a New Feature
 
@@ -66,5 +66,5 @@ Page → action*() (lib/actions.ts) → supabase/{queries,mutations}.ts → Supa
 2. Add barrel export: `export { default as NamePage } from './NamePage'`
 3. Add route in `app/App.tsx` inside the appropriate guard
 4. Add sidebar link in `components/layout/Sidebar.tsx`
-5. If it needs persistence: add `action*()` in `lib/actions.ts` + queries/mutations in `lib/supabase/`
+5. If it needs persistence: add `action*()` in `lib/actions/{domain}.ts` (re-export from barrel `index.ts`) + queries/mutations in `lib/supabase/`
 6. If it has business logic: add `lib/` subfolder with tests

@@ -52,7 +52,6 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   useFocusTrap(open ? dialogRef : { current: null });

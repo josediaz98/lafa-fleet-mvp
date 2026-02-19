@@ -33,12 +33,14 @@ export default function VehicleCreateModal({
   });
   const [formError, setFormError] = useState('');
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset form on modal open */
   useEffect(() => {
     if (open) {
       setForm({ ...emptyForm, centerId: defaultCenterId });
       setFormError('');
     }
   }, [open, defaultCenterId]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function handleCreate() {
     const error = validateVehicleForm(form, existingPlates);

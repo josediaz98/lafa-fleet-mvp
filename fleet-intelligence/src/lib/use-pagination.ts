@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 
 interface UsePaginationOptions {
   pageSize?: number;
@@ -24,16 +24,11 @@ export function usePagination<T>(
   const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
 
   // Reset to page 1 when items count changes (filter/tab/search)
-  useEffect(() => {
+  const [prevItemsLength, setPrevItemsLength] = useState(items.length);
+  if (items.length !== prevItemsLength) {
+    setPrevItemsLength(items.length);
     setCurrentPage(1);
-  }, [items.length]);
-
-  // Clamp page if it exceeds totalPages (e.g. after filtering reduces items)
-  useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
+  }
 
   const safePage = Math.min(currentPage, totalPages);
 

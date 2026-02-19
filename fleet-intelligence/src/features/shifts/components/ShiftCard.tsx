@@ -15,12 +15,14 @@ interface ShiftCardProps {
     hoursWorked?: number;
   };
   variant?: 'active' | 'completed' | 'alert';
+  now?: number;
   onClose?: (shiftId: string) => void;
 }
 
 export default function ShiftCard({
   shift,
   variant = 'active',
+  now = 0,
   onClose,
 }: ShiftCardProps) {
   if (variant === 'completed') {
@@ -84,7 +86,7 @@ export default function ShiftCard({
 
   // Active variant — T-01: red styling for shifts >12h
   const isOvertime =
-    Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
+    now - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
 
   return (
     <div
@@ -104,7 +106,7 @@ export default function ShiftCard({
         {isOvertime ? (
           <StatusBadge
             status="alerta"
-            label={`+${Math.floor((Date.now() - new Date(shift.checkIn).getTime()) / 3600000)}h`}
+            label={`+${Math.floor((now - new Date(shift.checkIn).getTime()) / 3600000)}h`}
           />
         ) : (
           <StatusBadge status="en_turno" />

@@ -118,7 +118,7 @@ export default function LoginPage() {
         showToast('success', `Bienvenido, ${user.name}`);
         navigate('/dashboard');
       }
-    } catch (err) {
+    } catch {
       setError('Error de conexión. Intenta de nuevo.');
     } finally {
       setLoading(false);

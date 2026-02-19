@@ -12,6 +12,7 @@ interface ShiftRowProps {
     status: string;
   };
   variant: 'active' | 'alert';
+  now?: number;
   onClose?: (shiftId: string) => void;
   disabled?: boolean;
 }
@@ -19,11 +20,12 @@ interface ShiftRowProps {
 export default function ShiftRow({
   shift,
   variant,
+  now = 0,
   onClose,
   disabled,
 }: ShiftRowProps) {
   const isOvertime =
-    Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
+    now - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
   const showWarning = variant === 'alert' || isOvertime;
 
   return (

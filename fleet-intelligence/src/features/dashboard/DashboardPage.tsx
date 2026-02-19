@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Clock,
@@ -24,9 +24,13 @@ export default function DashboardPage() {
   const { handleCheckOut: handleCloseShift } = useShiftCheckOut();
   const navigate = useNavigate();
   const [, setTick] = useState(0);
+  const nowRef = useRef(Date.now()); // eslint-disable-line react-hooks/purity -- intentional impure initial value
 
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), REFRESH_INTERVAL);
+    const id = setInterval(() => {
+      nowRef.current = Date.now();
+      setTick((t) => t + 1);
+    }, REFRESH_INTERVAL);
     return () => clearInterval(id);
   }, []);
 
@@ -47,7 +51,7 @@ export default function DashboardPage() {
   const alertShifts = filteredShifts.filter(
     (s) =>
       (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
-      Date.now() - new Date(s.checkIn).getTime() > SHIFT_WINDOW_MS,
+      nowRef.current - new Date(s.checkIn).getTime() > SHIFT_WINDOW_MS,
   );
 
   const {
@@ -213,7 +217,7 @@ export default function DashboardPage() {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {enTurno.slice(0, 6).map((shift) => (
-                <ShiftCard key={shift.id} shift={shift} variant="active" />
+                <ShiftCard key={shift.id} shift={shift} variant="active" now={nowRef.current} />
               ))}
             </div>
           )}
@@ -230,6 +234,7 @@ export default function DashboardPage() {
                   key={shift.id}
                   shift={shift}
                   variant="alert"
+                  now={nowRef.current}
                   onClose={handleCloseShift}
                 />
               ))}

@@ -10,6 +10,29 @@ import EmptyState from '@/components/ui/EmptyState';
 
 type SortKey = 'driverName' | 'hoursWorked' | 'totalBilled' | 'totalPay';
 
+function SortHeader({
+  label,
+  field,
+  sortKey,
+  sortAsc,
+  onSort,
+}: {
+  label: string;
+  field: SortKey;
+  sortKey: SortKey;
+  sortAsc: boolean;
+  onSort: (key: SortKey) => void;
+}) {
+  return (
+    <th
+      className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap"
+      onClick={() => onSort(field)}
+    >
+      {label} {sortKey === field ? (sortAsc ? '↑' : '↓') : ''}
+    </th>
+  );
+}
+
 interface PayrollTableProps {
   data: PayrollRecord[];
   tab: 'actual' | 'cerradas';
@@ -60,29 +83,18 @@ export default function PayrollTable({
     rangeEnd,
   } = usePagination(sorted);
 
-  function SortHeader({ label, field }: { label: string; field: SortKey }) {
-    return (
-      <th
-        className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap"
-        onClick={() => handleSort(field)}
-      >
-        {label} {sortKey === field ? (sortAsc ? '↑' : '↓') : ''}
-      </th>
-    );
-  }
-
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-lafa-surface">
             <tr className="border-b border-lafa-border">
-              <SortHeader label="Conductor" field="driverName" />
+              <SortHeader label="Conductor" field="driverName" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Centro
               </th>
-              <SortHeader label="Horas" field="hoursWorked" />
-              <SortHeader label={'Facturación'} field="totalBilled" />
+              <SortHeader label="Horas" field="hoursWorked" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <SortHeader label={'Facturación'} field="totalBilled" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
               <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Meta
               </th>
@@ -98,7 +110,7 @@ export default function PayrollTable({
               <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Apoyo
               </th>
-              <SortHeader label="Pago total" field="totalPay" />
+              <SortHeader label="Pago total" field="totalPay" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
               <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Flags
               </th>

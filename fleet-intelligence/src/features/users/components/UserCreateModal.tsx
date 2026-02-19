@@ -40,12 +40,14 @@ export default function UserCreateModal({
   const [formError, setFormError] = useState('');
   const supabaseMode = isSupabaseConfigured;
 
+  /* eslint-disable react-hooks/set-state-in-effect -- reset form on modal open */
   useEffect(() => {
     if (open) {
       setForm({ ...emptyForm, centerId: CENTERS[0]?.id ?? '' });
       setFormError('');
     }
   }, [open]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   function handleCreate() {
     const error = validateUserCreate(form, users);

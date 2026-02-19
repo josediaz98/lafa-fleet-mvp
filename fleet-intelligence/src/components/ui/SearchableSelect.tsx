@@ -126,7 +126,7 @@ export default function SearchableSelect({
             selected ? 'text-lafa-text-primary' : 'text-lafa-text-secondary/50'
           }
         >
-          {selected ? selected.label : (placeholder ?? 'Seleccionar...')}
+          {selected ? `${selected.label} ` : (placeholder ?? 'Seleccionar...')}
         </span>
         <ChevronDown
           size={16}

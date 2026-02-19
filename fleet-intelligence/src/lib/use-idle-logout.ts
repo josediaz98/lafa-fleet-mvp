@@ -4,7 +4,7 @@ const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 min
 
 export function useIdleLogout(onLogout: () => void) {
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
-  const stableLogout = useCallback(onLogout, [onLogout]);
+  const stableLogout = useCallback(() => onLogout(), [onLogout]);
 
   useEffect(() => {
     function resetTimer() {

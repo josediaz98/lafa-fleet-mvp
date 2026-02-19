@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
 import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
@@ -25,9 +25,13 @@ export default function ShiftsPage() {
   const [showModal, setShowModal] = useState(false);
   const [search, setSearch] = useState('');
   const [, setTick] = useState(0);
+  const nowRef = useRef(Date.now()); // eslint-disable-line react-hooks/purity -- intentional impure initial value
 
   useEffect(() => {
-    const id = setInterval(() => setTick((t) => t + 1), REFRESH_INTERVAL);
+    const id = setInterval(() => {
+      nowRef.current = Date.now();
+      setTick((t) => t + 1);
+    }, REFRESH_INTERVAL);
     return () => clearInterval(id);
   }, []);
 
@@ -47,9 +51,9 @@ export default function ShiftsPage() {
     const active = searchFiltered.filter((s) => s.status === 'en_turno');
     return [...active].sort((a, b) => {
       const aOver =
-        Date.now() - new Date(a.checkIn).getTime() > SHIFT_WINDOW_MS;
+        nowRef.current - new Date(a.checkIn).getTime() > SHIFT_WINDOW_MS;
       const bOver =
-        Date.now() - new Date(b.checkIn).getTime() > SHIFT_WINDOW_MS;
+        nowRef.current - new Date(b.checkIn).getTime() > SHIFT_WINDOW_MS;
       if (aOver && !bOver) return -1;
       if (!aOver && bOver) return 1;
       return new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime();
@@ -63,7 +67,7 @@ export default function ShiftsPage() {
   const pendingShifts = searchFiltered.filter(
     (s) =>
       (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
-      Date.now() - new Date(s.checkIn).getTime() > SHIFT_WINDOW_MS,
+      nowRef.current - new Date(s.checkIn).getTime() > SHIFT_WINDOW_MS,
   );
 
   const driversInShift = useMemo(
@@ -206,6 +210,7 @@ export default function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   variant="active"
+                  now={nowRef.current}
                   onClose={handleCheckOut}
                   disabled={closingShiftId === shift.id}
                 />
@@ -273,6 +278,7 @@ export default function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   variant="alert"
+                  now={nowRef.current}
                   onClose={handleCheckOut}
                   disabled={closingShiftId === shift.id}
                 />

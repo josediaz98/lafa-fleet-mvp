@@ -42,7 +42,7 @@ export default function UploadHistoryTable({
   }, []);
 
   useEffect(() => {
-    load();
+    load(); // eslint-disable-line react-hooks/set-state-in-effect -- async data fetch
   }, [load, refreshKey]);
 
   const records = state.kind === 'loaded' ? state.records : [];
