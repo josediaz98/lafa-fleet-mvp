@@ -7,29 +7,18 @@ import { useToast } from '@/app/providers/ToastProvider';
 import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
+import { validateUserCreate, validateUserEdit, type UserFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
 import Modal from '@/components/ui/Modal';
 
-interface UserFormState {
-  name: string;
-  email: string;
-  role: string;
-  centerId: string;
-  password: string;
-}
-
-const emptyForm: UserFormState = {
+const emptyForm: UserFormData = {
   name: '',
   email: '',
   role: 'supervisor',
   centerId: '',
   password: '',
 };
-
-function isValidEmail(email: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-}
 
 export default function UsersPage() {
   const { users, session } = useAppState();
@@ -41,7 +30,7 @@ export default function UsersPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [form, setForm] = useState<UserFormState>(emptyForm);
+  const [form, setForm] = useState<UserFormData>(emptyForm);
   const [formError, setFormError] = useState('');
 
   const filtered = users.filter(u =>
@@ -56,26 +45,16 @@ export default function UsersPage() {
   }
 
   function handleCreate() {
-    setFormError('');
-    if (!form.name.trim() || !form.email.trim() || !form.password.trim()) {
-      setFormError('Nombre, email y contrase\u00f1a son obligatorios.');
-      return;
-    }
-    if (!isValidEmail(form.email)) {
-      setFormError('Formato de email inv\u00e1lido.');
-      return;
-    }
-    if (form.password.length < 6) {
-      setFormError('La contrase\u00f1a debe tener al menos 6 caracteres.');
-      return;
-    }
-    const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase());
-    if (emailExists) {
-      setFormError('Ya existe un usuario con ese email.');
-      return;
-    }
-    if (form.role === 'supervisor' && users.some(u => u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId)) {
-      setFormError('Ya existe un supervisor activo en ese centro.');
+    const userRecords = users.map(u => ({
+      id: u.id,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      centerId: u.centerId,
+    }));
+    const error = validateUserCreate(form, userRecords);
+    if (error) {
+      setFormError(error);
       return;
     }
     const newUser: User = {
@@ -85,9 +64,9 @@ export default function UsersPage() {
       role: form.role,
       centerId: form.role === 'admin' ? null : form.centerId,
       status: 'activo',
-      password: form.password,
+      password: form.password!,
     };
-    actionAddUser(newUser, form.password, dispatch, showToast);
+    actionAddUser(newUser, form.password!, dispatch, showToast);
     setShowCreateModal(false);
   }
 
@@ -106,22 +85,16 @@ export default function UsersPage() {
 
   function handleSaveEdit() {
     if (!selectedUser) return;
-    setFormError('');
-    if (!form.name.trim() || !form.email.trim()) {
-      setFormError('Nombre y email son obligatorios.');
-      return;
-    }
-    if (!isValidEmail(form.email)) {
-      setFormError('Formato de email inv\u00e1lido.');
-      return;
-    }
-    const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase() && u.id !== selectedUser.id);
-    if (emailExists) {
-      setFormError('Ya existe otro usuario con ese email.');
-      return;
-    }
-    if (form.role === 'supervisor' && users.some(u => u.id !== selectedUser.id && u.role === 'supervisor' && u.status === 'activo' && u.centerId === form.centerId)) {
-      setFormError('Ya existe un supervisor activo en ese centro.');
+    const userRecords = users.map(u => ({
+      id: u.id,
+      email: u.email,
+      role: u.role,
+      status: u.status,
+      centerId: u.centerId,
+    }));
+    const error = validateUserEdit(form, userRecords, selectedUser.id);
+    if (error) {
+      setFormError(error);
       return;
     }
     const updated: User = {

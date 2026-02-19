@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { Driver } from '@/types';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { getCenterName } from '@/lib/format';
+import { validateDriverEdit } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 
 interface DriverFormState {
@@ -43,9 +44,9 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
   }
 
   function handleSaveEdit() {
-    setFormError('');
-    if (!form.fullName.trim()) {
-      setFormError('Nombre es obligatorio.');
+    const error = validateDriverEdit(form);
+    if (error) {
+      setFormError(error);
       return;
     }
     const updated: Driver = {

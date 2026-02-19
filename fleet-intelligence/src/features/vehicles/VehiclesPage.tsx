@@ -7,6 +7,7 @@ import { MOCK_CENTERS } from '@/data/mock-data';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '@/lib/actions';
+import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
@@ -17,14 +18,7 @@ import { STATUS_LABELS } from '@/lib/status-map';
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
 const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
 
-interface VehicleFormState {
-  plate: string;
-  model: string;
-  oem: string;
-  centerId: string;
-}
-
-const emptyForm: VehicleFormState = { plate: '', model: '', oem: '', centerId: '' };
+const emptyForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
 
 export default function VehiclesPage() {
   const { vehicles, shifts } = useAppState();
@@ -35,11 +29,11 @@ export default function VehiclesPage() {
 
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [form, setForm] = useState<VehicleFormState>(emptyForm);
+  const [form, setForm] = useState<VehicleFormData>(emptyForm);
   const [formError, setFormError] = useState('');
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState<VehicleFormState>(emptyForm);
+  const [editForm, setEditForm] = useState<VehicleFormData>(emptyForm);
   const [editError, setEditError] = useState('');
 
   const centeredVehicles = filterByCenter(vehicles);
@@ -98,13 +92,10 @@ export default function VehiclesPage() {
   }
 
   function handleCreate() {
-    setFormError('');
-    if (!form.plate.trim() || !form.model.trim() || !form.oem.trim() || !form.centerId) {
-      setFormError('Todos los campos son obligatorios.');
-      return;
-    }
-    if (vehicles.some(v => v.plate.toLowerCase() === form.plate.trim().toLowerCase())) {
-      setFormError('Ya existe un veh\u00edculo con esa placa.');
+    const existingPlates = vehicles.map(v => v.plate);
+    const error = validateVehicleForm(form, existingPlates);
+    if (error) {
+      setFormError(error);
       return;
     }
     const newVehicle: Vehicle = {
@@ -128,17 +119,19 @@ export default function VehiclesPage() {
 
   function handleSaveVehicleEdit() {
     if (!selectedVehicle) return;
-    setEditError('');
-    if (!editForm.plate.trim() || !editForm.model.trim() || !editForm.oem.trim() || !editForm.centerId) {
-      setEditError('Todos los campos son obligatorios.');
+    const existingPlates = vehicles.map(v => v.plate);
+    const error = validateVehicleForm(editForm, existingPlates, selectedVehicle.plate);
+    if (error) {
+      setEditError(error);
       return;
     }
-    const newPlate = editForm.plate.trim().toUpperCase();
-    if (newPlate !== selectedVehicle.plate && vehicles.some(v => v.plate.toLowerCase() === newPlate.toLowerCase())) {
-      setEditError('Ya existe un veh\u00edculo con esa placa.');
-      return;
-    }
-    const updated: Vehicle = { ...selectedVehicle, plate: newPlate, model: editForm.model.trim(), oem: editForm.oem.trim(), centerId: editForm.centerId };
+    const updated: Vehicle = {
+      ...selectedVehicle,
+      plate: editForm.plate.trim().toUpperCase(),
+      model: editForm.model.trim(),
+      oem: editForm.oem.trim(),
+      centerId: editForm.centerId,
+    };
     actionUpdateVehicle(updated, dispatch, showToast);
     setSelectedVehicle(updated);
     setEditMode(false);

@@ -1,10 +1,8 @@
 import { useState } from 'react';
 import { MOCK_CENTERS } from '@/data/mock-data';
+import { validateDriverCreate, type DriverFormData } from '@/lib/validators';
 
-interface DriverFormState {
-  fullName: string;
-  didiDriverId: string;
-  centerId: string;
+interface DriverFormState extends DriverFormData {
   defaultShift: string;
   startDate: string;
 }
@@ -27,14 +25,10 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
   const [formError, setFormError] = useState('');
 
   function handleCreate() {
-    setFormError('');
-    if (!form.fullName.trim() || !form.didiDriverId || !form.centerId) {
-      setFormError('Todos los campos son obligatorios.');
-      return;
-    }
-    const didiId = parseInt(form.didiDriverId, 10);
-    if (drivers.some(d => d.didiDriverId === didiId)) {
-      setFormError('Ya existe un conductor con ese DiDi ID.');
+    const existingDidiIds = drivers.map(d => d.didiDriverId);
+    const error = validateDriverCreate(form, existingDidiIds);
+    if (error) {
+      setFormError(error);
       return;
     }
     onCreate(form);
