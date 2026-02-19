@@ -150,12 +150,12 @@ ALTER TABLE weekly_payroll ENABLE ROW LEVEL SECURITY;
 
 -- Helper functions
 CREATE OR REPLACE FUNCTION get_user_role()
-RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER AS $$
+RETURNS TEXT LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT role FROM profiles WHERE id = auth.uid();
 $$;
 
 CREATE OR REPLACE FUNCTION get_user_center_id()
-RETURNS UUID LANGUAGE sql STABLE SECURITY DEFINER AS $$
+RETURNS UUID LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
   SELECT center_id FROM profiles WHERE id = auth.uid();
 $$;
 
