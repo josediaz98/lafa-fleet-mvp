@@ -116,10 +116,10 @@ export default function UsersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">Usuarios</h1>
+        <h1 className="text-2xl font-semibold text-lafa-text-primary">Usuarios</h1>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+          className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
         >
           <Plus size={16} /> Nuevo usuario
         </button>
@@ -183,14 +183,14 @@ export default function UsersPage() {
               <div className="flex gap-3">
                 <button
                   onClick={openEdit}
-                  className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors duration-150"
                 >
                   Editar
                 </button>
                 {!(session && selectedUser.id === session.userId) && (
                   <button
                     onClick={handleDeactivate}
-                    className="px-4 py-2 text-sm font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150"
                   >
                     Desactivar
                   </button>
@@ -243,17 +243,17 @@ export default function UsersPage() {
                 </select>
               </div>
             )}
-            {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+            {formError && <p className="text-sm text-status-danger">{formError}</p>}
             <div className="flex gap-3">
               <button
                 onClick={handleSaveEdit}
-                className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+                className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
               >
                 Guardar
               </button>
               <button
                 onClick={() => setEditMode(false)}
-                className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+                className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
               >
                 Cancelar
               </button>

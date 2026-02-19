@@ -32,7 +32,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
         <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
           <span>{formatTime(shift.checkIn)} {shift.checkOut ? `→ ${formatTime(shift.checkOut)}` : ''}</span>
           {shift.hoursWorked !== undefined && (
-            <span className="font-medium text-[#22C55E]">{shift.hoursWorked}h</span>
+            <span className="font-medium text-status-success">{shift.hoursWorked}h</span>
           )}
         </div>
       </div>
@@ -41,7 +41,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
 
   if (variant === 'alert') {
     return (
-      <div className="bg-[rgba(239,68,68,0.05)] border border-[rgba(239,68,68,0.2)] rounded-xl p-4">
+      <div className="bg-status-danger/5 border border-status-danger/20 rounded-xl p-4">
         <div className="flex items-center justify-between mb-2">
           <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
           <StatusBadge status="alerta" label={`Abierto ${getElapsedTime(shift.checkIn)}`} />
@@ -56,7 +56,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
           {onClose && (
             <button
               onClick={() => onClose(shift.id)}
-              className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+              className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
             >
               Cerrar turno
             </button>
@@ -70,7 +70,7 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
   const isOvertime = Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
 
   return (
-    <div className={`bg-lafa-surface border ${isOvertime ? 'border-[rgba(239,68,68,0.4)]' : 'border-lafa-border'} rounded-xl p-4 hover:border-lafa-accent/30 transition-colors`}>
+    <div className={`bg-lafa-surface border ${isOvertime ? 'border-status-danger/40' : 'border-lafa-border'} rounded-xl p-4 hover:border-lafa-accent/30 transition-colors duration-150`}>
       <div className="flex items-center justify-between mb-2">
         <div>
           <span className="text-sm font-semibold text-lafa-text-primary">{shift.driverName}</span>
@@ -86,11 +86,11 @@ export default function ShiftCard({ shift, variant = 'active', onClose }: ShiftC
         {shift.plate} {'·'} {shift.model} {'·'} Check-in: {formatTime(shift.checkIn)}
       </p>
       <div className="flex items-center justify-between">
-        <span className={`text-sm font-medium ${isOvertime ? 'text-[#EF4444]' : 'text-[#3B82F6]'}`}>{getElapsedTime(shift.checkIn)}</span>
+        <span className={`text-sm font-medium ${isOvertime ? 'text-status-danger' : 'text-status-active'}`}>{getElapsedTime(shift.checkIn)}</span>
         {onClose && (
           <button
             onClick={() => onClose(shift.id)}
-            className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Cerrar turno
           </button>

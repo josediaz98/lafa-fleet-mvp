@@ -3,9 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, CheckCircle2 } from 'lucide-react';
 import LafaLogo from '@/components/ui/LafaLogo';
 import { supabase } from '@/lib/supabase/client';
+import { useAppDispatch } from '@/app/providers/AppProvider';
+import { useToast } from '@/app/providers/ToastProvider';
+import { fetchAllData } from '@/lib/supabase/queries';
 
 export default function ResetPasswordPage() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { showToast } = useToast();
   const [ready, setReady] = useState(false);
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
@@ -51,8 +56,20 @@ export default function ResetPasswordPage() {
     }
 
     setDone(true);
-    await supabase!.auth.signOut();
-    setTimeout(() => navigate('/login', { replace: true }), 2000);
+    const { data: { user } } = await supabase!.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase!.from('profiles')
+        .select('*').eq('id', user.id).single();
+      if (profile && profile.status === 'activo') {
+        const session = { userId: profile.id, name: profile.name, role: profile.role, centerId: profile.center_id };
+        localStorage.setItem('lafa_session', JSON.stringify(session));
+        dispatch({ type: 'LOGIN', payload: session });
+        const data = await fetchAllData();
+        dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } });
+        showToast('success', 'Contraseña actualizada');
+      }
+    }
+    setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
   }
 
   if (!ready && !done) {
@@ -81,15 +98,15 @@ export default function ResetPasswordPage() {
         {done ? (
           <div className="text-center space-y-4 animate-fade-in">
             <div className="flex justify-center">
-              <div className="w-12 h-12 rounded-full bg-[rgba(34,197,94,0.1)] flex items-center justify-center">
-                <CheckCircle2 className="w-6 h-6 text-[#22C55E]" />
+              <div className="w-12 h-12 rounded-full bg-status-success/10 flex items-center justify-center">
+                <CheckCircle2 className="w-6 h-6 text-status-success" />
               </div>
             </div>
             <h1 className="text-lg font-semibold text-lafa-text-primary">
               Contraseña actualizada
             </h1>
             <p className="text-sm text-lafa-text-secondary">
-              Redirigiendo al inicio de sesión...
+              Redirigiendo al dashboard...
             </p>
           </div>
         ) : (
@@ -123,7 +140,7 @@ export default function ResetPasswordPage() {
                 placeholder="Confirmar contraseña"
                 className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
               />
-              {error && <p className="text-sm text-[#EF4444]">{error}</p>}
+              {error && <p className="text-sm text-status-danger">{error}</p>}
               <button
                 type="submit"
                 disabled={loading || !password || !confirm}

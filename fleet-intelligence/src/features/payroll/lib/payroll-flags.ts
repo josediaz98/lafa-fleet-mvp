@@ -1,6 +1,7 @@
 import type { PayrollRecord } from '@/types';
 import { GOAL_THRESHOLD, OVERTIME_THRESHOLD_HOURS } from './payroll';
 import { formatMXN } from '@/lib/format';
+import { PALETTE } from '@/lib/status-map';
 
 export interface PayrollFlag {
   type: 'near-threshold' | 'first-week' | 'prorated' | 'no-overtime-eligibility';
@@ -23,13 +24,13 @@ export function getPayrollFlags(record: PayrollRecord, previousWeekHours?: numbe
       flags.push({
         type: 'near-threshold',
         label: `A ${formatMXN(billingGap)} de la meta`,
-        color: '#EAB308',
+        color: PALETTE.alert,
       });
     } else if (hoursGap > 0 && hoursGap <= 2 && billingGap <= 0) {
       flags.push({
         type: 'near-threshold',
         label: `A ${hoursGap}h de la meta`,
-        color: '#EAB308',
+        color: PALETTE.alert,
       });
     }
   }
@@ -39,7 +40,7 @@ export function getPayrollFlags(record: PayrollRecord, previousWeekHours?: numbe
     flags.push({
       type: 'prorated',
       label: `Prorrateado: meta ${record.hoursThreshold}h / ${formatMXN(record.revenueThreshold)}`,
-      color: '#3B82F6',
+      color: PALETTE.active,
     });
   }
 
@@ -48,7 +49,7 @@ export function getPayrollFlags(record: PayrollRecord, previousWeekHours?: numbe
     flags.push({
       type: 'no-overtime-eligibility',
       label: 'Sin elegibilidad overtime (sem. anterior)',
-      color: '#A855F7',
+      color: PALETTE.purple,
     });
   }
 

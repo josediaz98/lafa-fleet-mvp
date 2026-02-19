@@ -40,7 +40,7 @@ export default function DriverDetailPanel({
           <button
             key={t.key}
             onClick={() => setPanelTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+            className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
               panelTab === t.key ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
             }`}
           >

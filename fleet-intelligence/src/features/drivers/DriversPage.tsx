@@ -133,14 +133,17 @@ export default function DriversPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">Conductores</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-lafa-text-primary">Conductores</h1>
+          <p className="text-sm text-lafa-text-secondary mt-0.5">Gestión y asignación de conductores</p>
+        </div>
         <div className="flex items-center gap-3">
           <CenterFilterDropdown />
           {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
             >
               <Plus size={16} /> Nuevo conductor
             </button>
@@ -165,7 +168,7 @@ export default function DriversPage() {
               <button
                 key={f.key}
                 onClick={() => setStatusFilter(f.key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors duration-150 ${
                   statusFilter === f.key
                     ? 'bg-lafa-accent text-white'
                     : 'text-lafa-text-secondary hover:text-lafa-text-primary'
@@ -180,7 +183,7 @@ export default function DriversPage() {
               <button
                 key={f.key}
                 onClick={() => setShiftFilter(f.key)}
-                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                className={`px-3 py-1.5 text-xs font-medium rounded transition-colors duration-150 ${
                   shiftFilter === f.key
                     ? 'bg-lafa-accent text-white'
                     : 'text-lafa-text-secondary hover:text-lafa-text-primary'
@@ -211,7 +214,7 @@ export default function DriversPage() {
                 <tr
                   key={driver.id}
                   onClick={() => setSelectedDriver(driver)}
-                  className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
+                  className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
                     i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                   }`}
                 >

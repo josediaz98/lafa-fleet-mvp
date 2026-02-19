@@ -112,17 +112,17 @@ export default function VehicleDetailPanel({
             ))}
           </select>
         </div>
-        {editError && <p className="text-sm text-[#EF4444]">{editError}</p>}
+        {editError && <p className="text-sm text-status-danger">{editError}</p>}
         <div className="flex gap-3">
           <button
             onClick={handleSaveEdit}
-            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Guardar
           </button>
           <button
             onClick={() => setEditMode(false)}
-            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Cancelar
           </button>
@@ -167,7 +167,7 @@ export default function VehicleDetailPanel({
                   onStatusChange(vehicle, s);
                 }
               }}
-              className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors duration-150 ${
                 s === vehicle.status
                   ? 'border-lafa-accent bg-lafa-accent/10 text-lafa-accent'
                   : 'border-lafa-border text-lafa-text-secondary hover:border-lafa-text-secondary'
@@ -183,7 +183,7 @@ export default function VehicleDetailPanel({
         <div className="mb-6">
           <button
             onClick={openEdit}
-            className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors duration-150"
           >
             Editar datos
           </button>

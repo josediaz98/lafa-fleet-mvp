@@ -150,7 +150,7 @@ export default function LoginPage() {
             <button
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors duration-150"
               tabIndex={-1}
             >
               {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -160,7 +160,7 @@ export default function LoginPage() {
           <div className="flex justify-end">
             <Link
               to="/forgot-password"
-              className="text-xs text-lafa-text-secondary hover:text-lafa-accent transition-colors"
+              className="text-xs text-lafa-text-secondary hover:text-lafa-accent transition-colors duration-150"
             >
               ¿Olvidaste tu contraseña?
             </Link>
@@ -196,7 +196,7 @@ export default function LoginPage() {
             href="https://lafa-production.up.railway.app/"
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 text-xs text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors"
+            className="inline-flex items-center gap-1 text-xs text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors duration-150"
           >
             Conoce LAFA
             <ExternalLink className="w-3 h-3" />

@@ -119,7 +119,7 @@ export default function CsvUploadPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold text-lafa-text-primary mb-6">Carga CSV</h1>
+      <h1 className="text-2xl font-semibold text-lafa-text-primary mb-6">Carga CSV</h1>
 
       <div className="flex items-center justify-center gap-4 mb-8">
         {STEPS.map((step, i) => (
@@ -128,7 +128,7 @@ export default function CsvUploadPage() {
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold ${
                   step.num < activeStep
-                    ? 'bg-[#22C55E] text-white'
+                    ? 'bg-status-success text-white'
                     : step.num === activeStep
                     ? 'bg-lafa-accent text-white'
                     : 'bg-lafa-border text-lafa-text-secondary'
@@ -147,7 +147,7 @@ export default function CsvUploadPage() {
             {i < STEPS.length - 1 && (
               <div
                 className={`w-16 h-0.5 ${
-                  step.num < activeStep ? 'bg-[#22C55E]' : 'bg-lafa-border'
+                  step.num < activeStep ? 'bg-status-success' : 'bg-lafa-border'
                 }`}
               />
             )}
@@ -162,7 +162,7 @@ export default function CsvUploadPage() {
             onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
-            className={`w-full max-w-md border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer transition-colors ${
+            className={`w-full max-w-md border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer transition-colors duration-150 ${
               dragging
                 ? 'border-lafa-accent bg-lafa-accent/5'
                 : 'border-lafa-border hover:border-lafa-accent/50'
@@ -189,7 +189,7 @@ export default function CsvUploadPage() {
           />
           <button
             onClick={handleDownloadTemplate}
-            className="mt-4 flex items-center gap-2 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors"
+            className="mt-4 flex items-center gap-2 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150"
           >
             <Download size={14} /> Descargar plantilla CSV
           </button>
@@ -199,13 +199,13 @@ export default function CsvUploadPage() {
       {activeStep === 2 && (
         <>
           <div className="flex items-center gap-4 mb-4 text-sm flex-wrap">
-            <span className="inline-flex items-center gap-1.5 text-[#22C55E]">
+            <span className="inline-flex items-center gap-1.5 text-status-success">
               <CheckCircle size={14} /> {validCount} {'válidos'}
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[#EAB308]">
+            <span className="inline-flex items-center gap-1.5 text-status-alert">
               <AlertTriangle size={14} /> {warningCount} warning
             </span>
-            <span className="inline-flex items-center gap-1.5 text-[#EF4444]">
+            <span className="inline-flex items-center gap-1.5 text-status-danger">
               <XCircle size={14} /> {errorCount} error
             </span>
             <span className="text-lafa-text-secondary text-xs">
@@ -214,9 +214,9 @@ export default function CsvUploadPage() {
             {errorCount > 0 && (
               <button
                 onClick={() => setShowOnlyErrors(!showOnlyErrors)}
-                className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                className={`ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-150 ${
                   showOnlyErrors
-                    ? 'bg-[rgba(239,68,68,0.15)] text-[#EF4444]'
+                    ? 'bg-status-danger/15 text-status-danger'
                     : 'bg-lafa-surface border border-lafa-border text-lafa-text-secondary hover:text-lafa-text-primary'
                 }`}
               >
@@ -251,16 +251,16 @@ export default function CsvUploadPage() {
                       key={`${row.tripId}-${i}`}
                       className={`border-b border-lafa-border/50 ${
                         row.estado === 'error'
-                          ? 'bg-[rgba(239,68,68,0.05)]'
+                          ? 'bg-status-danger/5'
                           : row.estado === 'warning'
-                          ? 'bg-[rgba(234,179,8,0.05)]'
+                          ? 'bg-status-alert/5'
                           : i % 2 === 0
                           ? 'bg-transparent'
                           : 'bg-lafa-bg/30'
                       }`}
                     >
                       <td className="px-4 py-3 text-lafa-text-primary font-mono">{row.driverId}</td>
-                      <td className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-[#EAB308]' : 'text-lafa-text-secondary'}`}>
+                      <td className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-status-alert' : 'text-lafa-text-secondary'}`}>
                         {row.matchedDriverName ?? '—'}
                         {row.matchType === 'fuzzy' && <span className="text-[10px] ml-1">(fuzzy)</span>}
                       </td>
@@ -281,14 +281,14 @@ export default function CsvUploadPage() {
           <div className="flex items-center justify-end gap-3">
             <button
               onClick={() => { setActiveStep(1); setRows([]); setFileName(''); }}
-              className="px-5 py-2.5 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
             >
               {'← Atrás'}
             </button>
             <button
               onClick={handleImport}
               disabled={importableCount === 0}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Importar {importableCount} viajes &rarr;
             </button>
@@ -298,8 +298,8 @@ export default function CsvUploadPage() {
 
       {activeStep === 3 && (
         <div className="flex flex-col items-center justify-center py-16">
-          <div className="w-16 h-16 rounded-full bg-[rgba(34,197,94,0.15)] flex items-center justify-center mb-4">
-            <CheckCircle size={32} className="text-[#22C55E]" />
+          <div className="w-16 h-16 rounded-full bg-status-success/15 flex items-center justify-center mb-4">
+            <CheckCircle size={32} className="text-status-success" />
           </div>
           <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">{'Importación completada'}</h2>
           <div className="bg-lafa-accent/10 border border-lafa-accent/20 rounded-xl p-3 mb-4 text-sm text-lafa-text-primary text-center max-w-lg">
@@ -323,7 +323,7 @@ export default function CsvUploadPage() {
           </div>
           <button
             onClick={() => { setActiveStep(1); setRows([]); setFileName(''); }}
-            className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Cargar otro archivo
           </button>

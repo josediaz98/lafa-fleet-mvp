@@ -29,7 +29,7 @@ export default function UserTable({ users, session, onSelect }: UserTableProps) 
                 <tr
                   key={user.id}
                   onClick={() => onSelect(user)}
-                  className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
+                  className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
                     isCurrentUser
                       ? 'bg-lafa-accent/5 border-l-2 border-l-lafa-accent'
                       : i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'

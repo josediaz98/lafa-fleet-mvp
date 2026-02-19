@@ -78,6 +78,7 @@ export interface AppState {
   closedPayroll: PayrollRecord[];
   session: Session | null;
   hydrated: boolean;
+  authChecked: boolean;
   dataSource: 'supabase' | 'mock';
   dataRange?: DataRange;
 }
@@ -85,7 +86,7 @@ export interface AppState {
 // ---- Actions ----
 
 export type Action =
-  | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated'> }
+  | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated' | 'authChecked'> }
   | { type: 'ADD_SHIFT'; payload: Shift }
   | { type: 'CLOSE_SHIFT'; payload: { shiftId: string; checkOut: string; hoursWorked: number } }
   | { type: 'UPDATE_VEHICLE_STATUS'; payload: { vehicleId: string; status: string } }
@@ -104,4 +105,5 @@ export type Action =
   | { type: 'LOGOUT' }
   | { type: 'APPEND_SHIFTS'; payload: { shifts: Shift[]; oldestDate: string; hasMore: boolean } }
   | { type: 'APPEND_TRIPS'; payload: { trips: Trip[]; oldestDate: string; hasMore: boolean } }
-  | { type: 'APPEND_PAYROLL'; payload: { payroll: PayrollRecord[]; oldestDate: string; hasMore: boolean } };
+  | { type: 'APPEND_PAYROLL'; payload: { payroll: PayrollRecord[]; oldestDate: string; hasMore: boolean } }
+  | { type: 'AUTH_CHECKED' };

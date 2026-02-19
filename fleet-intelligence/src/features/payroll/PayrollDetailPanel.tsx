@@ -1,5 +1,6 @@
 import type { PayrollRecord, Trip } from '@/types';
 import { formatMXN } from '@/lib/format';
+import { PALETTE } from '@/lib/status-map';
 
 interface PayrollDetailPanelProps {
   record: PayrollRecord;
@@ -24,14 +25,14 @@ export default function PayrollDetailPanel({ record, trips }: PayrollDetailPanel
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Meta alcanzada</p>
-          <p className={`text-sm font-medium ${record.goalMet ? 'text-[#22C55E]' : 'text-[#EF4444]'}`}>
+          <p className={`text-sm font-medium ${record.goalMet ? 'text-status-success' : 'text-status-danger'}`}>
             {record.goalMet ? 'Sí' : 'No'}
           </p>
         </div>
         {record.version && record.version > 1 && (
           <div>
             <p className="text-xs text-lafa-text-secondary">{'Versión'}</p>
-            <p className="text-sm font-medium text-[#EAB308]">v{record.version} (recalculado)</p>
+            <p className="text-sm font-medium text-status-alert">v{record.version} (recalculado)</p>
           </div>
         )}
       </div>
@@ -54,7 +55,7 @@ export default function PayrollDetailPanel({ record, trips }: PayrollDetailPanel
           {!record.goalMet && (
             <div className="flex justify-between text-sm">
               <span className="text-lafa-text-secondary">{'Apoyo económico'}</span>
-              <span className="text-[#EF4444]">{formatMXN(1000)}</span>
+              <span className="text-status-danger">{formatMXN(1000)}</span>
             </div>
           )}
           <div className="flex justify-between text-sm font-semibold border-t border-lafa-border pt-2">
@@ -70,10 +71,10 @@ export default function PayrollDetailPanel({ record, trips }: PayrollDetailPanel
           const supportAmt = record.goalMet ? 0 : 1000;
           const supportPct = Math.round((supportAmt / total) * 100);
           const items = [
-            { label: 'Base', pct: basePct, color: '#3B82F6' },
-            { label: 'Bono', pct: bonoPct, color: '#22C55E' },
-            { label: 'Overtime', pct: otPct, color: '#EAB308' },
-            ...(!record.goalMet ? [{ label: 'Apoyo', pct: supportPct, color: '#EF4444' }] : []),
+            { label: 'Base', pct: basePct, color: PALETTE.active },
+            { label: 'Bono', pct: bonoPct, color: PALETTE.success },
+            { label: 'Overtime', pct: otPct, color: PALETTE.alert },
+            ...(!record.goalMet ? [{ label: 'Apoyo', pct: supportPct, color: PALETTE.danger }] : []),
           ].filter(i => i.pct > 0);
           return (
             <div className="mt-3">

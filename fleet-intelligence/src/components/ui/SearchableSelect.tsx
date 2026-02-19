@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useId } from 'react';
 import { ChevronDown, Search } from 'lucide-react';
 
 interface Option {
@@ -18,8 +18,11 @@ interface SearchableSelectProps {
 export default function SearchableSelect({ options, value, onChange, placeholder, label }: SearchableSelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const listboxId = useId();
+  const optionIdPrefix = useId();
 
   const filtered = options.filter(o =>
     o.label.toLowerCase().includes(query.toLowerCase()) ||
@@ -33,6 +36,7 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
         setOpen(false);
         setQuery('');
+        setActiveIndex(-1);
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
@@ -40,8 +44,35 @@ export default function SearchableSelect({ options, value, onChange, placeholder
   }, []);
 
   useEffect(() => {
-    if (open) inputRef.current?.focus();
+    if (open) {
+      inputRef.current?.focus();
+      setActiveIndex(-1);
+    }
   }, [open]);
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev < filtered.length - 1 ? prev + 1 : 0));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev > 0 ? prev - 1 : filtered.length - 1));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && activeIndex < filtered.length) {
+        onChange(filtered[activeIndex].value);
+        setOpen(false);
+        setQuery('');
+        setActiveIndex(-1);
+      }
+    } else if (e.key === 'Escape') {
+      setOpen(false);
+      setQuery('');
+      setActiveIndex(-1);
+    }
+  }
+
+  const activeOptionId = activeIndex >= 0 ? `${optionIdPrefix}-opt-${activeIndex}` : undefined;
 
   return (
     <div ref={containerRef} className="relative">
@@ -51,12 +82,14 @@ export default function SearchableSelect({ options, value, onChange, placeholder
       <button
         type="button"
         onClick={() => { setOpen(!open); setQuery(''); }}
-        className="w-full flex items-center justify-between px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-left focus:outline-none focus:border-lafa-accent transition-colors"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className="w-full flex items-center justify-between px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-left focus:outline-none focus:border-lafa-accent transition-colors duration-150"
       >
         <span className={selected ? 'text-lafa-text-primary' : 'text-lafa-text-secondary/50'}>
           {selected ? selected.label : placeholder ?? 'Seleccionar...'}
         </span>
-        <ChevronDown size={16} className={`text-lafa-text-secondary transition-transform ${open ? 'rotate-180' : ''}`} />
+        <ChevronDown size={16} className={`text-lafa-text-secondary transition-transform duration-150 ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
@@ -68,23 +101,31 @@ export default function SearchableSelect({ options, value, onChange, placeholder
                 ref={inputRef}
                 type="text"
                 value={query}
-                onChange={e => setQuery(e.target.value)}
+                onChange={e => { setQuery(e.target.value); setActiveIndex(-1); }}
+                onKeyDown={handleKeyDown}
                 placeholder="Buscar..."
+                aria-controls={listboxId}
+                aria-activedescendant={activeOptionId}
                 className="w-full pl-8 pr-3 py-2 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
               />
             </div>
           </div>
-          <div className="max-h-48 overflow-y-auto">
+          <div id={listboxId} role="listbox" className="max-h-48 overflow-y-auto">
             {filtered.length === 0 && (
               <p className="px-3 py-4 text-xs text-lafa-text-secondary text-center">Sin resultados</p>
             )}
-            {filtered.map(opt => (
+            {filtered.map((opt, idx) => (
               <button
                 key={opt.value}
+                id={`${optionIdPrefix}-opt-${idx}`}
                 type="button"
-                onClick={() => { onChange(opt.value); setOpen(false); setQuery(''); }}
-                className={`w-full text-left px-3 py-2.5 text-sm hover:bg-lafa-accent/10 transition-colors ${
-                  opt.value === value ? 'bg-lafa-accent/5 text-lafa-accent' : 'text-lafa-text-primary'
+                role="option"
+                aria-selected={opt.value === value}
+                onClick={() => { onChange(opt.value); setOpen(false); setQuery(''); setActiveIndex(-1); }}
+                className={`w-full text-left px-3 py-2.5 text-sm hover:bg-lafa-accent/10 transition-colors duration-150 ${
+                  idx === activeIndex
+                    ? 'bg-lafa-accent/10'
+                    : opt.value === value ? 'bg-lafa-accent/5 text-lafa-accent' : 'text-lafa-text-primary'
                 }`}
               >
                 <span className="block">{opt.label}</span>

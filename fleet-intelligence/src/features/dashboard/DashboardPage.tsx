@@ -79,11 +79,11 @@ export default function DashboardPage() {
   const weekBilling = weekTrips.reduce((sum, t) => sum + t.costo, 0);
 
   const kpiCards = [
-    { label: 'Turnos activos', value: String(enTurno.length), icon: Clock, color: 'text-[#3B82F6]', bg: 'bg-[rgba(59,130,246,0.15)]' },
-    { label: 'Conductores en turno', value: `${driversInShift} / ${activeDriversCount}`, icon: Users, color: 'text-[#8B5CF6]', bg: 'bg-[rgba(139,92,246,0.15)]' },
-    { label: 'Vehículos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-[#22C55E]', bg: 'bg-[rgba(34,197,94,0.15)]' },
-    { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-[#EF4444]', bg: 'bg-[rgba(239,68,68,0.15)]' },
-    { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-[#EAB308]', bg: 'bg-[rgba(234,179,8,0.15)]' },
+    { label: 'Turnos activos', value: String(enTurno.length), icon: Clock, color: 'text-status-active', bg: 'bg-status-active/15' },
+    { label: 'Conductores en turno', value: `${driversInShift} / ${activeDriversCount}`, icon: Users, color: 'text-status-info', bg: 'bg-status-info/15' },
+    { label: 'Vehículos disponibles', value: `${availableVehicles} / ${totalVehicles}`, icon: Car, color: 'text-status-success', bg: 'bg-status-success/15' },
+    { label: 'Alertas', value: String(alertShifts.length), icon: AlertTriangle, color: 'text-status-danger', bg: 'bg-status-danger/15' },
+    { label: 'Facturación semana', subtitle: weekLabel, value: formatMXN(weekBilling), icon: DollarSign, color: 'text-status-alert', bg: 'bg-status-alert/15' },
   ];
 
   async function handleCloseShift(shiftId: string) {
@@ -114,7 +114,7 @@ export default function DashboardPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-lafa-text-primary">Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-lafa-text-primary">Dashboard</h1>
           <p className="text-sm text-lafa-text-secondary mt-1">Resumen operativo en tiempo real</p>
         </div>
         <CenterFilterDropdown variant="pills" />
@@ -129,7 +129,7 @@ export default function DashboardPage() {
                 <Icon size={18} className={color} />
               </div>
             </div>
-            <p className="text-xl font-bold text-lafa-text-primary">{value}</p>
+            <p className="text-3xl font-bold text-lafa-text-primary">{value}</p>
             {subtitle && <p className="text-[10px] text-lafa-text-secondary/70 mt-0.5">{subtitle}</p>}
           </div>
         ))}
@@ -142,7 +142,7 @@ export default function DashboardPage() {
             {enTurno.length > 6 && (
               <button
                 onClick={() => navigate('/shifts')}
-                className="flex items-center gap-1.5 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150"
               >
                 Ver todos ({enTurno.length}) <ArrowRight size={14} />
               </button>
@@ -163,10 +163,10 @@ export default function DashboardPage() {
           <h2 className="text-lg font-semibold text-lafa-text-primary mb-4">Alertas</h2>
           <div className="space-y-3">
             {alertShifts.map(shift => (
-              <div key={shift.id} className="bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.2)] rounded-xl p-4">
+              <div key={shift.id} className="bg-status-danger/[0.08] border border-status-danger/20 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle size={16} className="text-[#EF4444]" />
-                  <span className="text-sm font-semibold text-[#EF4444]">Turno abierto +{Math.floor(shiftHours(shift.checkIn))}h</span>
+                  <AlertTriangle size={16} className="text-status-danger" />
+                  <span className="text-sm font-semibold text-status-danger">Turno abierto +{Math.floor(shiftHours(shift.checkIn))}h</span>
                 </div>
                 <p className="text-xs text-lafa-text-secondary mb-3">
                   {shift.driverName} - {shift.plate} {'·'} Check-in: {formatTime(shift.checkIn)}.
@@ -174,7 +174,7 @@ export default function DashboardPage() {
                 </p>
                 <button
                   onClick={() => handleCloseShift(shift.id)}
-                  className="px-3 py-1.5 text-xs font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+                  className="px-3 py-1.5 text-xs font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150"
                 >
                   Cerrar turno
                 </button>
@@ -185,10 +185,10 @@ export default function DashboardPage() {
             )}
 
             {driversNear6K.length > 0 && (
-              <div className="mt-4 bg-[rgba(234,179,8,0.08)] border border-[rgba(234,179,8,0.2)] rounded-xl p-4">
+              <div className="mt-4 bg-status-alert/[0.08] border border-status-alert/20 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-3">
-                  <DollarSign size={16} className="text-[#EAB308]" />
-                  <span className="text-sm font-semibold text-[#EAB308]">Cerca del umbral $6K</span>
+                  <DollarSign size={16} className="text-status-alert" />
+                  <span className="text-sm font-semibold text-status-alert">Cerca del umbral $6K</span>
                 </div>
                 <div className="space-y-2">
                   {driversNear6K.map(d => (

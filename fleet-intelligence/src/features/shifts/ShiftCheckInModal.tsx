@@ -92,7 +92,7 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
               <StatusBadge status={selectedDriver.defaultShift} />
             </div>
             {driverHadShiftToday && (
-              <div className="flex items-center gap-1.5 text-[#EAB308] pt-1">
+              <div className="flex items-center gap-1.5 text-status-alert pt-1">
                 <AlertTriangle size={12} />
                 <span>Ya tuvo un turno hoy</span>
               </div>
@@ -122,26 +122,26 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
         )}
 
         {centerMismatch && (
-          <div className="flex items-center gap-2 bg-[rgba(234,179,8,0.1)] border border-[rgba(234,179,8,0.2)] rounded-lg p-3 text-xs text-[#EAB308]">
+          <div className="flex items-center gap-2 bg-status-alert/10 border border-status-alert/20 rounded-lg p-3 text-xs text-status-alert">
             <AlertTriangle size={14} className="shrink-0" />
             <span>El conductor y el vehículo pertenecen a centros diferentes.</span>
           </div>
         )}
 
         {formError && (
-          <p className="text-sm text-[#EF4444]">{formError}</p>
+          <p className="text-sm text-status-danger">{formError}</p>
         )}
 
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Cancelar
           </button>
           <button
             onClick={handleSubmit}
-            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Registrar check-in
           </button>

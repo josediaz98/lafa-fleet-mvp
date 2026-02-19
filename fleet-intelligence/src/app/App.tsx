@@ -5,6 +5,7 @@ import { ToastProvider } from '@/app/providers/ToastProvider';
 import { ConfirmDialogProvider } from '@/components/ui/ConfirmDialog';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
+import { Loader2 } from 'lucide-react';
 import AppLayout from '@/components/layout/AppLayout';
 import LoginPage from '@/features/auth/LoginPage';
 import ForgotPasswordPage from '@/features/auth/ForgotPasswordPage';
@@ -19,7 +20,14 @@ import VehiclesPage from '@/features/vehicles/VehiclesPage';
 import UsersPage from '@/features/users/UsersPage';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
-  const { session } = useAppState();
+  const { session, authChecked } = useAppState();
+  if (!authChecked) {
+    return (
+      <div className="min-h-screen bg-lafa-bg flex items-center justify-center">
+        <Loader2 className="w-6 h-6 animate-spin text-lafa-accent" />
+      </div>
+    );
+  }
   if (!session) return <Navigate to="/login" replace />;
   return <>{children}</>;
 }
@@ -54,7 +62,10 @@ function AuthRestorer() {
               localStorage.setItem('lafa_session', JSON.stringify(session));
               dispatch({ type: 'LOGIN', payload: session });
             }
+            dispatch({ type: 'AUTH_CHECKED' });
           });
+      } else {
+        dispatch({ type: 'AUTH_CHECKED' });
       }
     });
 

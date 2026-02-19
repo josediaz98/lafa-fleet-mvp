@@ -95,17 +95,17 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
             <option value="nocturno">Nocturno</option>
           </select>
         </div>
-        {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+        {formError && <p className="text-sm text-status-danger">{formError}</p>}
         <div className="flex gap-3">
           <button
             onClick={handleSaveEdit}
-            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Guardar
           </button>
           <button
             onClick={() => setEditMode(false)}
-            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Cancelar
           </button>
@@ -146,14 +146,14 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
         <div className="flex items-center gap-3">
           <button
             onClick={openEdit}
-            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Editar
           </button>
           <div className="flex-1" />
           <button
             onClick={onDeactivate}
-            className="px-4 py-2 text-sm font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+            className="px-4 py-2 text-sm font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150"
           >
             Desactivar
           </button>

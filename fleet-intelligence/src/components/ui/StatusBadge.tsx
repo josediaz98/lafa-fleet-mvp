@@ -7,14 +7,14 @@ interface StatusBadgeProps {
 
 export default function StatusBadge({ status, label }: StatusBadgeProps) {
   const style = STATUS_CONFIG[status] ?? {
-    bg: 'bg-[rgba(113,113,122,0.15)]',
-    text: 'text-[#71717A]',
+    bg: 'bg-zinc-500/15',
+    text: 'text-zinc-500',
     label: status,
   };
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold ${style.bg} ${style.text}`}
+      className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${style.bg} ${style.text}`}
     >
       {label ?? style.label}
     </span>

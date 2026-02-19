@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
             </p>
             <Link
               to="/login"
-              className="inline-flex items-center gap-1.5 text-sm text-lafa-accent hover:text-lafa-accent-hover transition-colors mt-2"
+              className="inline-flex items-center gap-1.5 text-sm text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150 mt-2"
             >
               <ArrowLeft className="w-3.5 h-3.5" />
               Volver a iniciar sesión
@@ -93,7 +93,7 @@ export default function ForgotPasswordPage() {
             <div className="mt-4 text-center">
               <Link
                 to="/login"
-                className="inline-flex items-center gap-1.5 text-sm text-lafa-text-secondary hover:text-lafa-text-primary transition-colors"
+                className="inline-flex items-center gap-1.5 text-sm text-lafa-text-secondary hover:text-lafa-text-primary transition-colors duration-150"
               >
                 <ArrowLeft className="w-3.5 h-3.5" />
                 Volver a iniciar sesión

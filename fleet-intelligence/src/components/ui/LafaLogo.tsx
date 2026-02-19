@@ -8,6 +8,8 @@ export default function LafaLogo({ className = 'h-5 w-auto' }: LafaLogoProps) {
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 124 22"
       className={className}
+      aria-hidden="true"
+      focusable="false"
     >
       <g clipPath="url(#fi-clip)">
         {/* Car icon */}

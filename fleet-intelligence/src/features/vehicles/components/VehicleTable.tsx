@@ -28,7 +28,7 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
             {vehicles.map((vehicle, i) => (
               <tr
                 key={vehicle.id}
-                className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
+                className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
                   i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                 }`}
                 onClick={() => onSelect(vehicle)}

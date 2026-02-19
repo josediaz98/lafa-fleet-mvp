@@ -101,7 +101,7 @@ export default function VehiclesPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-lafa-text-primary">Vehículos</h1>
+          <h1 className="text-2xl font-semibold text-lafa-text-primary">Vehículos</h1>
           <p className="text-sm text-lafa-text-secondary mt-0.5">Gestión y estado de la flota</p>
         </div>
         <div className="flex items-center gap-3">
@@ -109,7 +109,7 @@ export default function VehiclesPage() {
           {isAdmin && (
             <button
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
             >
               <Plus size={16} /> Nuevo vehículo
             </button>
@@ -133,7 +133,7 @@ export default function VehiclesPage() {
             <button
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
-              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors duration-150 ${
                 statusFilter === f.key
                   ? 'bg-lafa-accent text-white'
                   : 'text-lafa-text-secondary hover:text-lafa-text-primary'

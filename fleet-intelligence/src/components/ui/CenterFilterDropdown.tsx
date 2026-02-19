@@ -24,7 +24,7 @@ export default function CenterFilterDropdown({ variant = 'select' }: CenterFilte
             <button
               key={opt.name}
               onClick={() => setCenterFilter(opt.id)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+              className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors duration-150 ${
                 isActive
                   ? 'bg-lafa-accent text-white'
                   : 'bg-lafa-surface border border-lafa-border text-lafa-text-secondary hover:text-lafa-text-primary hover:border-lafa-accent/30'

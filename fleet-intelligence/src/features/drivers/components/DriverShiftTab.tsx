@@ -23,7 +23,7 @@ export default function DriverShiftTab({ shiftHistory, activeShift }: DriverShif
   return (
     <div className="space-y-2">
       {activeShift && (
-        <div className="bg-[rgba(59,130,246,0.05)] border border-[rgba(59,130,246,0.2)] rounded-lg p-3">
+        <div className="bg-status-active/5 border border-status-active/20 rounded-lg p-3">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-lafa-text-primary">Turno activo</span>
             <StatusBadge status="en_turno" />
@@ -48,7 +48,7 @@ export default function DriverShiftTab({ shiftHistory, activeShift }: DriverShif
               {new Date(shift.checkIn).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })}
             </span>
             {shift.hoursWorked !== undefined && (
-              <span className="text-xs font-medium text-[#22C55E]">{shift.hoursWorked}h</span>
+              <span className="text-xs font-medium text-status-success">{shift.hoursWorked}h</span>
             )}
           </div>
           <div className="flex items-center justify-between text-xs text-lafa-text-secondary">

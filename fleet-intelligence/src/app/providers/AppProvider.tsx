@@ -112,6 +112,9 @@ function appReducer(state: AppState, action: Action): AppState {
     case 'LOGOUT':
       return { ...state, session: null };
 
+    case 'AUTH_CHECKED':
+      return { ...state, authChecked: true };
+
     case 'APPEND_SHIFTS':
       return {
         ...state,
@@ -164,6 +167,7 @@ const initialState: AppState = {
   closedPayroll: MOCK_PAYROLL as PayrollRecord[],
   session: loadSession(),
   hydrated: !isSupabaseConfigured,
+  authChecked: !!loadSession() || !isSupabaseConfigured,
   dataSource: 'mock',
 };
 

@@ -25,8 +25,8 @@ export default class ErrorBoundary extends React.Component<Props, State> {
       return (
         <div className="min-h-screen bg-lafa-bg flex items-center justify-center p-6">
           <div className="bg-lafa-surface border border-lafa-border rounded-xl p-8 max-w-md w-full text-center">
-            <div className="w-14 h-14 rounded-full bg-[rgba(239,68,68,0.15)] flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle size={28} className="text-[#EF4444]" />
+            <div className="w-14 h-14 rounded-full bg-status-danger/15 flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle size={28} className="text-status-danger" />
             </div>
             <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">
               Algo sali&oacute; mal
@@ -36,7 +36,7 @@ export default class ErrorBoundary extends React.Component<Props, State> {
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+              className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
             >
               Recargar
             </button>

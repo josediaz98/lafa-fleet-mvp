@@ -160,13 +160,13 @@ export default function PayrollPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">{'Nómina'}</h1>
+        <h1 className="text-2xl font-semibold text-lafa-text-primary">{'Nómina'}</h1>
         <div className="flex items-center gap-3 flex-wrap">
           <CenterFilterDropdown />
           {tab === 'actual' && isAdmin && (
             <button
               onClick={handleCloseWeek}
-              className="px-4 py-2 text-sm font-medium text-[#EF4444] border border-[#EF4444]/30 rounded hover:bg-[rgba(239,68,68,0.1)] transition-colors"
+              className="px-4 py-2 text-sm font-medium text-status-danger border border-status-danger/30 rounded hover:bg-status-danger/10 transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Cerrar semana
             </button>
@@ -174,14 +174,14 @@ export default function PayrollPage() {
           {tab === 'cerradas' && isAdmin && currentClosed.length > 0 && (
             <button
               onClick={handleRerun}
-              className="px-4 py-2 text-sm font-medium text-[#EAB308] border border-[#EAB308]/30 rounded hover:bg-[rgba(234,179,8,0.1)] transition-colors"
+              className="px-4 py-2 text-sm font-medium text-status-alert border border-status-alert/30 rounded hover:bg-status-alert/10 transition-colors duration-150"
             >
               Re-ejecutar cierre
             </button>
           )}
           <button
             onClick={handleExport}
-            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Exportar CSV
           </button>
@@ -191,7 +191,7 @@ export default function PayrollPage() {
       <div className="flex gap-1 border-b border-lafa-border mb-6">
         <button
           onClick={() => setTab('actual')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+          className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
             tab === 'actual' ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
           }`}
         >
@@ -200,7 +200,7 @@ export default function PayrollPage() {
         </button>
         <button
           onClick={() => setTab('cerradas')}
-          className={`px-4 py-2.5 text-sm font-medium transition-colors relative ${
+          className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
             tab === 'cerradas' ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
           }`}
         >
@@ -214,7 +214,7 @@ export default function PayrollPage() {
           <p className="text-sm text-lafa-text-secondary">
             {'Semana: '}
             <span className="text-lafa-text-primary font-medium">{week.label}</span>
-            <span className="ml-2 text-[#EAB308]">(borrador en vivo)</span>
+            <span className="ml-2 text-status-alert">(borrador en vivo)</span>
           </p>
         )}
         {tab === 'cerradas' && weekOptions.length > 1 && (
@@ -300,7 +300,7 @@ export default function PayrollPage() {
                     <tr
                       key={row.id}
                       onClick={() => setSelectedRow(row)}
-                      className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors ${
+                      className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
                         i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                       }`}
                     >
@@ -316,9 +316,9 @@ export default function PayrollPage() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         {row.goalMet ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">{'\u00a0Sí\u00a0'}</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">{'\u00a0Sí\u00a0'}</span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(239,68,68,0.15)] text-[#EF4444]">No</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">No</span>
                         )}
                       </td>
                       <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.baseSalary)}</td>
@@ -344,11 +344,11 @@ export default function PayrollPage() {
                       </td>
                       <td className="px-4 py-3 text-center">
                         {tab === 'actual' ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(234,179,8,0.15)] text-[#EAB308]">Borrador</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-alert/15 text-status-alert">Borrador</span>
                         ) : row.status === 'cerrado' ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(34,197,94,0.15)] text-[#22C55E]">Cerrado</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">Cerrado</span>
                         ) : (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-[rgba(239,68,68,0.15)] text-[#EF4444]">Superseded</span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">Superseded</span>
                         )}
                       </td>
                     </tr>

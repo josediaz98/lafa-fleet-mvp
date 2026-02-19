@@ -78,7 +78,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             value={form.email}
             onChange={e => { setForm({ ...form, email: e.target.value }); setFormError(''); }}
             className={`w-full px-3 py-2.5 bg-lafa-bg border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent ${
-              formError.toLowerCase().includes('email') ? 'border-[#EF4444]' : 'border-lafa-border'
+              formError.toLowerCase().includes('email') ? 'border-status-danger' : 'border-lafa-border'
             }`}
           />
           {supabaseMode && (
@@ -122,17 +122,17 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             </select>
           </div>
         )}
-        {formError && <p className="text-sm text-[#EF4444]">{formError}</p>}
+        {formError && <p className="text-sm text-status-danger">{formError}</p>}
         <div className="flex items-center justify-end gap-3 pt-2">
           <button
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
           >
             Cancelar
           </button>
           <button
             onClick={handleCreate}
-            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {supabaseMode ? 'Enviar invitación' : 'Crear usuario'}
           </button>

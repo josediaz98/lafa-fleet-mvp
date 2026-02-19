@@ -43,9 +43,9 @@ export default function DriverPayrollTab({ payrollHistory }: DriverPayrollTabPro
                 <td className="px-3 py-2 text-right font-medium text-lafa-text-primary">{formatMXN(row.totalPay)}</td>
                 <td className="px-3 py-2 text-center">
                   {row.goalMet ? (
-                    <span className="text-[#22C55E] text-xs">Sí</span>
+                    <span className="text-status-success text-xs">Sí</span>
                   ) : (
-                    <span className="text-[#EF4444] text-xs">No</span>
+                    <span className="text-status-danger text-xs">No</span>
                   )}
                 </td>
               </tr>
@@ -55,7 +55,7 @@ export default function DriverPayrollTab({ payrollHistory }: DriverPayrollTabPro
       </div>
       <button
         onClick={() => navigate('/payroll')}
-        className="mt-3 text-sm font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors"
+        className="mt-3 text-sm font-medium text-lafa-accent hover:text-lafa-accent-hover transition-colors duration-150"
       >
         Ver nómina completa →
       </button>

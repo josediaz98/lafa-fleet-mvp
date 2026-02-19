@@ -13,9 +13,11 @@ interface CompletedShift {
 
 interface ShiftTableProps {
   shifts: CompletedShift[];
+  hasActiveFilters?: boolean;
+  onClearFilters?: () => void;
 }
 
-export default function ShiftTable({ shifts }: ShiftTableProps) {
+export default function ShiftTable({ shifts, hasActiveFilters, onClearFilters }: ShiftTableProps) {
   const totalHours = shifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0);
 
   return (
@@ -45,7 +47,7 @@ export default function ShiftTable({ shifts }: ShiftTableProps) {
                 <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">{shift.center}</td>
                 <td className="px-4 py-3 text-lafa-text-secondary">{formatTime(shift.checkIn)}</td>
                 <td className="px-4 py-3 text-lafa-text-secondary">{shift.checkOut ? formatTime(shift.checkOut) : '—'}</td>
-                <td className="px-4 py-3 text-right font-medium text-[#22C55E]">
+                <td className="px-4 py-3 text-right font-medium text-status-success">
                   {shift.hoursWorked !== undefined ? `${shift.hoursWorked}h` : '—'}
                 </td>
               </tr>
@@ -57,7 +59,14 @@ export default function ShiftTable({ shifts }: ShiftTableProps) {
         <span className="text-xs text-lafa-text-secondary">
           {shifts.length} turno{shifts.length !== 1 ? 's' : ''} completado{shifts.length !== 1 ? 's' : ''}
         </span>
-        <span className="text-xs font-semibold text-[#22C55E]">{totalHours.toFixed(1)}h total</span>
+        <div className="flex items-center gap-3">
+          {hasActiveFilters && onClearFilters && (
+            <button onClick={onClearFilters} className="text-xs text-lafa-accent hover:underline">
+              Limpiar filtros
+            </button>
+          )}
+          <span className="text-xs font-semibold text-status-success">{totalHours.toFixed(1)}h total</span>
+        </div>
       </div>
     </div>
   );

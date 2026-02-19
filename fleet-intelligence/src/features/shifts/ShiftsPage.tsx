@@ -130,94 +130,103 @@ export default function ShiftsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-lafa-text-primary">Gestión de Turnos</h1>
+          <h1 className="text-2xl font-semibold text-lafa-text-primary">Gestión de Turnos</h1>
           <p className="text-sm text-lafa-text-secondary mt-0.5">Registro y control de turnos activos</p>
         </div>
         <div className="flex items-center gap-3">
           <CenterFilterDropdown />
           <button
             onClick={() => setShowModal(true)}
-            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             <Plus size={16} /> Nuevo check-in
           </button>
         </div>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4 max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
-        <input
-          type="text"
-          placeholder="Buscar por conductor o placa..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
-        />
-      </div>
-
-      {/* Tabs */}
-      <div className="flex gap-1 border-b border-lafa-border mb-4">
-        {tabs.map(t => (
-          <button
-            key={t.key}
-            onClick={() => setTab(t.key)}
-            className={`px-4 py-2.5 text-sm font-medium transition-colors relative whitespace-nowrap ${
-              tab === t.key
-                ? 'text-lafa-accent'
-                : 'text-lafa-text-secondary hover:text-lafa-text-primary'
-            }`}
-          >
-            {t.label} ({t.count})
-            {tab === t.key && (
-              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
-            )}
-          </button>
-        ))}
+      {/* Search + Tab Pills */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <div className="relative max-w-sm flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+          <input
+            placeholder="Buscar por conductor o placa..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+          />
+        </div>
+        <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5 flex-wrap">
+          {tabs.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors duration-150 ${
+                tab === t.key
+                  ? 'bg-lafa-accent text-white'
+                  : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+              }`}
+            >
+              {t.label} ({t.count})
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Content */}
-      {tab === 'activos' && activeShifts.length > 0 && (
-        <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden divide-y divide-lafa-border/50">
-          {activeShifts.map(shift => (
-            <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
-          ))}
-        </div>
+      {tab === 'activos' && (
+        activeShifts.length > 0 ? (
+          <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+            <div className="divide-y divide-lafa-border/50">
+              {activeShifts.map(shift => (
+                <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
+              ))}
+            </div>
+            <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+              <span className="text-xs text-lafa-text-secondary">
+                {activeShifts.length} turno{activeShifts.length !== 1 ? 's' : ''} activo{activeShifts.length !== 1 ? 's' : ''}
+              </span>
+              {search && (
+                <button onClick={() => setSearch('')} className="text-xs text-lafa-accent hover:underline">
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <EmptyState icon={Clock} title="Sin turnos activos" description="Registra un check-in para iniciar un turno." />
+        )
       )}
 
-      {tab === 'activos' && activeShifts.length > 0 && (
-        <div className="mt-2 px-1">
-          <span className="text-xs text-lafa-text-secondary">{activeShifts.length} turno{activeShifts.length !== 1 ? 's' : ''} activo{activeShifts.length !== 1 ? 's' : ''}</span>
-        </div>
+      {tab === 'completados' && (
+        completedShifts.length > 0 ? (
+          <ShiftTable shifts={completedShifts} hasActiveFilters={!!search} onClearFilters={() => setSearch('')} />
+        ) : (
+          <EmptyState icon={Clock} title="Sin turnos completados hoy" />
+        )
       )}
 
-      {tab === 'completados' && completedShifts.length > 0 && (
-        <ShiftTable shifts={completedShifts} />
-      )}
-
-      {tab === 'pendientes' && pendingShifts.length > 0 && (
-        <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden divide-y divide-lafa-border/50">
-          {pendingShifts.map(shift => (
-            <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
-          ))}
-        </div>
-      )}
-
-      {tab === 'pendientes' && pendingShifts.length > 0 && (
-        <div className="mt-2 px-1">
-          <span className="text-xs text-lafa-text-secondary">{pendingShifts.length} turno{pendingShifts.length !== 1 ? 's' : ''} pendiente{pendingShifts.length !== 1 ? 's' : ''}</span>
-        </div>
-      )}
-
-      {/* Empty states */}
-      {tab === 'activos' && activeShifts.length === 0 && (
-        <EmptyState icon={Clock} title="Sin turnos activos" description="Registra un check-in para iniciar un turno." />
-      )}
-      {tab === 'completados' && completedShifts.length === 0 && (
-        <EmptyState icon={Clock} title="Sin turnos completados hoy" />
-      )}
-      {tab === 'pendientes' && pendingShifts.length === 0 && (
-        <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisión" description="Todos los turnos están al día." />
+      {tab === 'pendientes' && (
+        pendingShifts.length > 0 ? (
+          <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
+            <div className="divide-y divide-lafa-border/50">
+              {pendingShifts.map(shift => (
+                <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
+              ))}
+            </div>
+            <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+              <span className="text-xs text-lafa-text-secondary">
+                {pendingShifts.length} turno{pendingShifts.length !== 1 ? 's' : ''} pendiente{pendingShifts.length !== 1 ? 's' : ''}
+              </span>
+              {search && (
+                <button onClick={() => setSearch('')} className="text-xs text-lafa-accent hover:underline">
+                  Limpiar filtros
+                </button>
+              )}
+            </div>
+          </div>
+        ) : (
+          <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisión" description="Todos los turnos están al día." />
+        )
       )}
 
       {/* Check-in modal */}

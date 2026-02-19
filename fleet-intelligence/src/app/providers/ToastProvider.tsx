@@ -39,15 +39,15 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   };
 
   const colors = {
-    success: 'bg-[rgba(34,197,94,0.15)] border-[rgba(34,197,94,0.3)] text-[#22C55E]',
-    error: 'bg-[rgba(239,68,68,0.15)] border-[rgba(239,68,68,0.3)] text-[#EF4444]',
-    warning: 'bg-[rgba(234,179,8,0.15)] border-[rgba(234,179,8,0.3)] text-[#EAB308]',
+    success: 'bg-status-success/15 border-status-success/30 text-status-success',
+    error: 'bg-status-danger/15 border-status-danger/30 text-status-danger',
+    warning: 'bg-status-alert/15 border-status-alert/30 text-status-alert',
   };
 
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-[100] space-y-2 max-w-sm">
+      <div className="fixed bottom-4 right-4 z-[100] space-y-2 max-w-sm" aria-live="polite" role="status">
         {toasts.map(toast => {
           const Icon = icons[toast.type];
           return (
@@ -57,7 +57,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
             >
               <Icon size={18} className="shrink-0" />
               <span className="text-sm font-medium text-lafa-text-primary flex-1">{toast.message}</span>
-              <button onClick={() => dismiss(toast.id)} className="shrink-0 opacity-60 hover:opacity-100">
+              <button onClick={() => dismiss(toast.id)} aria-label="Cerrar notificacion" className="shrink-0 opacity-60 hover:opacity-100">
                 <X size={14} />
               </button>
             </div>

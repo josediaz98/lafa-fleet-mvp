@@ -21,9 +21,9 @@ export default function ShiftRow({ shift, variant, onClose }: ShiftRowProps) {
 
   return (
     <div
-      className={`px-4 py-3 flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-1 transition-colors ${
+      className={`px-4 py-3 flex flex-wrap sm:flex-nowrap items-center gap-x-4 gap-y-1 transition-colors duration-150 ${
         showWarning
-          ? 'border-l-2 border-l-[#EF4444] bg-[rgba(239,68,68,0.04)] hover:bg-[rgba(239,68,68,0.08)]'
+          ? 'border-l-2 border-l-status-danger bg-status-danger/[0.04] hover:bg-status-danger/[0.08]'
           : 'hover:bg-lafa-accent/5'
       }`}
     >
@@ -49,7 +49,7 @@ export default function ShiftRow({ shift, variant, onClose }: ShiftRowProps) {
 
       {/* Elapsed time */}
       <span className={`text-xs font-semibold whitespace-nowrap shrink-0 ${
-        isOvertime ? 'text-[#EF4444]' : 'text-[#3B82F6]'
+        isOvertime ? 'text-status-danger' : 'text-status-active'
       }`}>
         {getElapsedTime(shift.checkIn)}
       </span>
@@ -58,7 +58,7 @@ export default function ShiftRow({ shift, variant, onClose }: ShiftRowProps) {
       {onClose && (
         <button
           onClick={() => onClose(shift.id)}
-          className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors shrink-0"
+          className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150 shrink-0"
         >
           Cerrar
         </button>
