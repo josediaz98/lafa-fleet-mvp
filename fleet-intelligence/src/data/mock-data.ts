@@ -16,13 +16,11 @@
  *   - Lazy data loading per page (replaces fetchAllData)
  */
 import { generateExplanation } from '@/features/payroll/lib/explanation';
+import type { Center } from '@/types';
 
 // ---- Centers ----
 
-export interface Center {
-  id: string;
-  name: string;
-}
+export type { Center };
 
 export const MOCK_CENTERS: Center[] = [
   { id: 'c1', name: 'Vallejo' },

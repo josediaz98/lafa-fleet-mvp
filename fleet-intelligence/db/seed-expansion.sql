@@ -1,5 +1,5 @@
 -- ============================================================
--- SEED EXPANSION — Run AFTER supabase-schema.sql
+-- SEED EXPANSION — Run AFTER supabase-setup.sql
 -- ============================================================
 -- Adds:
 --   1. Week 1 payroll (Feb 3-9, closed) — overtime baseline

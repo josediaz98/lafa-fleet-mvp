@@ -15,14 +15,46 @@ import LafaLogo from '@/components/ui/LafaLogo';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
-const NAV_ITEMS = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
-  { to: '/shifts', label: 'Gestión de Turnos', icon: Clock, adminOnly: false },
-  { to: '/csv-upload', label: 'Carga CSV', icon: Upload, adminOnly: true },
-  { to: '/payroll', label: 'Nómina', icon: Receipt, adminOnly: false },
-  { to: '/drivers', label: 'Conductores', icon: Users, adminOnly: false },
-  { to: '/vehicles', label: 'Vehículos', icon: Car, adminOnly: false },
-  { to: '/users', label: 'Usuarios', icon: UserCog, adminOnly: true },
+interface NavItem {
+  to: string;
+  label: string;
+  icon: typeof LayoutDashboard;
+  adminOnly: boolean;
+}
+
+interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+const NAV_GROUPS: NavGroup[] = [
+  {
+    label: 'Operaciones',
+    items: [
+      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
+      { to: '/shifts', label: 'Gestión de Turnos', icon: Clock, adminOnly: false },
+    ],
+  },
+  {
+    label: 'Flota',
+    items: [
+      { to: '/drivers', label: 'Conductores', icon: Users, adminOnly: false },
+      { to: '/vehicles', label: 'Vehículos', icon: Car, adminOnly: false },
+    ],
+  },
+  {
+    label: 'Nómina',
+    items: [
+      { to: '/payroll', label: 'Nómina', icon: Receipt, adminOnly: false },
+      { to: '/csv-upload', label: 'Carga CSV', icon: Upload, adminOnly: true },
+    ],
+  },
+  {
+    label: 'Sistema',
+    items: [
+      { to: '/users', label: 'Usuarios', icon: UserCog, adminOnly: true },
+    ],
+  },
 ];
 
 interface SidebarProps {
@@ -36,7 +68,12 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
   const isAdmin = session?.role === 'admin';
-  const visibleItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
+  const visibleGroups = NAV_GROUPS
+    .map(group => ({
+      ...group,
+      items: group.items.filter(item => !item.adminOnly || isAdmin),
+    }))
+    .filter(group => group.items.length > 0);
   const initials = session?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '';
 
   function handleLogout() {
@@ -67,23 +104,32 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-2 space-y-1">
-          {visibleItems.map(({ to, label, icon: Icon }) => (
-            <NavLink
-              key={to}
-              to={to}
-              onClick={onClose}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors ${
-                  isActive
-                    ? 'bg-lafa-accent/10 text-lafa-accent'
-                    : 'text-lafa-text-secondary hover:text-lafa-text-primary hover:bg-lafa-border/30'
-                }`
-              }
-            >
-              <Icon size={18} />
-              <span>{label}</span>
-            </NavLink>
+        <nav className="flex-1 px-3 py-2">
+          {visibleGroups.map((group, idx) => (
+            <div key={group.label} className={idx > 0 ? 'mt-5' : ''}>
+              <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-lafa-text-secondary/60">
+                {group.label}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map(({ to, label, icon: Icon }) => (
+                  <NavLink
+                    key={to}
+                    to={to}
+                    onClick={onClose}
+                    className={({ isActive }) =>
+                      `flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors ${
+                        isActive
+                          ? 'bg-lafa-accent/10 text-lafa-accent'
+                          : 'text-lafa-text-secondary hover:text-lafa-text-primary hover:bg-lafa-border/30'
+                      }`
+                    }
+                  >
+                    <Icon size={18} />
+                    <span>{label}</span>
+                  </NavLink>
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 

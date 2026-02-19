@@ -1,8 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
-import { useCenterFilter } from '@/lib/use-center-filter';
-import { shiftHours } from '@/lib/date-utils';
+import { useCenterFilter } from '@/components/hooks/useCenterFilter';
+import { shiftHours } from '@/lib/dateUtils';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/constants';
 import { useToast } from '@/app/providers/ToastProvider';

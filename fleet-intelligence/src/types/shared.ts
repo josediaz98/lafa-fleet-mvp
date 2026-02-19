@@ -7,6 +7,11 @@ import type {
 
 // ---- Domain Types ----
 
+export interface Center {
+  id: string;
+  name: string;
+}
+
 export type Driver = MockDriver;
 export type Vehicle = MockVehicle;
 export type Shift = MockShift;

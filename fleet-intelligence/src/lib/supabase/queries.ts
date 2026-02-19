@@ -6,8 +6,7 @@ import {
   setLookupMaps,
   mapCenter, mapDriver, mapVehicle, mapShift, mapTrip, mapProfile, mapPayroll,
 } from '@/lib/mappers';
-import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
-import type { Center } from '@/data/mock-data';
+import type { Center, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
 
 // ─────────────────────────────────────────────────────────────
 // Date range utilities

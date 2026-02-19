@@ -1,4 +1,5 @@
 export type {
+  Center,
   Driver,
   Vehicle,
   Shift,

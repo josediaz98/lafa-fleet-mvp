@@ -1,5 +1,4 @@
-import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
-import type { Center } from '@/data/mock-data';
+import type { Center, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
 import type {
   DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
 } from '@/lib/supabase/types';

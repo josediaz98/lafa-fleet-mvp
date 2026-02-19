@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Plus, Car, Zap, Wrench, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Vehicle } from '@/types';
-import { useCenterFilter } from '@/lib/use-center-filter';
+import { useCenterFilter } from '@/components/hooks/useCenterFilter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -12,7 +12,7 @@ import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SlidePanel from '@/components/ui/SlidePanel';
 import { getCenterName } from '@/lib/format';
-import { STATUS_LABELS } from '@/lib/status-map';
+import { STATUS_LABELS } from '@/lib/statusMap';
 import VehicleTable from './components/VehicleTable';
 import VehicleCreateModal from './components/VehicleCreateModal';
 

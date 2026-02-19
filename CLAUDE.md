@@ -56,8 +56,7 @@ Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --b
 │   ├── hiring/              ← Interviews + technical challenge (has its own CLAUDE.md)
 │   ├── team/                ← Individual profiles
 │   ├── vemo-benchmark/      ← Competitive intel
-│   ├── reference/           ← Brand assets
-│   └── reforge/             ← Reforge framework exercises
+│   └── reference/           ← Brand assets
 └── images/
 ```
 

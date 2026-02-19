@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
-import { useCenterFilter } from '@/lib/use-center-filter';
+import { useCenterFilter } from '@/components/hooks/useCenterFilter';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import { getCenterName } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
