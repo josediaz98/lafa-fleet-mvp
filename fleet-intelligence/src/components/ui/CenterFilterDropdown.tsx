@@ -1,5 +1,5 @@
-import { useCenterFilter } from '../../hooks/useCenterFilter';
-import { MOCK_CENTERS } from '../../data/mockData';
+import { useCenterFilter } from '@/hooks/use-center-filter';
+import { MOCK_CENTERS } from '@/data/mock-data';
 
 interface CenterFilterDropdownProps {
   variant?: 'select' | 'pills';

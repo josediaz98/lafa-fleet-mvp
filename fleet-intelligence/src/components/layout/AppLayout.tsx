@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Menu, AlertTriangle } from 'lucide-react';
 import Sidebar from './Sidebar';
-import { useAppState } from '../../context/AppContext';
+import { useAppState } from '@/app/providers/AppProvider';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);

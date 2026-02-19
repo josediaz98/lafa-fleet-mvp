@@ -1,4 +1,4 @@
-import { STATUS_CONFIG } from '../../lib/statusMap';
+import { STATUS_CONFIG } from '@/lib/status-map';
 
 interface StatusBadgeProps {
   status: string;

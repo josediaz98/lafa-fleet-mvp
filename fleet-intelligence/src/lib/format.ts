@@ -1,4 +1,4 @@
-import { MOCK_CENTERS } from '../data/mockData';
+import { MOCK_CENTERS } from '@/data/mock-data';
 
 export function getCenterName(centerId: string | null): string {
   if (!centerId) return 'Todos';

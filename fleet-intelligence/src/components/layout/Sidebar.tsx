@@ -10,10 +10,10 @@ import {
   LogOut,
   X,
 } from 'lucide-react';
-import StatusBadge from '../ui/StatusBadge';
-import LafaLogo from '../ui/LafaLogo';
-import { useAppState, useAppDispatch } from '../../context/AppContext';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import StatusBadge from '@/components/ui/StatusBadge';
+import LafaLogo from '@/components/ui/LafaLogo';
+import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
 const NAV_ITEMS = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },

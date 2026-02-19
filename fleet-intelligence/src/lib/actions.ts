@@ -3,7 +3,7 @@
  * Pages call action*() instead of the 3-step pattern directly.
  */
 import type { Dispatch } from 'react';
-import type { Action, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '../context/AppContext';
+import type { Action, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
 import {
   persistCheckIn,
   persistCheckOut,
@@ -19,7 +19,7 @@ import {
   persistNewUser,
   persistUpdateUser,
   persistDeactivateUser,
-} from './supabaseMutations';
+} from '@/lib/supabase/mutations';
 
 type AppDispatch = Dispatch<Action>;
 type ShowToast = (type: 'success' | 'error' | 'warning', message: string) => void;
