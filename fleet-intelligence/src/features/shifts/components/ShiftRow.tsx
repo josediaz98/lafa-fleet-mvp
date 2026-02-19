@@ -52,13 +52,13 @@ export default function ShiftRow({
       </span>
 
       {/* Check-in time */}
-      <span className="text-xs text-lafa-text-secondary whitespace-nowrap shrink-0 hidden sm:block">
+      <span className="text-xs text-lafa-text-secondary whitespace-nowrap shrink-0 w-[76px] hidden sm:block">
         {formatTime(shift.checkIn)}
       </span>
 
       {/* Elapsed time */}
       <span
-        className={`text-xs font-semibold whitespace-nowrap shrink-0 ${
+        className={`text-xs font-semibold whitespace-nowrap shrink-0 w-14 ${
           isOvertime ? 'text-status-danger' : 'text-status-active'
         }`}
       >
@@ -70,7 +70,7 @@ export default function ShiftRow({
         <button
           onClick={() => onClose(shift.id)}
           disabled={disabled}
-          className="px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-[76px] text-center px-3 py-1.5 text-xs font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150 shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {disabled ? 'Cerrando...' : 'Cerrar'}
         </button>

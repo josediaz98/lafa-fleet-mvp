@@ -1,115 +1,44 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState } from 'react';
 import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
 import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
-import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
 import { useActionContext } from '@/lib/action-context';
 import { useShiftCheckOut } from '@/lib/use-shift-checkout';
 import type { Shift } from '@/types';
 import { actionCheckIn } from '@/lib/actions';
+import { useShiftFilters } from './lib/use-shift-filters';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
 import ShiftCheckInModal from './components/ShiftCheckInModal';
 import ShiftRow from './components/ShiftRow';
 import ShiftTable from './components/ShiftTable';
 
-type ShiftTab = 'activos' | 'completados' | 'pendientes';
-
 export default function ShiftsPage() {
   const { shifts, drivers, vehicles } = useAppState();
   const ctx = useActionContext();
   const { filterByCenter } = useCenterFilter();
   const { handleCheckOut, closingShiftId } = useShiftCheckOut();
-  const [tab, setTab] = useState<ShiftTab>('activos');
   const [showModal, setShowModal] = useState(false);
-  const [search, setSearch] = useState('');
-  const [, setTick] = useState(0);
-  const nowRef = useRef(Date.now()); // eslint-disable-line react-hooks/purity -- intentional impure initial value
 
-  useEffect(() => {
-    const id = setInterval(() => {
-      nowRef.current = Date.now();
-      setTick((t) => t + 1);
-    }, REFRESH_INTERVAL);
-    return () => clearInterval(id);
-  }, []);
-
-  const filteredShifts = filterByCenter(shifts);
-
-  const searchFiltered = useMemo(() => {
-    if (!search) return filteredShifts;
-    const q = search.toLowerCase();
-    return filteredShifts.filter(
-      (s) =>
-        s.driverName.toLowerCase().includes(q) ||
-        s.plate.toLowerCase().includes(q),
-    );
-  }, [filteredShifts, search]);
-
-  const activeShifts = useMemo(() => {
-    const active = searchFiltered.filter((s) => s.status === 'en_turno');
-    return [...active].sort((a, b) => {
-      const aOver =
-        nowRef.current - new Date(a.checkIn).getTime() > SHIFT_WINDOW_MS;
-      const bOver =
-        nowRef.current - new Date(b.checkIn).getTime() > SHIFT_WINDOW_MS;
-      if (aOver && !bOver) return -1;
-      if (!aOver && bOver) return 1;
-      return new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime();
-    });
-  }, [searchFiltered]);
-
-  const completedShifts = useMemo(() => {
-    const today = new Date().toDateString();
-    return searchFiltered.filter(
-      (s) =>
-        s.status === 'completado' &&
-        new Date(s.checkIn).toDateString() === today,
-    );
-  }, [searchFiltered]);
-
-  const pendingShifts = searchFiltered.filter(
-    (s) =>
-      (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
-      nowRef.current - new Date(s.checkIn).getTime() > SHIFT_WINDOW_MS,
+  const {
+    tab,
+    setTab,
+    search,
+    setSearch,
+    now,
+    activeShifts,
+    completedShifts,
+    pendingShifts,
+    availableDrivers,
+    availableVehicles,
+    tabs,
+  } = useShiftFilters(
+    shifts,
+    filterByCenter(shifts),
+    filterByCenter(drivers),
+    filterByCenter(vehicles),
   );
-
-  const driversInShift = useMemo(
-    () =>
-      new Set(
-        shifts.filter((s) => s.status === 'en_turno').map((s) => s.driverId),
-      ),
-    [shifts],
-  );
-  const vehiclesInShift = useMemo(
-    () =>
-      new Set(
-        shifts.filter((s) => s.status === 'en_turno').map((s) => s.vehicleId),
-      ),
-    [shifts],
-  );
-
-  const availableDrivers = filterByCenter(drivers).filter(
-    (d) => d.status === 'activo' && !driversInShift.has(d.id),
-  );
-  const availableVehicles = filterByCenter(vehicles).filter(
-    (v) => v.status === 'disponible' && !vehiclesInShift.has(v.id),
-  );
-
-  const tabs: { key: ShiftTab; label: string; count: number }[] = [
-    { key: 'activos', label: 'Activos', count: activeShifts.length },
-    {
-      key: 'completados',
-      label: 'Completados hoy',
-      count: completedShifts.length,
-    },
-    {
-      key: 'pendientes',
-      label: 'Pendientes de revisión',
-      count: pendingShifts.length,
-    },
-  ];
 
   async function handleCheckIn(driverId: string, vehicleId: string) {
     const driver = drivers.find((d) => d.id === driverId);
@@ -201,13 +130,13 @@ export default function ShiftsPage() {
               <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-[1.5] hidden md:block">
                 Vehículo
               </span>
-              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 hidden sm:block">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 w-[76px] hidden sm:block">
                 Check-in
               </span>
-              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 w-14">
                 Tiempo
               </span>
-              <span className="w-[70px] shrink-0"></span>
+              <span className="w-[76px] shrink-0"></span>
             </div>
             <div className="divide-y divide-lafa-border/50">
               {activeShifts.map((shift) => (
@@ -215,7 +144,7 @@ export default function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   variant="active"
-                  now={nowRef.current}
+                  now={now}
                   onClose={handleCheckOut}
                   disabled={closingShiftId === shift.id}
                 />
@@ -269,13 +198,13 @@ export default function ShiftsPage() {
               <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider flex-[1.5] hidden md:block">
                 Vehículo
               </span>
-              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 hidden sm:block">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 w-[76px] hidden sm:block">
                 Check-in
               </span>
-              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0">
+              <span className="text-xs font-medium text-lafa-text-secondary uppercase tracking-wider shrink-0 w-14">
                 Tiempo
               </span>
-              <span className="w-[70px] shrink-0"></span>
+              <span className="w-[76px] shrink-0"></span>
             </div>
             <div className="divide-y divide-lafa-border/50">
               {pendingShifts.map((shift) => (
@@ -283,7 +212,7 @@ export default function ShiftsPage() {
                   key={shift.id}
                   shift={shift}
                   variant="alert"
-                  now={nowRef.current}
+                  now={now}
                   onClose={handleCheckOut}
                   disabled={closingShiftId === shift.id}
                 />
