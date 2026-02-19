@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Clock, AlertTriangle } from 'lucide-react';
+import { Clock, AlertTriangle, Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/components/ui/use-center-filter';
 import { shiftHours } from '@/lib/date-utils';
@@ -10,8 +10,9 @@ import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionCheckIn, actionCheckOut } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
-import ShiftCard from './ShiftCard';
-import ShiftCheckInForm from './ShiftCheckInForm';
+import ShiftCheckInModal from './ShiftCheckInModal';
+import ShiftRow from './ShiftRow';
+import ShiftTable from './ShiftTable';
 
 type ShiftTab = 'activos' | 'completados' | 'pendientes';
 
@@ -22,6 +23,8 @@ export default function ShiftsPage() {
   const { showToast } = useToast();
   const { confirm } = useConfirmDialog();
   const [tab, setTab] = useState<ShiftTab>('activos');
+  const [showModal, setShowModal] = useState(false);
+  const [search, setSearch] = useState('');
   const [, setTick] = useState(0);
 
   useEffect(() => {
@@ -31,8 +34,16 @@ export default function ShiftsPage() {
 
   const filteredShifts = filterByCenter(shifts);
 
+  const searchFiltered = useMemo(() => {
+    if (!search) return filteredShifts;
+    const q = search.toLowerCase();
+    return filteredShifts.filter(s =>
+      s.driverName.toLowerCase().includes(q) || s.plate.toLowerCase().includes(q)
+    );
+  }, [filteredShifts, search]);
+
   const activeShifts = useMemo(() => {
-    const active = filteredShifts.filter(s => s.status === 'en_turno');
+    const active = searchFiltered.filter(s => s.status === 'en_turno');
     return [...active].sort((a, b) => {
       const aOver = (Date.now() - new Date(a.checkIn).getTime()) > SHIFT_WINDOW_MS;
       const bOver = (Date.now() - new Date(b.checkIn).getTime()) > SHIFT_WINDOW_MS;
@@ -40,9 +51,11 @@ export default function ShiftsPage() {
       if (!aOver && bOver) return 1;
       return new Date(a.checkIn).getTime() - new Date(b.checkIn).getTime();
     });
-  }, [filteredShifts]);
-  const completedShifts = filteredShifts.filter(s => s.status === 'completado');
-  const pendingShifts = filteredShifts.filter(s =>
+  }, [searchFiltered]);
+
+  const completedShifts = searchFiltered.filter(s => s.status === 'completado');
+
+  const pendingShifts = searchFiltered.filter(s =>
     (s.status === 'en_turno' || s.status === 'pendiente_revision') &&
     (Date.now() - new Date(s.checkIn).getTime()) > SHIFT_WINDOW_MS
   );
@@ -66,8 +79,6 @@ export default function ShiftsPage() {
     { key: 'completados', label: 'Completados hoy', count: completedShifts.length },
     { key: 'pendientes', label: 'Pendientes de revisión', count: pendingShifts.length },
   ];
-
-  const completedTotalHours = completedShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0);
 
   function handleCheckIn(driverId: string, vehicleId: string) {
     const driver = drivers.find(d => d.id === driverId);
@@ -116,73 +127,108 @@ export default function ShiftsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">Gestión de Turnos</h1>
-        <CenterFilterDropdown />
-      </div>
-
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 min-w-0 lg:max-w-[60%]">
-          <div className="flex gap-1 border-b border-lafa-border mb-4">
-            {tabs.map(t => (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`px-4 py-2.5 text-sm font-medium transition-colors relative whitespace-nowrap ${
-                  tab === t.key
-                    ? 'text-lafa-accent'
-                    : 'text-lafa-text-secondary hover:text-lafa-text-primary'
-                }`}
-              >
-                {t.label} ({t.count})
-                {tab === t.key && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
-                )}
-              </button>
-            ))}
-          </div>
-
-          <div className="space-y-3">
-            {tab === 'activos' && activeShifts.map(shift => (
-              <ShiftCard key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
-            ))}
-
-            {tab === 'completados' && completedShifts.map(shift => (
-              <ShiftCard key={shift.id} shift={shift} variant="completed" />
-            ))}
-
-            {tab === 'completados' && completedShifts.length > 0 && (
-              <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4 flex items-center justify-between">
-                <span className="text-xs font-medium text-lafa-text-secondary">Total horas completadas hoy</span>
-                <span className="text-sm font-semibold text-[#22C55E]">{completedTotalHours.toFixed(1)}h</span>
-              </div>
-            )}
-
-            {tab === 'pendientes' && pendingShifts.map(shift => (
-              <ShiftCard key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
-            ))}
-
-            {tab === 'activos' && activeShifts.length === 0 && (
-              <EmptyState icon={Clock} title="Sin turnos activos" description="Registra un check-in para iniciar un turno." />
-            )}
-            {tab === 'completados' && completedShifts.length === 0 && (
-              <EmptyState icon={Clock} title="Sin turnos completados hoy" />
-            )}
-            {tab === 'pendientes' && pendingShifts.length === 0 && (
-              <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisión" description="Todos los turnos están al día." />
-            )}
-          </div>
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-lafa-text-primary">Gestión de Turnos</h1>
+          <p className="text-sm text-lafa-text-secondary mt-0.5">Registro y control de turnos activos</p>
         </div>
-
-        <div className="lg:w-[38%] shrink-0">
-          <ShiftCheckInForm
-            drivers={availableDrivers}
-            vehicles={availableVehicles}
-            shifts={shifts}
-            onCheckIn={handleCheckIn}
-          />
+        <div className="flex items-center gap-3">
+          <CenterFilterDropdown />
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+          >
+            <Plus size={16} /> Nuevo check-in
+          </button>
         </div>
       </div>
+
+      {/* Search */}
+      <div className="relative mb-4 max-w-sm">
+        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+        <input
+          type="text"
+          placeholder="Buscar por conductor o placa..."
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+        />
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-1 border-b border-lafa-border mb-4">
+        {tabs.map(t => (
+          <button
+            key={t.key}
+            onClick={() => setTab(t.key)}
+            className={`px-4 py-2.5 text-sm font-medium transition-colors relative whitespace-nowrap ${
+              tab === t.key
+                ? 'text-lafa-accent'
+                : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+            }`}
+          >
+            {t.label} ({t.count})
+            {tab === t.key && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Content */}
+      {tab === 'activos' && activeShifts.length > 0 && (
+        <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden divide-y divide-lafa-border/50">
+          {activeShifts.map(shift => (
+            <ShiftRow key={shift.id} shift={shift} variant="active" onClose={handleCheckOut} />
+          ))}
+        </div>
+      )}
+
+      {tab === 'activos' && activeShifts.length > 0 && (
+        <div className="mt-2 px-1">
+          <span className="text-xs text-lafa-text-secondary">{activeShifts.length} turno{activeShifts.length !== 1 ? 's' : ''} activo{activeShifts.length !== 1 ? 's' : ''}</span>
+        </div>
+      )}
+
+      {tab === 'completados' && completedShifts.length > 0 && (
+        <ShiftTable shifts={completedShifts} />
+      )}
+
+      {tab === 'pendientes' && pendingShifts.length > 0 && (
+        <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden divide-y divide-lafa-border/50">
+          {pendingShifts.map(shift => (
+            <ShiftRow key={shift.id} shift={shift} variant="alert" onClose={handleCheckOut} />
+          ))}
+        </div>
+      )}
+
+      {tab === 'pendientes' && pendingShifts.length > 0 && (
+        <div className="mt-2 px-1">
+          <span className="text-xs text-lafa-text-secondary">{pendingShifts.length} turno{pendingShifts.length !== 1 ? 's' : ''} pendiente{pendingShifts.length !== 1 ? 's' : ''}</span>
+        </div>
+      )}
+
+      {/* Empty states */}
+      {tab === 'activos' && activeShifts.length === 0 && (
+        <EmptyState icon={Clock} title="Sin turnos activos" description="Registra un check-in para iniciar un turno." />
+      )}
+      {tab === 'completados' && completedShifts.length === 0 && (
+        <EmptyState icon={Clock} title="Sin turnos completados hoy" />
+      )}
+      {tab === 'pendientes' && pendingShifts.length === 0 && (
+        <EmptyState icon={AlertTriangle} title="Sin turnos pendientes de revisión" description="Todos los turnos están al día." />
+      )}
+
+      {/* Check-in modal */}
+      <ShiftCheckInModal
+        open={showModal}
+        onClose={() => setShowModal(false)}
+        drivers={availableDrivers}
+        vehicles={availableVehicles}
+        shifts={shifts}
+        onCheckIn={handleCheckIn}
+      />
     </div>
   );
 }

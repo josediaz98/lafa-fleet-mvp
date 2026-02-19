@@ -4,18 +4,29 @@ import type { Driver, Vehicle } from '@/types';
 import { MOCK_CENTERS } from '@/data/mock-data';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 import StatusBadge from '@/components/ui/StatusBadge';
+import Modal from '@/components/ui/Modal';
 
-interface ShiftCheckInFormProps {
+interface ShiftCheckInModalProps {
+  open: boolean;
+  onClose: () => void;
   drivers: Driver[];
   vehicles: Vehicle[];
   shifts: { driverId: string; status: string; checkIn: string }[];
   onCheckIn: (driverId: string, vehicleId: string) => void;
 }
 
-export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn }: ShiftCheckInFormProps) {
+export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, shifts, onCheckIn }: ShiftCheckInModalProps) {
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [formError, setFormError] = useState('');
+
+  useEffect(() => {
+    if (open) {
+      setSelectedDriverId('');
+      setSelectedVehicleId('');
+      setFormError('');
+    }
+  }, [open]);
 
   const selectedDriver = drivers.find(d => d.id === selectedDriverId);
   const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
@@ -49,21 +60,18 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
     return shifts.some(s => s.driverId === selectedDriver.id && s.checkIn.startsWith(today) && s.status === 'completado');
   }, [selectedDriver, shifts]);
 
-  function handleCheckIn() {
+  function handleSubmit() {
     setFormError('');
     if (!selectedDriverId || !selectedVehicleId) {
       setFormError('Selecciona conductor y vehículo.');
       return;
     }
     onCheckIn(selectedDriverId, selectedVehicleId);
-    setSelectedDriverId('');
-    setSelectedVehicleId('');
+    onClose();
   }
 
   return (
-    <div className="bg-lafa-surface border border-lafa-border rounded-xl p-5 sticky top-8">
-      <h3 className="text-base font-semibold text-lafa-text-primary mb-5">Nuevo check-in</h3>
-
+    <Modal open={open} onClose={onClose} title="Nuevo check-in">
       <div className="space-y-4">
         <SearchableSelect
           label="Conductor"
@@ -124,13 +132,21 @@ export default function ShiftCheckInForm({ drivers, vehicles, shifts, onCheckIn 
           <p className="text-sm text-[#EF4444]">{formError}</p>
         )}
 
-        <button
-          onClick={handleCheckIn}
-          className="w-full py-2.5 bg-lafa-accent hover:bg-lafa-accent-hover text-white font-medium rounded text-sm transition-colors"
-        >
-          Registrar check-in
-        </button>
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
+          >
+            Cancelar
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
+          >
+            Registrar check-in
+          </button>
+        </div>
       </div>
-    </div>
+    </Modal>
   );
 }
