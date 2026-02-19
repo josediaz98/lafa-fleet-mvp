@@ -1,4 +1,4 @@
-import { formatTime, getElapsedTime } from '@/lib/dateUtils';
+import { formatTime, getElapsedTime } from '@/lib/date-utils';
 import { SHIFT_WINDOW_MS } from '@/lib/constants';
 import StatusBadge from '@/components/ui/StatusBadge';
 

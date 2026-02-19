@@ -1,5 +1,4 @@
 content/
 .claude/
 .git/
-.vercel/
 compass_artifact_*

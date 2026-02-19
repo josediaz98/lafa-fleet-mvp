@@ -65,8 +65,8 @@ Individual profiles of the LAFA team:
 ## Strategy
 
 Jose's strategic contribution -- what he would build. See [content/strategy/README.md](content/strategy/README.md) for how the files connect.
-- [AI Roadmap](content/strategy/ai-roadmap.md) -- 12-month roadmap: Phase 0 (DB, dashboard, maintenance, dispatch) + 8 AI projects. 42 weeks, MXN $3.6-9.1M/year
-- [Product Ecosystem](content/strategy/product-ecosystem.md) -- Full map: 5 user types, 64 products/touchpoints (44 in roadmap, 20 gaps), 3 horizons
+- [AI Roadmap](content/strategy/ai-roadmap.md) -- 9-month roadmap: 16 projects across 3 tracks (Foundation, DaE, LTO). ~50 weeks, MXN $3.6-9.1M/year
+- [Product Ecosystem](content/strategy/product-ecosystem.md) -- Full map: 5 user types, 67 products/touchpoints (53 in roadmap, 14 gaps), 3 horizons
 - [Data Infrastructure](content/strategy/data-infrastructure.md) -- 3-phase analytics stack (Metabase to Kafka to Looker), cost scaling $300-$8K/mo, ML use cases by ROI
 - [Tech Stack Scaling](content/strategy/tech-stack-scaling.md) -- Build vs buy matrix, recommended stacks at 500/2K/10K vehicles, data network effects, technology flywheel
 
@@ -91,6 +91,30 @@ Competitive intelligence on VEMO -- LAFA's most direct competitor. See [content/
 - [Battery Lifecycle](content/vemo-benchmark/05-battery-lifecycle.md) -- SOH, degradation, lifecycle emissions, second-life (Batex model)
 - [Founder Frameworks](content/vemo-benchmark/06-founder-frameworks.md) -- Roberto Rocha's strategic mental models: vertical integration, step-function growth, trust transfer
 - [Source Transcript](content/vemo-benchmark/07-source-transcript.md) -- Vemo Talks #1 transcript (energy transition panel, Spanish)
+
+---
+
+## Marketing Site
+
+Interactive landing page and 6 prototype demos: [site/index.html](site/index.html)
+
+Static HTML/JS + Tailwind CDN (no build step). Prototypes:
+- [Dashboard](site/dashboard/) -- Fleet KPIs, revenue, utilization
+- [Battery](site/battery/) -- SOH monitoring, degradation alerts
+- [Collections](site/collections/) -- Payment tracking, escalation workflows
+- [Fleet Map](site/fleetmap/) -- Real-time vehicle locations (Leaflet.js)
+- [Onboarding](site/onboarding/) -- Driver application flow
+- [Roadmap](site/roadmap/) -- AI project timeline visualization
+
+---
+
+## Fleet Intelligence MVP
+
+Live React + TypeScript + Vite app for fleet operations: [fleet-intelligence/](fleet-intelligence/)
+
+**Live URL:** [lafa-production.up.railway.app](https://lafa-production.up.railway.app/)
+
+Core features: payroll processing, shift dispatch, driver management, vehicle tracking, CSV data import. Built as the [technical challenge](content/hiring/README.md) for Jose's interview process. Uses Supabase for persistence (falls back to mock data).
 
 ---
 
@@ -128,11 +152,11 @@ Each data point lives in exactly one file:
 | EV market data + regulatory | content/analysis/market/ev-market-latam | -- |
 | Gig driver market + economics | content/analysis/market/gig-driver-economics | -- |
 | LatAm biz model landscape | content/analysis/market/biz-model-research | -- |
-| AI roadmap (12 projects) | content/strategy/ai-roadmap | -- |
-| Product ecosystem (5 users, 64 items) | content/strategy/product-ecosystem | -- |
+| AI roadmap (16 projects) | content/strategy/ai-roadmap | -- |
+| Product ecosystem (5 users, 67 items) | content/strategy/product-ecosystem | -- |
 | Data infrastructure (3-phase stack, ML priorities) | content/strategy/data-infrastructure | -- |
 | Tech stack scaling (build vs buy, flywheel) | content/strategy/tech-stack-scaling | -- |
 
 ---
 
-*Last updated: February 7, 2026*
+*Last updated: February 19, 2026*

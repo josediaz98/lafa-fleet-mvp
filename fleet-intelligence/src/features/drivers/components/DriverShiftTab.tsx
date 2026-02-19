@@ -1,6 +1,6 @@
 import { Clock } from 'lucide-react';
 import type { Shift } from '@/types';
-import { formatTime, getElapsedTime } from '@/lib/dateUtils';
+import { formatTime, getElapsedTime } from '@/lib/date-utils';
 import StatusBadge from '@/components/ui/StatusBadge';
 import EmptyState from '@/components/ui/EmptyState';
 

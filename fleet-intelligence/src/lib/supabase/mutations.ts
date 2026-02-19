@@ -1,5 +1,5 @@
 import { supabase } from './client';
-import { parseFechaToISO } from '@/lib/dateUtils';
+import { parseFechaToISO } from '@/lib/date-utils';
 import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
 
 type MutationResult = { error: Error | null };
