@@ -53,7 +53,7 @@ export async function fetchAllData(): Promise<HydrateData> {
 
   const range = getDateRange(WEEKS_TO_FETCH);
 
-  const [centersRes, driversRes, vehiclesRes, shiftsRes, tripsRes, profilesRes, payrollRes] =
+  const [centersRes, driversRes, vehiclesRes, profilesRes, shiftsRes, tripsRes, payrollRes] =
     await Promise.all([
       // Static data - fetch all
       supabase.from('centers').select('*'),
