@@ -134,6 +134,18 @@ INSERT INTO weekly_payroll (driver_id, week_start, week_end, hours_worked, total
 
 
 -- ============================================================
+-- 4b. CSV UPLOAD HISTORY (W1 + W2)
+-- ============================================================
+-- So the CSV Upload page shows prior upload history.
+-- These are metadata-only — the actual trip rows aren't seeded
+-- (payroll was computed from them and is already in weekly_payroll).
+
+INSERT INTO csv_uploads (id, filename, uploaded_by, uploaded_at, record_count, valid_count, warning_count, error_count, status) VALUES
+  ('00000000-0000-0000-0000-00000000c001', 'viajes-semana-02-08-feb.csv', '00000000-0000-0000-0000-00000000a001', '2026-02-09T10:00:00-06:00', 104, 104, 0, 0, 'procesado'),
+  ('00000000-0000-0000-0000-00000000c002', 'viajes-semana-09-15-feb.csv', '00000000-0000-0000-0000-00000000a001', '2026-02-16T10:00:00-06:00', 112, 112, 0, 0, 'procesado');
+
+
+-- ============================================================
 -- 5. SHIFTS — Week 3 (Feb 16-22, current week)
 -- ============================================================
 -- 29 active drivers × 3-4 completed shifts each = 115 shifts
@@ -349,16 +361,42 @@ INSERT INTO shifts (id, driver_id, vehicle_id, check_in, check_out, hours_worked
 
 
 -- ============================================================
+-- 5b. ACTIVE SHIFTS — Friday (3 drivers currently on shift)
+-- ============================================================
+-- One per center so the Activos tab isn't empty on page load.
+-- These are Friday morning diurno shifts — timer runs live in UI.
+
+-- d1 Carlos Mendoza (Vallejo) — top performer, 4 completed shifts Mon-Thu
+-- d4 (Granada) — consistent driver, 4 completed shifts Mon-Thu
+-- d7 (Roma) — high earner, 4 completed shifts Mon-Thu
+
+INSERT INTO shifts (id, driver_id, vehicle_id, check_in, check_out, hours_worked, status, created_by) VALUES
+  ('00000000-0000-0000-0000-0000005fa001', '00000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000b0002', '2026-02-20T06:00:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
+  ('00000000-0000-0000-0000-0000005fa002', '00000000-0000-0000-0000-0000000d0004', '00000000-0000-0000-0000-0000000b0004', '2026-02-20T06:30:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
+  ('00000000-0000-0000-0000-0000005fa003', '00000000-0000-0000-0000-0000000d0007', '00000000-0000-0000-0000-0000000b0007', '2026-02-20T05:45:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24');
+
+-- Mark those 3 vehicles as en_turno
+UPDATE vehicles SET status = 'en_turno' WHERE id IN (
+  '00000000-0000-0000-0000-0000000b0002',
+  '00000000-0000-0000-0000-0000000b0004',
+  '00000000-0000-0000-0000-0000000b0007'
+);
+
+
+-- ============================================================
 -- VERIFICATION
 -- ============================================================
 -- Run these queries to confirm:
 --
 -- SELECT 'weekly_payroll' AS t, count(*) FROM weekly_payroll
 -- UNION ALL SELECT 'shifts', count(*) FROM shifts
--- UNION ALL SELECT 'trips', count(*) FROM trips;
+-- UNION ALL SELECT 'trips', count(*) FROM trips
+-- UNION ALL SELECT 'csv_uploads', count(*) FROM csv_uploads
+-- UNION ALL SELECT 'active_shifts', count(*) FROM shifts WHERE status = 'en_turno';
 --
 -- Expected: weekly_payroll=54 (26 W1 + 28 W2, includes 2 prorated),
---           shifts=115, trips=0
+--           shifts=118 (115 completado + 3 en_turno), trips=0,
+--           csv_uploads=2, active_shifts=3
 --
 -- SELECT week_start, count(*) FROM weekly_payroll GROUP BY week_start ORDER BY week_start;
 -- Expected: Feb 2 = 26, Feb 9 = 28
