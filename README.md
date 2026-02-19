@@ -6,6 +6,14 @@ Evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin A
 
 **Framing:** This folder is organized as a **VC investment thesis** -- the same mental framework an investor would use to evaluate whether to deploy capital. In Jose's case, the investment is his career.
 
+### What's in this repo
+
+| Folder | What it is |
+|--------|------------|
+| [`fleet-intelligence/`](fleet-intelligence/) | **Technical challenge** — Fleet Intelligence MVP (React + TypeScript + Vite + Supabase). Payroll, shift dispatch, driver management, vehicle tracking, CSV import. |
+| [`site/`](site/) | **Bonus prototypes** — Marketing landing page + 6 interactive demos (dashboard, battery monitoring, collections, fleet map, onboarding, roadmap). Static HTML/JS, no build step. |
+| [`content/`](content/) | Research & strategy — 8-chapter VC thesis, competitive analysis, product roadmap, hiring docs. |
+
 ---
 
 ## Prerequisites
@@ -22,7 +30,17 @@ npm run dev
 # → http://localhost:5173/fleet-intelligence/
 ```
 
-> **Demo login:** `admin@lafa-mx.com` / `admin123` — full demo data (30 drivers, 18 vehicles, shifts, payroll), no signup needed.
+### Demo Access
+
+| | |
+|---|---|
+| **Email** | `admin@lafa-mx.com` |
+| **Password** | `admin123` |
+| **Role** | Admin (full access) |
+
+This is a shared demo account with pre-loaded data: 30 drivers, 18 vehicles, active shifts, and payroll history. Use it to explore the app immediately.
+
+To test the full experience (inviting users, role-based permissions), create a personal account from **Settings → Invite User** using your `@lafa-mx.com` email.
 
 ### Full stack (Express + marketing site + fleet app)
 
@@ -139,9 +157,7 @@ Static HTML/JS + Tailwind CDN (no build step). Prototypes:
 
 Live React + TypeScript + Vite app for fleet operations: [fleet-intelligence/](fleet-intelligence/)
 
-**Live URL:** [lafa-production.up.railway.app](https://lafa-production.up.railway.app/)
-
-> **Demo login:** `admin@lafa-mx.com` / `admin123` — full demo data, no signup needed.
+**Live URL:** [lafa-production.up.railway.app](https://lafa-production.up.railway.app/) — log in with `admin@lafa-mx.com` / `admin123`
 
 Core features: payroll processing, shift dispatch, driver management, vehicle tracking, CSV data import. Built as the [technical challenge](content/hiring/README.md) for Jose's interview process. Uses Supabase for persistence (falls back to mock data).
 
