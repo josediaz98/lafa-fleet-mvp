@@ -11,6 +11,16 @@ export async function actionImportTrips(
   warningCount = 0,
   errorCount = 0,
 ) {
+  // W4: Pre-compute unmapped count for accurate success message
+  const mappableCount = trips.filter((t) =>
+    didiToDriverId.has(t.didiDriverId),
+  ).length;
+  const droppedCount = trips.length - mappableCount;
+  const successMsg =
+    droppedCount > 0
+      ? `${mappableCount} viajes importados. ${droppedCount} omitidos (conductor no encontrado).`
+      : `${trips.length} viajes importados exitosamente.`;
+
   await withOptimistic(ctx, {
     optimistic: () => ctx.dispatch({ type: 'IMPORT_TRIPS', payload: trips }),
     persist: () =>
@@ -24,7 +34,7 @@ export async function actionImportTrips(
       ),
     rollback: () =>
       ctx.dispatch({ type: 'REMOVE_TRIPS', payload: trips.map((t) => t.id) }),
-    successMsg: `${trips.length} viajes importados exitosamente.`,
+    successMsg,
     errorMsg: 'Error al persistir viajes',
   });
 }

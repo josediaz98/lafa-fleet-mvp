@@ -125,6 +125,7 @@ export interface AppState {
   closedPayroll: PayrollRecord[];
   session: Session | null;
   hydrated: boolean;
+  hydrateError?: string;
   authChecked: boolean;
   dataSource: 'supabase' | 'mock';
   dataRange?: DataRange;
@@ -179,6 +180,7 @@ export type Action =
       };
     }
   | { type: 'AUTH_CHECKED' }
+  | { type: 'HYDRATE_ERROR'; payload: string }
   // C2: Rollback actions for optimistic update failures
   | { type: 'REMOVE_SHIFT'; payload: string }
   | { type: 'REMOVE_DRIVER'; payload: string }

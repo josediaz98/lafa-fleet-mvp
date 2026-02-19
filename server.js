@@ -2,12 +2,33 @@ const express = require('express');
 const path = require('path');
 const { createClient } = require('@supabase/supabase-js');
 const cron = require('node-cron');
+const rateLimit = require('express-rate-limit');
 const { closePayrollWeek } = require('./server/payroll-close');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
+
+// Trust Railway's reverse proxy for correct client IP in rate limiting
+app.set('trust proxy', 1);
+
+// --- Rate limiting (C5) ---
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.' },
+});
+
+const authLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Demasiadas solicitudes. Intenta de nuevo en un minuto.' },
+});
 
 // --- Supabase admin client (server-side only) ---
 const supabaseUrl = process.env.SUPABASE_URL || '';
@@ -41,8 +62,8 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// --- Invite user ---
-app.post('/api/invite-user', async (req, res) => {
+// --- Invite user (C2: input validation, C5: rate limit, W8: generic errors) ---
+app.post('/api/invite-user', authLimiter, async (req, res) => {
   try {
     await requireAdmin(req);
   } catch (err) {
@@ -54,10 +75,19 @@ app.post('/api/invite-user', async (req, res) => {
   if (!email || !name || !role) {
     return res.status(400).json({ error: 'email, name, and role are required' });
   }
-  // TODO: re-enable for production
-  // if (!email.endsWith('@lafa-mx.com')) {
-  //   return res.status(400).json({ error: 'Solo correos @lafa-mx.com permitidos' });
-  // }
+
+  // C2: Email format validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ error: 'Formato de correo inválido.' });
+  }
+
+  // C2: Name sanitization — strip HTML tags, enforce max length
+  const sanitizedName = name.replace(/<[^>]*>/g, '').trim().slice(0, 100);
+  if (!sanitizedName) {
+    return res.status(400).json({ error: 'Nombre inválido.' });
+  }
+
   if (!['admin', 'supervisor'].includes(role)) {
     return res.status(400).json({ error: 'role must be admin or supervisor' });
   }
@@ -68,16 +98,18 @@ app.post('/api/invite-user', async (req, res) => {
 
     const { data: authData, error: authError } = await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
       redirectTo,
-      data: { name, role },
+      data: { name: sanitizedName, role },
     });
 
     if (authError) {
-      return res.status(400).json({ error: authError.message });
+      // W8: Log details server-side, return generic message to client
+      console.error('[invite-user] Auth error:', authError.message);
+      return res.status(400).json({ error: 'No se pudo enviar la invitación. Verifica el correo e intenta de nuevo.' });
     }
 
     const { error: profileError } = await supabaseAdmin.from('profiles').insert({
       id: authData.user.id,
-      name,
+      name: sanitizedName,
       email,
       role,
       center_id: role === 'admin' ? null : centerId || null,
@@ -86,12 +118,15 @@ app.post('/api/invite-user', async (req, res) => {
 
     if (profileError) {
       await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-      return res.status(500).json({ error: `Profile creation failed: ${profileError.message}` });
+      // W8: Log details server-side, return generic message to client
+      console.error('[invite-user] Profile creation error:', profileError.message);
+      return res.status(500).json({ error: 'Error interno al crear el perfil. Intenta de nuevo.' });
     }
 
     return res.json({ userId: authData.user.id });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error('[invite-user] Unexpected error:', err.message);
+    return res.status(500).json({ error: 'Error interno del servidor.' });
   }
 });
 
@@ -101,7 +136,7 @@ let lastCronRun = null;
 let lastCronResult = null;
 
 // POST /api/payroll/auto-close — protected by CRON_SECRET or admin Bearer token
-app.post('/api/payroll/auto-close', async (req, res) => {
+app.post('/api/payroll/auto-close', apiLimiter, async (req, res) => {
   const cronSecret = process.env.CRON_SECRET;
   const headerSecret = req.headers['x-cron-secret'];
 
@@ -130,8 +165,13 @@ app.post('/api/payroll/auto-close', async (req, res) => {
   }
 });
 
-// GET /api/payroll/cron-status — read-only status info
-app.get('/api/payroll/cron-status', (_req, res) => {
+// C6: GET /api/payroll/cron-status — now requires admin auth
+app.get('/api/payroll/cron-status', async (req, res) => {
+  try {
+    await requireAdmin(req);
+  } catch (err) {
+    return res.status(401).json({ error: err.message });
+  }
   res.json({
     enabled: !!supabaseAdmin,
     schedule: 'Sunday 20:00 CDMX',
@@ -220,17 +260,28 @@ const server = app.listen(PORT, '0.0.0.0', () => {
 
   // Schedule payroll auto-close: Sunday 20:00 CDMX
   if (supabaseAdmin) {
+    // W7: Retry logic with exponential backoff
     cron.schedule('0 20 * * 0', async () => {
       console.log('[cron] Payroll auto-close triggered');
-      try {
-        const result = await closePayrollWeek(supabaseAdmin);
-        lastCronRun = new Date().toISOString();
-        lastCronResult = result;
-        console.log(`[cron] Payroll auto-close ${result.status}:`, JSON.stringify(result));
-      } catch (err) {
-        lastCronRun = new Date().toISOString();
-        lastCronResult = { status: 'error', reason: err.message };
-        console.error('[cron] Payroll auto-close error:', err.message);
+      const MAX_RETRIES = 3;
+      for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+        try {
+          const result = await closePayrollWeek(supabaseAdmin);
+          lastCronRun = new Date().toISOString();
+          lastCronResult = result;
+          console.log(`[cron] Payroll auto-close ${result.status}:`, JSON.stringify(result));
+          return;
+        } catch (err) {
+          console.error(`[cron] Attempt ${attempt}/${MAX_RETRIES} failed:`, err.message);
+          if (attempt === MAX_RETRIES) {
+            lastCronRun = new Date().toISOString();
+            lastCronResult = { status: 'error', reason: err.message };
+            console.error('[cron] All retry attempts exhausted');
+          } else {
+            const delay = attempt * 5000;
+            await new Promise((resolve) => setTimeout(resolve, delay));
+          }
+        }
       }
     }, { timezone: 'America/Mexico_City' });
     console.log('Payroll cron scheduled: Sunday 20:00 CDMX');

@@ -137,6 +137,11 @@ CREATE INDEX idx_payroll_driver_week ON weekly_payroll(driver_id, week_start);
 CREATE UNIQUE INDEX idx_one_active_shift_per_driver ON shifts(driver_id) WHERE status IN ('en_turno', 'pendiente_revision');
 CREATE UNIQUE INDEX idx_one_active_shift_per_vehicle ON shifts(vehicle_id) WHERE status IN ('en_turno', 'pendiente_revision');
 
+-- W6: Center-scoped query performance for RLS policies
+CREATE INDEX idx_drivers_center ON drivers(center_id);
+CREATE INDEX idx_vehicles_center ON vehicles(center_id);
+CREATE INDEX idx_profiles_center ON profiles(center_id);
+
 
 -- ============================================================
 -- STEP 2: RLS + Helper Functions
@@ -218,14 +223,14 @@ CREATE POLICY "payroll: admin delete" ON weekly_payroll FOR DELETE TO authentica
 -- STEP 3: Auth Users
 -- ============================================================
 -- Creates 4 auth users with deterministic UUIDs matching seed profiles.
--- Passwords: admin@lafa-mx.com = admin123, all others = super123
+-- C1: Passwords are randomly generated per seed run. Reset via Supabase Auth dashboard after seeding.
 
 INSERT INTO auth.users (instance_id, id, aud, role, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, created_at, updated_at)
 VALUES
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a001', 'authenticated', 'authenticated', 'admin@lafa-mx.com',  crypt('admin123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a002', 'authenticated', 'authenticated', 'maria@lafa-mx.com',  crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a003', 'authenticated', 'authenticated', 'carlos@lafa-mx.com', crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
-  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a004', 'authenticated', 'authenticated', 'ana@lafa-mx.com',    crypt('super123', gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a001', 'authenticated', 'authenticated', 'admin@lafa-mx.com',  crypt(gen_random_uuid()::text, gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a002', 'authenticated', 'authenticated', 'maria@lafa-mx.com',  crypt(gen_random_uuid()::text, gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a003', 'authenticated', 'authenticated', 'carlos@lafa-mx.com', crypt(gen_random_uuid()::text, gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now()),
+  ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-00000000a004', 'authenticated', 'authenticated', 'ana@lafa-mx.com',    crypt(gen_random_uuid()::text, gen_salt('bf')), now(), '{"provider":"email","providers":["email"]}', '{}', now(), now());
 
 INSERT INTO auth.identities (id, user_id, provider_id, identity_data, provider, last_sign_in_at, created_at, updated_at)
 VALUES

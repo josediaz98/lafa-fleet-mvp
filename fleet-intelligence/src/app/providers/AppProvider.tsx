@@ -60,16 +60,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       .catch((err) => {
         console.error('Failed to load from Supabase:', err);
         dispatch({
-          type: 'HYDRATE',
-          payload: {
-            drivers: [],
-            vehicles: [],
-            shifts: [],
-            users: [],
-            trips: [],
-            closedPayroll: [],
-            dataSource: 'supabase' as const,
-          },
+          type: 'HYDRATE_ERROR',
+          payload: err instanceof Error ? err.message : 'Error al conectar con la base de datos',
         });
       });
   }, []);

@@ -72,9 +72,8 @@ export default function LoginPage() {
           centerId: profile.center_id,
         };
 
-        localStorage.setItem('lafa_session', JSON.stringify(session));
-        dispatch({ type: 'LOGIN', payload: session });
-
+        // C4, W1: Hydrate data before dispatching login — show error if it fails
+        let hydrateOk = true;
         try {
           const data = await fetchAllData();
           dispatch({
@@ -83,9 +82,21 @@ export default function LoginPage() {
           });
         } catch (err) {
           console.error('Failed to hydrate after login:', err);
+          dispatch({
+            type: 'HYDRATE_ERROR',
+            payload: err instanceof Error ? err.message : 'Error al cargar datos',
+          });
+          hydrateOk = false;
         }
 
-        showToast('success', `Bienvenido, ${profile.name}`);
+        localStorage.setItem('lafa_session', JSON.stringify(session));
+        dispatch({ type: 'LOGIN', payload: session });
+
+        if (hydrateOk) {
+          showToast('success', `Bienvenido, ${profile.name}`);
+        } else {
+          showToast('warning', 'Sesión iniciada, pero hubo un error al cargar datos.');
+        }
         navigate('/dashboard');
       } else {
         const user = users.find(

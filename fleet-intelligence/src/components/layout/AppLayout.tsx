@@ -14,7 +14,7 @@ import { supabase, isSupabaseConfigured } from '@/lib/supabase/client';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { dataSource, hydrated } = useAppState();
+  const { dataSource, hydrated, hydrateError } = useAppState();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
 
@@ -79,6 +79,18 @@ export default function AppLayout() {
         />
       </div>
       <main className="lg:ml-64 p-4 pt-16 lg:p-8 lg:pt-8 min-h-screen">
+        {hydrateError && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-status-danger/30 bg-status-danger/[0.08] px-4 py-2.5 text-sm text-status-danger">
+            <AlertTriangle size={16} className="shrink-0" />
+            <span>Error al cargar datos. Verifica tu conexión e intenta de nuevo.</span>
+            <button
+              onClick={() => window.location.reload()}
+              className="ml-auto shrink-0 px-3 py-1 rounded text-xs font-medium bg-status-danger/15 hover:bg-status-danger/25 transition-colors duration-150"
+            >
+              Reintentar
+            </button>
+          </div>
+        )}
         {dataSource === 'mock' && !demoDismissed && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-status-alert/30 bg-status-alert/[0.08] px-4 py-2.5 text-sm text-status-alert">
             <AlertTriangle size={16} className="shrink-0" />

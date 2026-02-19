@@ -160,27 +160,7 @@ export async function persistTrips(
 ): Promise<MutationResult> {
   if (!supabase) return { error: null };
 
-  const validCount = trips.length;
-  const totalRecords = validCount + errorCount;
-  const { data: upload, error: uploadError } = await supabase
-    .from('csv_uploads')
-    .insert({
-      filename: fileName,
-      uploaded_by: uploadedBy,
-      record_count: totalRecords,
-      valid_count: validCount,
-      warning_count: warningCount,
-      error_count: errorCount,
-      status: 'procesado',
-    })
-    .select('id')
-    .single();
-
-  if (uploadError) return { error: new Error(uploadError.message) };
-
-  const uploadId = upload?.id;
-
-  // Batch insert trips
+  // W4: Map and filter trips FIRST to get accurate counts
   const rows = trips
     .map((t) => ({
       driver_id: didiToDriverId.get(t.didiDriverId) ?? '',
@@ -190,9 +170,37 @@ export async function persistTrips(
       final_time: t.horaFin,
       cost: t.costo,
       tip: t.propina,
-      upload_id: uploadId,
     }))
     .filter((r) => r.driver_id !== '');
+
+  // W4: Count unmapped trips and include in warning count
+  const droppedCount = trips.length - rows.length;
+  if (droppedCount > 0) {
+    console.warn(
+      `[persistTrips] ${droppedCount} of ${trips.length} trips dropped — DiDi driver ID not found in mapping`,
+    );
+  }
+  const totalWarnings = warningCount + droppedCount;
+
+  const validCount = rows.length;
+  const totalRecords = trips.length + errorCount;
+  const { data: upload, error: uploadError } = await supabase
+    .from('csv_uploads')
+    .insert({
+      filename: fileName,
+      uploaded_by: uploadedBy,
+      record_count: totalRecords,
+      valid_count: validCount,
+      warning_count: totalWarnings,
+      error_count: errorCount,
+      status: 'procesado',
+    })
+    .select('id')
+    .single();
+
+  if (uploadError) return { error: new Error(uploadError.message) };
+
+  const uploadId = upload?.id;
 
   if (rows.length === 0 && trips.length > 0) {
     // ISSUE-3 fix: Mark orphaned upload as 'error' before returning
@@ -210,7 +218,8 @@ export async function persistTrips(
   }
 
   if (rows.length > 0) {
-    const { error } = await supabase.from('trips').insert(rows);
+    const rowsWithUploadId = rows.map((r) => ({ ...r, upload_id: uploadId }));
+    const { error } = await supabase.from('trips').insert(rowsWithUploadId);
     if (error) {
       // BUG-3 fix: Mark orphaned upload record as 'error' so it doesn't show as successful
       if (uploadId) {
@@ -259,6 +268,7 @@ export async function persistClosePayroll(
   return { error: error ? new Error(error.message) : null };
 }
 
+// C3: Compensating delete if UPDATE fails — prevents orphaned duplicates
 // H3: Reverse order — INSERT new first, then UPDATE old on success
 export async function persistRerunPayroll(
   weekStart: string,
@@ -271,15 +281,28 @@ export async function persistRerunPayroll(
   const insertResult = await persistClosePayroll(newRecords, closedById);
   if (insertResult.error) return insertResult;
 
+  const newRecordIds = newRecords.map((r) => r.id);
+
   // Mark previous version as superseded (only after insert succeeds)
   const { error: updateError } = await supabase
     .from('weekly_payroll')
     .update({ status: 'superseded' })
     .eq('week_start', weekStart)
     .eq('status', 'cerrado')
-    .not('id', 'in', `(${newRecords.map((r) => r.id).join(',')})`);
+    .not('id', 'in', `(${newRecordIds.join(',')})`);
 
-  if (updateError) return { error: new Error(updateError.message) };
+  if (updateError) {
+    // C3: Compensating delete — remove newly inserted records to restore consistency
+    console.error(
+      '[persistRerunPayroll] UPDATE failed, rolling back INSERT:',
+      updateError.message,
+    );
+    await supabase
+      .from('weekly_payroll')
+      .delete()
+      .in('id', newRecordIds);
+    return { error: new Error(updateError.message) };
+  }
   return { error: null };
 }
 
@@ -290,7 +313,13 @@ type InviteResult = { userId?: string; error: Error | null };
 export async function persistNewUser(user: User): Promise<InviteResult> {
   if (!supabase) return { error: null };
 
-  // Supabase mode: call Express invite endpoint (creates auth user + profile)
+  // W2: Validate token freshness with getUser() before using cached session
+  const { error: authError } = await supabase.auth.getUser();
+  if (authError) {
+    return { error: new Error('Sesión expirada — inicia sesión de nuevo.') };
+  }
+
+  // Now get the (validated/refreshed) session token
   const {
     data: { session },
   } = await supabase.auth.getSession();

@@ -19,7 +19,18 @@ const {
 /** Compute current Mon-Sun week bounds in CDMX timezone. */
 function getWeekBounds() {
   const now = new Date();
-  const cdmx = new Date(now.toLocaleString('en-US', { timeZone: 'America/Mexico_City' }));
+  // W3: Use Intl.DateTimeFormat for reliable cross-platform timezone conversion
+  const formatter = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Mexico_City',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = formatter.formatToParts(now);
+  const year = Number(parts.find((p) => p.type === 'year').value);
+  const month = Number(parts.find((p) => p.type === 'month').value) - 1;
+  const dayOfMonth = Number(parts.find((p) => p.type === 'day').value);
+  const cdmx = new Date(year, month, dayOfMonth);
   const day = cdmx.getDay();
   const mondayOffset = day === 0 ? -6 : 1 - day;
   const weekStart = new Date(cdmx);

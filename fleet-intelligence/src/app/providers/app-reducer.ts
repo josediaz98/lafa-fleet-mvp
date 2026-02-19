@@ -11,6 +11,7 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         ...rest,
         hydrated: true,
+        hydrateError: undefined,
         dataRange: dataRange
           ? {
               ...dataRange,
@@ -21,6 +22,9 @@ export function appReducer(state: AppState, action: Action): AppState {
           : undefined,
       };
     }
+
+    case 'HYDRATE_ERROR':
+      return { ...state, hydrated: true, hydrateError: action.payload };
 
     case 'ADD_SHIFT':
       return { ...state, shifts: [...state.shifts, action.payload] };
