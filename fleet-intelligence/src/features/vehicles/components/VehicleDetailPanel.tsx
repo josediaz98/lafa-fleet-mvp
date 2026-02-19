@@ -7,8 +7,18 @@ import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SearchableSelect from '@/components/ui/SearchableSelect';
 
-const ALL_STATUSES: VehicleStatus[] = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
-const SUPERVISOR_STATUSES: VehicleStatus[] = ['disponible', 'cargando', 'mantenimiento'];
+const ALL_STATUSES: VehicleStatus[] = [
+  'disponible',
+  'en_turno',
+  'cargando',
+  'mantenimiento',
+  'fuera_de_servicio',
+];
+const SUPERVISOR_STATUSES: VehicleStatus[] = [
+  'disponible',
+  'cargando',
+  'mantenimiento',
+];
 
 interface VehicleDetailPanelProps {
   vehicle: Vehicle;
@@ -19,7 +29,12 @@ interface VehicleDetailPanelProps {
   onEdit: (updated: Vehicle) => void;
 }
 
-const emptyEditForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
+const emptyEditForm: VehicleFormData = {
+  plate: '',
+  model: '',
+  oem: '',
+  centerId: '',
+};
 
 export default function VehicleDetailPanel({
   vehicle,
@@ -35,24 +50,33 @@ export default function VehicleDetailPanel({
 
   const vehicleShifts = useMemo(() => {
     return shifts
-      .filter(s => s.vehicleId === vehicle.id)
-      .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
+      .filter((s) => s.vehicleId === vehicle.id)
+      .sort(
+        (a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime(),
+      )
       .slice(0, 10);
   }, [vehicle.id, shifts]);
 
   function getAvailableStatuses() {
-    const statuses = (isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES).filter(s => s !== 'en_turno');
+    const statuses = (isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES).filter(
+      (s) => s !== 'en_turno',
+    );
     const hasActiveShift = shifts.some(
-      s => s.vehicleId === vehicle.id && s.status === 'en_turno'
+      (s) => s.vehicleId === vehicle.id && s.status === 'en_turno',
     );
     if (hasActiveShift) {
-      return statuses.filter(s => s !== 'disponible');
+      return statuses.filter((s) => s !== 'disponible');
     }
     return statuses;
   }
 
   function openEdit() {
-    setEditForm({ plate: vehicle.plate, model: vehicle.model, oem: vehicle.oem, centerId: vehicle.centerId });
+    setEditForm({
+      plate: vehicle.plate,
+      model: vehicle.model,
+      oem: vehicle.oem,
+      centerId: vehicle.centerId,
+    });
     setEditError('');
     setEditMode(true);
   }
@@ -78,34 +102,44 @@ export default function VehicleDetailPanel({
     return (
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Placa
+          </label>
           <input
             value={editForm.plate}
-            onChange={e => setEditForm({ ...editForm, plate: e.target.value })}
+            onChange={(e) =>
+              setEditForm({ ...editForm, plate: e.target.value })
+            }
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Modelo
+          </label>
           <input
             value={editForm.model}
-            onChange={e => setEditForm({ ...editForm, model: e.target.value })}
+            onChange={(e) =>
+              setEditForm({ ...editForm, model: e.target.value })
+            }
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            OEM
+          </label>
           <input
             value={editForm.oem}
-            onChange={e => setEditForm({ ...editForm, oem: e.target.value })}
+            onChange={(e) => setEditForm({ ...editForm, oem: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <SearchableSelect
           label="Centro"
-          options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+          options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
           value={editForm.centerId}
-          onChange={v => setEditForm({ ...editForm, centerId: v })}
+          onChange={(v) => setEditForm({ ...editForm, centerId: v })}
           searchable={false}
         />
         {editError && <p className="text-sm text-status-danger">{editError}</p>}
@@ -132,19 +166,27 @@ export default function VehicleDetailPanel({
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
           <p className="text-xs text-lafa-text-secondary">Placa</p>
-          <p className="text-sm font-medium text-lafa-text-primary font-mono">{vehicle.plate}</p>
+          <p className="text-sm font-medium text-lafa-text-primary font-mono">
+            {vehicle.plate}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Modelo</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{vehicle.model}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {vehicle.model}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">OEM</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{vehicle.oem}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {vehicle.oem}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Centro</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{getCenterName(vehicle.centerId)}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {getCenterName(vehicle.centerId)}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Status actual</p>
@@ -153,9 +195,11 @@ export default function VehicleDetailPanel({
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-medium text-lafa-text-secondary mb-2">Cambiar status</label>
+        <label className="block text-sm font-medium text-lafa-text-secondary mb-2">
+          Cambiar status
+        </label>
         <div className="flex flex-wrap gap-2">
-          {getAvailableStatuses().map(s => (
+          {getAvailableStatuses().map((s) => (
             <button
               key={s}
               onClick={() => {
@@ -187,23 +231,37 @@ export default function VehicleDetailPanel({
       )}
 
       <div>
-        <h4 className="text-sm font-medium text-lafa-text-primary mb-3">Turnos recientes</h4>
+        <h4 className="text-sm font-medium text-lafa-text-primary mb-3">
+          Turnos recientes
+        </h4>
         {vehicleShifts.length === 0 ? (
-          <p className="text-xs text-lafa-text-secondary">Sin turnos registrados para este vehículo.</p>
+          <p className="text-xs text-lafa-text-secondary">
+            Sin turnos registrados para este vehículo.
+          </p>
         ) : (
           <div className="space-y-2">
-            {vehicleShifts.map(shift => (
-              <div key={shift.id} className="bg-lafa-bg rounded-lg p-3 flex items-center justify-between">
+            {vehicleShifts.map((shift) => (
+              <div
+                key={shift.id}
+                className="bg-lafa-bg rounded-lg p-3 flex items-center justify-between"
+              >
                 <div>
-                  <span className="text-xs font-medium text-lafa-text-primary">{shift.driverName}</span>
+                  <span className="text-xs font-medium text-lafa-text-primary">
+                    {shift.driverName}
+                  </span>
                   <p className="text-xs text-lafa-text-secondary">
-                    {new Date(shift.checkIn).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
+                    {new Date(shift.checkIn).toLocaleDateString('es-MX', {
+                      day: 'numeric',
+                      month: 'short',
+                    })}
                   </p>
                 </div>
                 <div className="text-right">
                   <StatusBadge status={shift.status} />
                   {shift.hoursWorked !== undefined && (
-                    <p className="text-xs text-lafa-text-secondary mt-0.5">{shift.hoursWorked}h</p>
+                    <p className="text-xs text-lafa-text-secondary mt-0.5">
+                      {shift.hoursWorked}h
+                    </p>
                   )}
                 </div>
               </div>

@@ -18,13 +18,17 @@ export function buildShiftSummaries(
   drivers: Driver[],
   shifts: Shift[],
 ): { driverId: string; totalHours: number }[] {
-  return drivers.map(driver => {
+  return drivers.map((driver) => {
     const driverShifts = shifts.filter(
-      s => s.driverId === driver.id && s.status === 'completado' && s.hoursWorked,
+      (s) =>
+        s.driverId === driver.id && s.status === 'completado' && s.hoursWorked,
     );
     return {
       driverId: driver.id,
-      totalHours: driverShifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0),
+      totalHours: driverShifts.reduce(
+        (sum, s) => sum + (s.hoursWorked ?? 0),
+        0,
+      ),
     };
   });
 }
@@ -51,7 +55,8 @@ export function getWeekBounds() {
   weekStart.setHours(0, 0, 0, 0);
   const weekEnd = new Date(weekStart);
   weekEnd.setDate(weekStart.getDate() + 6);
-  const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
+  const fmt = (d: Date) =>
+    d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
   return {
     label: `${fmt(weekStart)} – ${fmt(weekEnd)}, ${weekStart.getFullYear()}`,
     start: weekStart.toISOString().slice(0, 10),

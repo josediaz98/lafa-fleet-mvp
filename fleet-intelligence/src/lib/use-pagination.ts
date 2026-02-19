@@ -14,7 +14,10 @@ interface UsePaginationResult<T> {
   rangeEnd: number;
 }
 
-export function usePagination<T>(items: T[], options?: UsePaginationOptions): UsePaginationResult<T> {
+export function usePagination<T>(
+  items: T[],
+  options?: UsePaginationOptions,
+): UsePaginationResult<T> {
   const pageSize = options?.pageSize ?? 20;
   const [currentPage, setCurrentPage] = useState(1);
 

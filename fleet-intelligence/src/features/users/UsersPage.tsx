@@ -7,7 +7,11 @@ import { getCenterName } from '@/lib/format';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useActionContext } from '@/lib/action-context';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
-import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
+import {
+  actionAddUser,
+  actionUpdateUser,
+  actionDeactivateUser,
+} from '@/lib/actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
 import SearchableSelect from '@/components/ui/SearchableSelect';
@@ -34,9 +38,10 @@ export default function UsersPage() {
   const [form, setForm] = useState<UserFormData>(emptyForm);
   const [formError, setFormError] = useState('');
 
-  const filtered = users.filter(u =>
-    u.name.toLowerCase().includes(search.toLowerCase()) ||
-    u.email.toLowerCase().includes(search.toLowerCase())
+  const filtered = users.filter(
+    (u) =>
+      u.name.toLowerCase().includes(search.toLowerCase()) ||
+      u.email.toLowerCase().includes(search.toLowerCase()),
   );
 
   function handleCreateUser(user: User) {
@@ -57,7 +62,7 @@ export default function UsersPage() {
 
   function handleSaveEdit() {
     if (!selectedUser) return;
-    const userRecords = users.map(u => ({
+    const userRecords = users.map((u) => ({
       id: u.id,
       email: u.email,
       role: u.role,
@@ -87,7 +92,9 @@ export default function UsersPage() {
       ctx.showToast('error', 'No puedes desactivar tu propia cuenta.');
       return;
     }
-    const activeAdmins = users.filter(u => u.role === 'admin' && u.status === 'activo');
+    const activeAdmins = users.filter(
+      (u) => u.role === 'admin' && u.status === 'activo',
+    );
     if (selectedUser.role === 'admin' && activeAdmins.length <= 1) {
       ctx.showToast('error', 'No se puede desactivar al último administrador.');
       return;
@@ -103,7 +110,7 @@ export default function UsersPage() {
     setSelectedUser(null);
   }
 
-  const userRecords = users.map(u => ({
+  const userRecords = users.map((u) => ({
     id: u.id,
     email: u.email,
     role: u.role,
@@ -114,7 +121,9 @@ export default function UsersPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-semibold text-lafa-text-primary">Usuarios</h1>
+        <h1 className="text-2xl font-semibold text-lafa-text-primary">
+          Usuarios
+        </h1>
         <button
           onClick={() => setShowCreateModal(true)}
           className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
@@ -125,12 +134,15 @@ export default function UsersPage() {
 
       <div>
         <div className="relative mb-4 max-w-sm">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary"
+          />
           <input
             type="text"
             placeholder="Buscar por nombre o email..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
           />
         </div>
@@ -138,13 +150,19 @@ export default function UsersPage() {
         <UserTable
           users={filtered}
           session={session}
-          onSelect={(user) => { setSelectedUser(user); setEditMode(false); }}
+          onSelect={(user) => {
+            setSelectedUser(user);
+            setEditMode(false);
+          }}
         />
       </div>
 
       <SlidePanel
         open={!!selectedUser}
-        onClose={() => { setSelectedUser(null); setEditMode(false); }}
+        onClose={() => {
+          setSelectedUser(null);
+          setEditMode(false);
+        }}
         title={selectedUser?.name ?? ''}
       >
         {selectedUser && !editMode && (
@@ -158,11 +176,15 @@ export default function UsersPage() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div>
                 <p className="text-xs text-lafa-text-secondary">Nombre</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedUser.name}</p>
+                <p className="text-sm font-medium text-lafa-text-primary">
+                  {selectedUser.name}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-lafa-text-secondary">Email</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedUser.email}</p>
+                <p className="text-sm font-medium text-lafa-text-primary">
+                  {selectedUser.email}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-lafa-text-secondary">Rol</p>
@@ -170,7 +192,9 @@ export default function UsersPage() {
               </div>
               <div>
                 <p className="text-xs text-lafa-text-secondary">Centro</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{getCenterName(selectedUser.centerId)}</p>
+                <p className="text-sm font-medium text-lafa-text-primary">
+                  {getCenterName(selectedUser.centerId)}
+                </p>
               </div>
               <div>
                 <p className="text-xs text-lafa-text-secondary">Status</p>
@@ -200,19 +224,23 @@ export default function UsersPage() {
         {selectedUser && editMode && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+                Nombre
+              </label>
               <input
                 value={form.name}
-                onChange={e => setForm({ ...form, name: e.target.value })}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+                Email
+              </label>
               <input
                 type="email"
                 value={form.email}
-                onChange={e => setForm({ ...form, email: e.target.value })}
+                onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               />
             </div>
@@ -223,19 +251,23 @@ export default function UsersPage() {
                 { value: 'supervisor', label: 'Supervisor' },
               ]}
               value={form.role}
-              onChange={v => setForm({ ...form, role: v as 'admin' | 'supervisor' })}
+              onChange={(v) =>
+                setForm({ ...form, role: v as 'admin' | 'supervisor' })
+              }
               searchable={false}
             />
             {form.role === 'supervisor' && (
               <SearchableSelect
                 label="Centro"
-                options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+                options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
                 value={form.centerId}
-                onChange={v => setForm({ ...form, centerId: v })}
+                onChange={(v) => setForm({ ...form, centerId: v })}
                 searchable={false}
               />
             )}
-            {formError && <p className="text-sm text-status-danger">{formError}</p>}
+            {formError && (
+              <p className="text-sm text-status-danger">{formError}</p>
+            )}
             <div className="flex gap-3">
               <button
                 onClick={handleSaveEdit}

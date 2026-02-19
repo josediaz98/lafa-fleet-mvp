@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  type ReactNode,
+} from 'react';
 import { useAppState } from '@/app/providers/AppProvider';
 
 interface CenterFilterContextValue {
@@ -27,18 +33,21 @@ export function useCenterFilter() {
 
   const effectiveCenterId = isAdmin
     ? centerOverride
-    : session?.centerId ?? null;
+    : (session?.centerId ?? null);
 
-  const setCenterFilter = useCallback((centerId: string | null) => {
-    setCenterOverride(centerId);
-  }, [setCenterOverride]);
+  const setCenterFilter = useCallback(
+    (centerId: string | null) => {
+      setCenterOverride(centerId);
+    },
+    [setCenterOverride],
+  );
 
   const filterByCenter = useCallback(
     <T extends { centerId: string }>(items: T[]): T[] => {
       if (!effectiveCenterId) return items;
-      return items.filter(item => item.centerId === effectiveCenterId);
+      return items.filter((item) => item.centerId === effectiveCenterId);
     },
-    [effectiveCenterId]
+    [effectiveCenterId],
   );
 
   return { isAdmin, effectiveCenterId, setCenterFilter, filterByCenter };

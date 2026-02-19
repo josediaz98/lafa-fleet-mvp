@@ -1,6 +1,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FileSpreadsheet, RefreshCw } from 'lucide-react';
-import { fetchUploadHistory, type CsvUploadRecord } from '@/lib/supabase/queries';
+import {
+  fetchUploadHistory,
+  type CsvUploadRecord,
+} from '@/lib/supabase/queries';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { timeAgo } from '@/lib/format';
 import { usePagination } from '@/lib/use-pagination';
@@ -20,7 +23,9 @@ type State =
 
 const COLS = 7;
 
-export default function UploadHistoryTable({ refreshKey }: UploadHistoryTableProps) {
+export default function UploadHistoryTable({
+  refreshKey,
+}: UploadHistoryTableProps) {
   const [state, setState] = useState<State>({ kind: 'loading' });
 
   const load = useCallback(async () => {
@@ -29,18 +34,36 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
       const records = await fetchUploadHistory();
       setState({ kind: 'loaded', records });
     } catch (err) {
-      setState({ kind: 'error', message: err instanceof Error ? err.message : 'Error desconocido' });
+      setState({
+        kind: 'error',
+        message: err instanceof Error ? err.message : 'Error desconocido',
+      });
     }
   }, []);
 
-  useEffect(() => { load(); }, [load, refreshKey]);
+  useEffect(() => {
+    load();
+  }, [load, refreshKey]);
 
   const records = state.kind === 'loaded' ? state.records : [];
-  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(records, { pageSize: 10 });
+  const {
+    paginatedItems,
+    currentPage,
+    totalPages,
+    setPage,
+    rangeStart,
+    rangeEnd,
+  } = usePagination(records, { pageSize: 10 });
 
   // Mock mode — Supabase not configured
   if (!isSupabaseConfigured) {
-    return <EmptyState icon={FileSpreadsheet} title="Sin historial" description="El historial de cargas se muestra al usar Supabase." />;
+    return (
+      <EmptyState
+        icon={FileSpreadsheet}
+        title="Sin historial"
+        description="El historial de cargas se muestra al usar Supabase."
+      />
+    );
   }
 
   if (state.kind === 'loading') {
@@ -49,8 +72,21 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
-              {['Archivo', 'Subido por', 'Fecha', 'Registros', 'Validos', 'Errores', 'Estado'].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">{h}</th>
+              {[
+                'Archivo',
+                'Subido por',
+                'Fecha',
+                'Registros',
+                'Validos',
+                'Errores',
+                'Estado',
+              ].map((h) => (
+                <th
+                  key={h}
+                  className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider"
+                >
+                  {h}
+                </th>
               ))}
             </tr>
           </thead>
@@ -65,7 +101,9 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
   if (state.kind === 'error') {
     return (
       <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 text-center">
-        <p className="text-sm text-status-danger mb-2">Error al cargar historial</p>
+        <p className="text-sm text-status-danger mb-2">
+          Error al cargar historial
+        </p>
         <p className="text-xs text-lafa-text-secondary mb-3">{state.message}</p>
         <button
           onClick={load}
@@ -78,7 +116,13 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
   }
 
   if (records.length === 0) {
-    return <EmptyState icon={FileSpreadsheet} title="Sin cargas previas" description="Importa tu primer archivo CSV arriba." />;
+    return (
+      <EmptyState
+        icon={FileSpreadsheet}
+        title="Sin cargas previas"
+        description="Importa tu primer archivo CSV arriba."
+      />
+    );
   }
 
   return (
@@ -87,13 +131,27 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-lafa-surface z-10">
             <tr className="border-b border-lafa-border">
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Archivo</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Subido por</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Fecha</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Registros</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Validos</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Errores</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Estado</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Archivo
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Subido por
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Fecha
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Registros
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Validos
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Errores
+              </th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Estado
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -104,19 +162,37 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
                   i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                 }`}
               >
-                <td className="px-4 py-3 text-lafa-text-primary truncate max-w-[200px]" title={r.filename}>{r.filename}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary">{r.uploadedBy}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary" title={new Date(r.uploadedAt).toLocaleString('es-MX')}>
+                <td
+                  className="px-4 py-3 text-lafa-text-primary truncate max-w-[200px]"
+                  title={r.filename}
+                >
+                  {r.filename}
+                </td>
+                <td className="px-4 py-3 text-lafa-text-secondary">
+                  {r.uploadedBy}
+                </td>
+                <td
+                  className="px-4 py-3 text-lafa-text-secondary"
+                  title={new Date(r.uploadedAt).toLocaleString('es-MX')}
+                >
                   {timeAgo(r.uploadedAt)}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-primary">{r.recordCount}</td>
-                <td className={`px-4 py-3 text-right ${r.validCount > 0 ? 'text-status-success' : 'text-lafa-text-secondary'}`}>
+                <td className="px-4 py-3 text-right text-lafa-text-primary">
+                  {r.recordCount}
+                </td>
+                <td
+                  className={`px-4 py-3 text-right ${r.validCount > 0 ? 'text-status-success' : 'text-lafa-text-secondary'}`}
+                >
                   {r.validCount}
                 </td>
-                <td className={`px-4 py-3 text-right ${r.errorCount > 0 ? 'text-status-danger' : 'text-lafa-text-secondary'}`}>
+                <td
+                  className={`px-4 py-3 text-right ${r.errorCount > 0 ? 'text-status-danger' : 'text-lafa-text-secondary'}`}
+                >
                   {r.errorCount}
                 </td>
-                <td className="px-4 py-3 text-center"><StatusBadge status={r.status} /></td>
+                <td className="px-4 py-3 text-center">
+                  <StatusBadge status={r.status} />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -126,7 +202,11 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
         <span className="text-xs text-lafa-text-secondary">
           {rangeStart}–{rangeEnd} de {records.length} cargas
         </span>
-        <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+        <PaginationControls
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );

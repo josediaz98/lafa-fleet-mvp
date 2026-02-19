@@ -6,7 +6,11 @@ import { useCenterFilter } from '@/lib/use-center-filter';
 import { CENTERS } from '@/data/constants';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useActionContext } from '@/lib/action-context';
-import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '@/lib/actions';
+import {
+  actionVehicleStatus,
+  actionAddVehicle,
+  actionUpdateVehicle,
+} from '@/lib/actions';
 import { STATUS_LABELS } from '@/lib/status-map';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import SlidePanel from '@/components/ui/SlidePanel';
@@ -14,9 +18,21 @@ import VehicleTable from './components/VehicleTable';
 import VehicleCreateModal from './components/VehicleCreateModal';
 import VehicleDetailPanel from './components/VehicleDetailPanel';
 
-type StatusFilter = 'todos' | 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
+type StatusFilter =
+  | 'todos'
+  | 'disponible'
+  | 'en_turno'
+  | 'cargando'
+  | 'mantenimiento'
+  | 'fuera_de_servicio';
 
-const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
+const ALL_STATUSES = [
+  'disponible',
+  'en_turno',
+  'cargando',
+  'mantenimiento',
+  'fuera_de_servicio',
+];
 
 const statusFilters: { key: StatusFilter; label: string }[] = [
   { key: 'todos', label: 'Todos' },
@@ -52,14 +68,15 @@ export default function VehiclesPage() {
   const filtered = useMemo(() => {
     let result = centeredVehicles;
     if (statusFilter !== 'todos') {
-      result = result.filter(v => v.status === statusFilter);
+      result = result.filter((v) => v.status === statusFilter);
     }
     if (search) {
       const q = search.toLowerCase();
-      result = result.filter(v =>
-        v.plate.toLowerCase().includes(q) ||
-        v.model.toLowerCase().includes(q) ||
-        v.oem.toLowerCase().includes(q)
+      result = result.filter(
+        (v) =>
+          v.plate.toLowerCase().includes(q) ||
+          v.model.toLowerCase().includes(q) ||
+          v.oem.toLowerCase().includes(q),
       );
     }
     return result;
@@ -72,7 +89,10 @@ export default function VehiclesPage() {
     setStatusFilter('todos');
   }
 
-  async function handleStatusChange(vehicle: Vehicle, newStatus: VehicleStatus) {
+  async function handleStatusChange(
+    vehicle: Vehicle,
+    newStatus: VehicleStatus,
+  ) {
     if (newStatus === 'mantenimiento' || newStatus === 'fuera_de_servicio') {
       const label = STATUS_LABELS[newStatus];
       const ok = await confirm({
@@ -83,7 +103,14 @@ export default function VehiclesPage() {
       });
       if (!ok) return;
     }
-    await actionVehicleStatus(vehicle.id, newStatus, vehicle.status, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, ctx);
+    await actionVehicleStatus(
+      vehicle.id,
+      newStatus,
+      vehicle.status,
+      vehicle.plate,
+      STATUS_LABELS[newStatus] ?? newStatus,
+      ctx,
+    );
     setSelectedVehicle({ ...vehicle, status: newStatus as VehicleStatus });
   }
 
@@ -101,8 +128,12 @@ export default function VehiclesPage() {
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
         <div>
-          <h1 className="text-2xl font-semibold text-lafa-text-primary">Vehículos</h1>
-          <p className="text-sm text-lafa-text-secondary mt-0.5">Gestión y estado de la flota</p>
+          <h1 className="text-2xl font-semibold text-lafa-text-primary">
+            Vehículos
+          </h1>
+          <p className="text-sm text-lafa-text-secondary mt-0.5">
+            Gestión y estado de la flota
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <CenterFilterDropdown />
@@ -119,17 +150,20 @@ export default function VehiclesPage() {
 
       <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
         <div className="relative max-w-sm flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary"
+          />
           <input
             type="text"
             placeholder="Buscar por placa, modelo u OEM..."
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5 flex-wrap">
-          {statusFilters.map(f => (
+          {statusFilters.map((f) => (
             <button
               key={f.key}
               onClick={() => setStatusFilter(f.key)}
@@ -139,7 +173,10 @@ export default function VehiclesPage() {
                   : 'text-lafa-text-secondary hover:text-lafa-text-primary'
               }`}
             >
-              {f.label}{f.key !== 'todos' && statusSummary[f.key] > 0 ? ` (${statusSummary[f.key]})` : ''}
+              {f.label}
+              {f.key !== 'todos' && statusSummary[f.key] > 0
+                ? ` (${statusSummary[f.key]})`
+                : ''}
             </button>
           ))}
         </div>
@@ -156,14 +193,18 @@ export default function VehiclesPage() {
       <SlidePanel
         open={!!selectedVehicle}
         onClose={() => setSelectedVehicle(null)}
-        title={selectedVehicle ? `${selectedVehicle.plate} — ${selectedVehicle.model}` : ''}
+        title={
+          selectedVehicle
+            ? `${selectedVehicle.plate} — ${selectedVehicle.model}`
+            : ''
+        }
       >
         {selectedVehicle && (
           <VehicleDetailPanel
             vehicle={selectedVehicle}
             shifts={shifts}
             isAdmin={isAdmin}
-            existingPlates={vehicles.map(v => v.plate)}
+            existingPlates={vehicles.map((v) => v.plate)}
             onStatusChange={handleStatusChange}
             onEdit={handleEditVehicle}
           />
@@ -173,7 +214,7 @@ export default function VehiclesPage() {
       <VehicleCreateModal
         open={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        existingPlates={vehicles.map(v => v.plate)}
+        existingPlates={vehicles.map((v) => v.plate)}
         defaultCenterId={effectiveCenterId ?? CENTERS[0]?.id ?? ''}
         onCreate={handleCreateVehicle}
       />

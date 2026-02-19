@@ -1,6 +1,10 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AppProvider, useAppState, useAppDispatch } from '@/app/providers/AppProvider';
+import {
+  AppProvider,
+  useAppState,
+  useAppDispatch,
+} from '@/app/providers/AppProvider';
 import { ToastProvider } from '@/app/providers/ToastProvider';
 import { ConfirmDialogProvider } from '@/components/ui/ConfirmDialog';
 import ErrorBoundary from '@/components/ui/ErrorBoundary';
@@ -47,7 +51,8 @@ function AuthRestorer() {
 
     supabase.auth.getSession().then(({ data }) => {
       if (data.session?.user) {
-        supabase!.from('profiles')
+        supabase!
+          .from('profiles')
           .select('*')
           .eq('id', data.session.user.id)
           .single()
@@ -74,7 +79,9 @@ function AuthRestorer() {
       }
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'SIGNED_OUT') {
         localStorage.removeItem('lafa_session');
         dispatch({ type: 'LOGOUT' });
@@ -105,11 +112,25 @@ function AppRoutes() {
         >
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/shifts" element={<ShiftsPage />} />
-          <Route path="/csv-upload" element={<RequireAdmin><CsvUploadPage /></RequireAdmin>} />
+          <Route
+            path="/csv-upload"
+            element={
+              <RequireAdmin>
+                <CsvUploadPage />
+              </RequireAdmin>
+            }
+          />
           <Route path="/payroll" element={<PayrollPage />} />
           <Route path="/drivers" element={<DriversPage />} />
           <Route path="/vehicles" element={<VehiclesPage />} />
-          <Route path="/users" element={<RequireAdmin><UsersPage /></RequireAdmin>} />
+          <Route
+            path="/users"
+            element={
+              <RequireAdmin>
+                <UsersPage />
+              </RequireAdmin>
+            }
+          />
         </Route>
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>

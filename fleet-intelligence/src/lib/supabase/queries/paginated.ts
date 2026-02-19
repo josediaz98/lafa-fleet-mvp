@@ -16,7 +16,7 @@ export interface PaginatedResult<T> {
 
 export async function fetchShiftsPage(
   beforeDate: string,
-  limit: number = PAGE_SIZE
+  limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<Shift>> {
   if (!supabase) throw new Error('Supabase not configured');
 
@@ -36,13 +36,14 @@ export async function fetchShiftsPage(
   return {
     data: trimmed.map(mapShift),
     hasMore,
-    oldestDate: trimmed.length > 0 ? trimmed[trimmed.length - 1].check_in : null,
+    oldestDate:
+      trimmed.length > 0 ? trimmed[trimmed.length - 1].check_in : null,
   };
 }
 
 export async function fetchTripsPage(
   beforeDate: string,
-  limit: number = PAGE_SIZE
+  limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<Trip>> {
   if (!supabase) throw new Error('Supabase not configured');
 
@@ -68,7 +69,7 @@ export async function fetchTripsPage(
 
 export async function fetchPayrollPage(
   beforeDate: string,
-  limit: number = PAGE_SIZE
+  limit: number = PAGE_SIZE,
 ): Promise<PaginatedResult<PayrollRecord>> {
   if (!supabase) throw new Error('Supabase not configured');
 
@@ -90,6 +91,7 @@ export async function fetchPayrollPage(
   return {
     data: deduped.map(mapPayroll),
     hasMore,
-    oldestDate: trimmed.length > 0 ? trimmed[trimmed.length - 1].week_start : null,
+    oldestDate:
+      trimmed.length > 0 ? trimmed[trimmed.length - 1].week_start : null,
   };
 }

@@ -1,4 +1,13 @@
-import { createContext, useContext, useState, useCallback, useRef, useEffect, useId, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useCallback,
+  useRef,
+  useEffect,
+  useId,
+  type ReactNode,
+} from 'react';
 import { useFocusTrap } from '@/lib/use-focus-trap';
 
 interface ConfirmOptions {
@@ -25,7 +34,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
   const confirm = useCallback((opts: ConfirmOptions): Promise<boolean> => {
     setOptions(opts);
     setOpen(true);
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       resolveRef.current = resolve;
     });
   }, []);
@@ -43,7 +52,7 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
     }
     document.addEventListener('keydown', handleKey);
     return () => document.removeEventListener('keydown', handleKey);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   useFocusTrap(open ? dialogRef : { current: null });
@@ -53,7 +62,10 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
       {children}
       {open && (
         <>
-          <div className="fixed inset-0 z-[90] bg-black/50" onClick={() => handleResolve(false)} />
+          <div
+            className="fixed inset-0 z-[90] bg-black/50"
+            onClick={() => handleResolve(false)}
+          />
           <div className="fixed inset-0 z-[91] flex items-center justify-center p-4">
             <div
               ref={dialogRef}
@@ -63,7 +75,12 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
               aria-describedby={descId}
               className="bg-lafa-surface border border-lafa-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
             >
-              <h3 id={titleId} className="text-lg font-semibold text-lafa-text-primary mb-2">{options.title}</h3>
+              <h3
+                id={titleId}
+                className="text-lg font-semibold text-lafa-text-primary mb-2"
+              >
+                {options.title}
+              </h3>
               <p id={descId} className="text-sm text-lafa-text-secondary mb-6">
                 {options.description ?? 'Esta accion no se puede deshacer.'}
               </p>
@@ -95,6 +112,9 @@ export function ConfirmDialogProvider({ children }: { children: ReactNode }) {
 
 export function useConfirmDialog() {
   const ctx = useContext(ConfirmContext);
-  if (!ctx) throw new Error('useConfirmDialog must be used within ConfirmDialogProvider');
+  if (!ctx)
+    throw new Error(
+      'useConfirmDialog must be used within ConfirmDialogProvider',
+    );
   return ctx;
 }

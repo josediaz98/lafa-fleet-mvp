@@ -13,8 +13,12 @@ export default function LoginPage() {
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState(import.meta.env.DEV ? 'admin@lafa-mx.com' : '');
-  const [password, setPassword] = useState(import.meta.env.DEV ? 'admin123' : '');
+  const [email, setEmail] = useState(
+    import.meta.env.DEV ? 'admin@lafa-mx.com' : '',
+  );
+  const [password, setPassword] = useState(
+    import.meta.env.DEV ? 'admin123' : '',
+  );
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -26,15 +30,17 @@ export default function LoginPage() {
 
     try {
       if (isSupabaseConfigured && supabase) {
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-          email: email.trim(),
-          password,
-        });
+        const { data: authData, error: authError } =
+          await supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          });
 
         if (authError || !authData.user) {
-          const msg = authError?.message === 'Invalid login credentials'
-            ? 'Correo o contraseña incorrectos.'
-            : 'Credenciales incorrectas.';
+          const msg =
+            authError?.message === 'Invalid login credentials'
+              ? 'Correo o contraseña incorrectos.'
+              : 'Credenciales incorrectas.';
           setError(msg);
           setLoading(false);
           return;
@@ -71,7 +77,10 @@ export default function LoginPage() {
 
         try {
           const data = await fetchAllData();
-          dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } });
+          dispatch({
+            type: 'HYDRATE',
+            payload: { ...data, dataSource: 'supabase' as const },
+          });
         } catch (err) {
           console.error('Failed to hydrate after login:', err);
         }
@@ -80,7 +89,9 @@ export default function LoginPage() {
         navigate('/dashboard');
       } else {
         const user = users.find(
-          u => u.email.toLowerCase() === email.trim().toLowerCase() && u.password === password
+          (u) =>
+            u.email.toLowerCase() === email.trim().toLowerCase() &&
+            u.password === password,
         );
 
         if (!user) {
@@ -135,7 +146,7 @@ export default function LoginPage() {
           <input
             type="email"
             value={email}
-            onChange={e => setEmail(e.target.value)}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="correo@ejemplo.com"
             className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
           />
@@ -143,7 +154,7 @@ export default function LoginPage() {
             <input
               type={showPassword ? 'text' : 'password'}
               value={password}
-              onChange={e => setPassword(e.target.value)}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="Contraseña"
               className="w-full px-4 py-3 pr-11 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
             />
@@ -153,7 +164,11 @@ export default function LoginPage() {
               className="absolute right-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary/50 hover:text-lafa-text-secondary transition-colors duration-150"
               tabIndex={-1}
             >
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {showPassword ? (
+                <EyeOff className="w-4 h-4" />
+              ) : (
+                <Eye className="w-4 h-4" />
+              )}
             </button>
           </div>
 
@@ -167,7 +182,9 @@ export default function LoginPage() {
           </div>
 
           {error && (
-            <p className="text-sm text-status-danger animate-fade-in">{error}</p>
+            <p className="text-sm text-status-danger animate-fade-in">
+              {error}
+            </p>
           )}
 
           <button
@@ -188,7 +205,9 @@ export default function LoginPage() {
 
         <p className="mt-4 text-center text-xs text-lafa-text-secondary/70">
           ¿No tienes cuenta?{' '}
-          <span className="text-lafa-text-secondary">Contacta a tu administrador.</span>
+          <span className="text-lafa-text-secondary">
+            Contacta a tu administrador.
+          </span>
         </p>
 
         <div className="mt-5 text-center">

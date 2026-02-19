@@ -16,8 +16,14 @@ interface ShiftRowProps {
   disabled?: boolean;
 }
 
-export default function ShiftRow({ shift, variant, onClose, disabled }: ShiftRowProps) {
-  const isOvertime = Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
+export default function ShiftRow({
+  shift,
+  variant,
+  onClose,
+  disabled,
+}: ShiftRowProps) {
+  const isOvertime =
+    Date.now() - new Date(shift.checkIn).getTime() > SHIFT_WINDOW_MS;
   const showWarning = variant === 'alert' || isOvertime;
 
   return (
@@ -49,9 +55,11 @@ export default function ShiftRow({ shift, variant, onClose, disabled }: ShiftRow
       </span>
 
       {/* Elapsed time */}
-      <span className={`text-xs font-semibold whitespace-nowrap shrink-0 ${
-        isOvertime ? 'text-status-danger' : 'text-status-active'
-      }`}>
+      <span
+        className={`text-xs font-semibold whitespace-nowrap shrink-0 ${
+          isOvertime ? 'text-status-danger' : 'text-status-active'
+        }`}
+      >
         {getElapsedTime(shift.checkIn)}
       </span>
 

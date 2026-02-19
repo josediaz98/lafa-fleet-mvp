@@ -8,7 +8,10 @@ export interface OptimisticOp {
   errorMsg: string;
 }
 
-export async function withOptimistic(ctx: ActionContext, op: OptimisticOp): Promise<void> {
+export async function withOptimistic(
+  ctx: ActionContext,
+  op: OptimisticOp,
+): Promise<void> {
   op.optimistic();
   const { error } = await op.persist();
   if (error) {

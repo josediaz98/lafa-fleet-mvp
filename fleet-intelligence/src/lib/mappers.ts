@@ -1,6 +1,20 @@
-import type { Center, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
 import type {
-  DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
+  Center,
+  Driver,
+  Vehicle,
+  Shift,
+  Trip,
+  PayrollRecord,
+  User,
+} from '@/types';
+import type {
+  DbCenter,
+  DbProfile,
+  DbDriver,
+  DbVehicle,
+  DbShift,
+  DbTrip,
+  DbWeeklyPayroll,
 } from '@/lib/supabase/types';
 
 // Lookup maps built once per HYDRATE, updated on entity mutations (C1)
@@ -15,10 +29,10 @@ export function setLookupMaps(
   vehicles: DbVehicle[],
   profiles: DbProfile[],
 ) {
-  centersMap = new Map(centers.map(c => [c.id, c]));
-  driversMap = new Map(drivers.map(d => [d.id, d]));
-  vehiclesMap = new Map(vehicles.map(v => [v.id, v]));
-  profilesMap = new Map(profiles.map(p => [p.id, p]));
+  centersMap = new Map(centers.map((c) => [c.id, c]));
+  driversMap = new Map(drivers.map((d) => [d.id, d]));
+  vehiclesMap = new Map(vehicles.map((v) => [v.id, v]));
+  profilesMap = new Map(profiles.map((p) => [p.id, p]));
 }
 
 // C1: Incremental map updates after entity mutations
@@ -51,7 +65,10 @@ export function removeFromDriversMap(driverId: string) {
   driversMap.delete(driverId);
 }
 
-export function updateDriverStatusInMap(driverId: string, status: Driver['status']) {
+export function updateDriverStatusInMap(
+  driverId: string,
+  status: Driver['status'],
+) {
   const existing = driversMap.get(driverId);
   if (existing) driversMap.set(driverId, { ...existing, status });
 }
@@ -60,7 +77,10 @@ export function removeFromVehiclesMap(vehicleId: string) {
   vehiclesMap.delete(vehicleId);
 }
 
-export function updateVehicleStatusInMap(vehicleId: string, status: Vehicle['status']) {
+export function updateVehicleStatusInMap(
+  vehicleId: string,
+  status: Vehicle['status'],
+) {
   const existing = vehiclesMap.get(vehicleId);
   if (existing) vehiclesMap.set(vehicleId, { ...existing, status });
 }
@@ -113,8 +133,10 @@ export function mapShift(row: DbShift): Shift {
   const vehicle = vehiclesMap.get(row.vehicle_id);
   const center = driver ? centersMap.get(driver.center_id) : undefined;
 
-  if (!driver) console.warn(`mapShift: driver ${row.driver_id} not found in lookup map`);
-  if (!vehicle) console.warn(`mapShift: vehicle ${row.vehicle_id} not found in lookup map`);
+  if (!driver)
+    console.warn(`mapShift: driver ${row.driver_id} not found in lookup map`);
+  if (!vehicle)
+    console.warn(`mapShift: vehicle ${row.vehicle_id} not found in lookup map`);
 
   return {
     id: row.id,
@@ -140,7 +162,10 @@ function formatDateForUI(isoDate: string): string {
 
 export function mapTrip(row: DbTrip): Trip {
   const driver = driversMap.get(row.driver_id);
-  if (!driver) console.warn(`mapTrip: driver ${row.driver_id} not found in lookup map — trip ${row.didi_trip_id} will be orphaned`);
+  if (!driver)
+    console.warn(
+      `mapTrip: driver ${row.driver_id} not found in lookup map — trip ${row.didi_trip_id} will be orphaned`,
+    );
   return {
     id: row.id,
     didiDriverId: driver?.didi_driver_id ?? 0,
@@ -167,11 +192,14 @@ export function mapProfile(row: DbProfile): User {
 export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
   const driver = driversMap.get(row.driver_id);
   const center = driver ? centersMap.get(driver.center_id) : undefined;
-  const closedByProfile = row.closed_by ? profilesMap.get(row.closed_by) : undefined;
+  const closedByProfile = row.closed_by
+    ? profilesMap.get(row.closed_by)
+    : undefined;
   // Build week label from dates
   const ws = new Date(row.week_start + 'T00:00:00');
   const we = new Date(row.week_end + 'T00:00:00');
-  const fmt = (d: Date) => d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
+  const fmt = (d: Date) =>
+    d.toLocaleDateString('es-MX', { month: 'short', day: 'numeric' });
   const weekLabel = `${fmt(ws)} – ${fmt(we)}, ${ws.getFullYear()}`;
 
   return {
@@ -195,7 +223,9 @@ export function mapPayroll(row: DbWeeklyPayroll): PayrollRecord {
     weekStart: row.week_start,
     weekEnd: row.week_end,
     // M4: Fallback to closed_by UUID when profile not in map (supervisor RLS)
-    closedBy: closedByProfile?.name ?? (row.closed_by ? `Usuario ${row.closed_by.slice(0, 8)}` : ''),
+    closedBy:
+      closedByProfile?.name ??
+      (row.closed_by ? `Usuario ${row.closed_by.slice(0, 8)}` : ''),
     closedAt: row.closed_at ?? undefined,
     version: row.version,
     aiExplanation: row.ai_explanation ?? undefined,

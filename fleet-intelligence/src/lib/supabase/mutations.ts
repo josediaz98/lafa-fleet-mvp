@@ -1,12 +1,23 @@
 import { supabase } from './client';
 import { parseFechaToISO } from '@/lib/date-utils';
-import type { Driver, Vehicle, Shift, Trip, PayrollRecord, User, VehicleStatus } from '@/types';
+import type {
+  Driver,
+  Vehicle,
+  Shift,
+  Trip,
+  PayrollRecord,
+  User,
+  VehicleStatus,
+} from '@/types';
 
 type MutationResult = { error: Error | null };
 
 // ---- Shifts ----
 
-export async function persistCheckIn(shift: Shift, createdBy: string): Promise<MutationResult> {
+export async function persistCheckIn(
+  shift: Shift,
+  createdBy: string,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const { error } = await supabase.from('shifts').insert({
     id: shift.id,
@@ -19,24 +30,39 @@ export async function persistCheckIn(shift: Shift, createdBy: string): Promise<M
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistCheckOut(shiftId: string, checkOut: string, hoursWorked: number): Promise<MutationResult> {
+export async function persistCheckOut(
+  shiftId: string,
+  checkOut: string,
+  hoursWorked: number,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('shifts').update({
-    check_out: checkOut,
-    hours_worked: hoursWorked,
-    status: 'completado',
-  }).eq('id', shiftId);
+  const { error } = await supabase
+    .from('shifts')
+    .update({
+      check_out: checkOut,
+      hours_worked: hoursWorked,
+      status: 'completado',
+    })
+    .eq('id', shiftId);
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistVehicleStatus(vehicleId: string, status: VehicleStatus): Promise<MutationResult> {
+export async function persistVehicleStatus(
+  vehicleId: string,
+  status: VehicleStatus,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('vehicles').update({ status }).eq('id', vehicleId);
+  const { error } = await supabase
+    .from('vehicles')
+    .update({ status })
+    .eq('id', vehicleId);
   return { error: error ? new Error(error.message) : null };
 }
 
 // C3: Compensating delete for failed check-in atomicity
-export async function persistDeleteShift(shiftId: string): Promise<MutationResult> {
+export async function persistDeleteShift(
+  shiftId: string,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const { error } = await supabase.from('shifts').delete().eq('id', shiftId);
   return { error: error ? new Error(error.message) : null };
@@ -44,7 +70,9 @@ export async function persistDeleteShift(shiftId: string): Promise<MutationResul
 
 // ---- Drivers ----
 
-export async function persistNewDriver(driver: Driver): Promise<MutationResult> {
+export async function persistNewDriver(
+  driver: Driver,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const { error } = await supabase.from('drivers').insert({
     id: driver.id,
@@ -58,27 +86,39 @@ export async function persistNewDriver(driver: Driver): Promise<MutationResult> 
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistUpdateDriver(driver: Driver): Promise<MutationResult> {
+export async function persistUpdateDriver(
+  driver: Driver,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('drivers').update({
-    full_name: driver.fullName,
-    didi_driver_id: driver.didiDriverId,
-    center_id: driver.centerId,
-    default_shift: driver.defaultShift,
-    start_date: driver.startDate,
-  }).eq('id', driver.id);
+  const { error } = await supabase
+    .from('drivers')
+    .update({
+      full_name: driver.fullName,
+      didi_driver_id: driver.didiDriverId,
+      center_id: driver.centerId,
+      default_shift: driver.defaultShift,
+      start_date: driver.startDate,
+    })
+    .eq('id', driver.id);
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistDeactivateDriver(driverId: string): Promise<MutationResult> {
+export async function persistDeactivateDriver(
+  driverId: string,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('drivers').update({ status: 'inactivo' }).eq('id', driverId);
+  const { error } = await supabase
+    .from('drivers')
+    .update({ status: 'inactivo' })
+    .eq('id', driverId);
   return { error: error ? new Error(error.message) : null };
 }
 
 // ---- Vehicles ----
 
-export async function persistNewVehicle(vehicle: Vehicle): Promise<MutationResult> {
+export async function persistNewVehicle(
+  vehicle: Vehicle,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
   const { error } = await supabase.from('vehicles').insert({
     id: vehicle.id,
@@ -91,14 +131,19 @@ export async function persistNewVehicle(vehicle: Vehicle): Promise<MutationResul
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistUpdateVehicle(vehicle: Vehicle): Promise<MutationResult> {
+export async function persistUpdateVehicle(
+  vehicle: Vehicle,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('vehicles').update({
-    plate: vehicle.plate,
-    model: vehicle.model,
-    oem: vehicle.oem,
-    center_id: vehicle.centerId,
-  }).eq('id', vehicle.id);
+  const { error } = await supabase
+    .from('vehicles')
+    .update({
+      plate: vehicle.plate,
+      model: vehicle.model,
+      oem: vehicle.oem,
+      center_id: vehicle.centerId,
+    })
+    .eq('id', vehicle.id);
   return { error: error ? new Error(error.message) : null };
 }
 
@@ -117,38 +162,51 @@ export async function persistTrips(
 
   const validCount = trips.length;
   const totalRecords = validCount + errorCount;
-  const { data: upload, error: uploadError } = await supabase.from('csv_uploads').insert({
-    filename: fileName,
-    uploaded_by: uploadedBy,
-    record_count: totalRecords,
-    valid_count: validCount,
-    warning_count: warningCount,
-    error_count: errorCount,
-    status: 'procesado',
-  }).select('id').single();
+  const { data: upload, error: uploadError } = await supabase
+    .from('csv_uploads')
+    .insert({
+      filename: fileName,
+      uploaded_by: uploadedBy,
+      record_count: totalRecords,
+      valid_count: validCount,
+      warning_count: warningCount,
+      error_count: errorCount,
+      status: 'procesado',
+    })
+    .select('id')
+    .single();
 
   if (uploadError) return { error: new Error(uploadError.message) };
 
   const uploadId = upload?.id;
 
   // Batch insert trips
-  const rows = trips.map(t => ({
-    driver_id: didiToDriverId.get(t.didiDriverId) ?? '',
-    didi_trip_id: t.tripId,
-    date: parseFechaToISO(t.fecha),
-    initial_time: t.horaInicio,
-    final_time: t.horaFin,
-    cost: t.costo,
-    tip: t.propina,
-    upload_id: uploadId,
-  })).filter(r => r.driver_id !== '');
+  const rows = trips
+    .map((t) => ({
+      driver_id: didiToDriverId.get(t.didiDriverId) ?? '',
+      didi_trip_id: t.tripId,
+      date: parseFechaToISO(t.fecha),
+      initial_time: t.horaInicio,
+      final_time: t.horaFin,
+      cost: t.costo,
+      tip: t.propina,
+      upload_id: uploadId,
+    }))
+    .filter((r) => r.driver_id !== '');
 
   if (rows.length === 0 && trips.length > 0) {
     // ISSUE-3 fix: Mark orphaned upload as 'error' before returning
     if (uploadId) {
-      await supabase.from('csv_uploads').update({ status: 'error', valid_count: 0 }).eq('id', uploadId);
+      await supabase
+        .from('csv_uploads')
+        .update({ status: 'error', valid_count: 0 })
+        .eq('id', uploadId);
     }
-    return { error: new Error(`0 de ${trips.length} viajes pudieron mapearse a conductores`) };
+    return {
+      error: new Error(
+        `0 de ${trips.length} viajes pudieron mapearse a conductores`,
+      ),
+    };
   }
 
   if (rows.length > 0) {
@@ -156,7 +214,10 @@ export async function persistTrips(
     if (error) {
       // BUG-3 fix: Mark orphaned upload record as 'error' so it doesn't show as successful
       if (uploadId) {
-        await supabase.from('csv_uploads').update({ status: 'error', valid_count: 0 }).eq('id', uploadId);
+        await supabase
+          .from('csv_uploads')
+          .update({ status: 'error', valid_count: 0 })
+          .eq('id', uploadId);
       }
       return { error: new Error(error.message) };
     }
@@ -168,9 +229,12 @@ export async function persistTrips(
 
 // H1: Use tipsTotal from record instead of hardcoded 0
 // H2: Include frontend-generated ID in DB insert
-export async function persistClosePayroll(records: PayrollRecord[], closedById: string): Promise<MutationResult> {
+export async function persistClosePayroll(
+  records: PayrollRecord[],
+  closedById: string,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const rows = records.map(r => ({
+  const rows = records.map((r) => ({
     id: r.id,
     driver_id: r.driverId,
     week_start: r.weekStart,
@@ -208,11 +272,12 @@ export async function persistRerunPayroll(
   if (insertResult.error) return insertResult;
 
   // Mark previous version as superseded (only after insert succeeds)
-  const { error: updateError } = await supabase.from('weekly_payroll')
+  const { error: updateError } = await supabase
+    .from('weekly_payroll')
     .update({ status: 'superseded' })
     .eq('week_start', weekStart)
     .eq('status', 'cerrado')
-    .not('id', 'in', `(${newRecords.map(r => r.id).join(',')})`);
+    .not('id', 'in', `(${newRecords.map((r) => r.id).join(',')})`);
 
   if (updateError) return { error: new Error(updateError.message) };
   return { error: null };
@@ -226,7 +291,9 @@ export async function persistNewUser(user: User): Promise<InviteResult> {
   if (!supabase) return { error: null };
 
   // Supabase mode: call Express invite endpoint (creates auth user + profile)
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   const token = session?.access_token;
   if (!token) return { error: new Error('No session token available') };
 
@@ -251,17 +318,25 @@ export async function persistNewUser(user: User): Promise<InviteResult> {
 
 export async function persistUpdateUser(user: User): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('profiles').update({
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    center_id: user.centerId,
-  }).eq('id', user.id);
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      center_id: user.centerId,
+    })
+    .eq('id', user.id);
   return { error: error ? new Error(error.message) : null };
 }
 
-export async function persistDeactivateUser(userId: string): Promise<MutationResult> {
+export async function persistDeactivateUser(
+  userId: string,
+): Promise<MutationResult> {
   if (!supabase) return { error: null };
-  const { error } = await supabase.from('profiles').update({ status: 'inactivo' }).eq('id', userId);
+  const { error } = await supabase
+    .from('profiles')
+    .update({ status: 'inactivo' })
+    .eq('id', userId);
   return { error: error ? new Error(error.message) : null };
 }

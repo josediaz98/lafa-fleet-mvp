@@ -12,8 +12,21 @@ interface VehicleTableProps {
   onClearFilters?: () => void;
 }
 
-export default function VehicleTable({ vehicles, totalCount, onSelect, hasActiveFilters, onClearFilters }: VehicleTableProps) {
-  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(vehicles);
+export default function VehicleTable({
+  vehicles,
+  totalCount,
+  onSelect,
+  hasActiveFilters,
+  onClearFilters,
+}: VehicleTableProps) {
+  const {
+    paginatedItems,
+    currentPage,
+    totalPages,
+    setPage,
+    rangeStart,
+    rangeEnd,
+  } = usePagination(vehicles);
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
@@ -21,11 +34,21 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Placa</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Modelo</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">OEM</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Centro</th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Status</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Placa
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Modelo
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                OEM
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Centro
+              </th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -37,10 +60,18 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
                 }`}
                 onClick={() => onSelect(vehicle)}
               >
-                <td className="px-4 py-3 text-lafa-text-primary font-medium font-mono">{vehicle.plate}</td>
-                <td className="px-4 py-3 text-lafa-text-primary">{vehicle.model}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary">{vehicle.oem}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary">{getCenterName(vehicle.centerId)}</td>
+                <td className="px-4 py-3 text-lafa-text-primary font-medium font-mono">
+                  {vehicle.plate}
+                </td>
+                <td className="px-4 py-3 text-lafa-text-primary">
+                  {vehicle.model}
+                </td>
+                <td className="px-4 py-3 text-lafa-text-secondary">
+                  {vehicle.oem}
+                </td>
+                <td className="px-4 py-3 text-lafa-text-secondary">
+                  {getCenterName(vehicle.centerId)}
+                </td>
                 <td className="px-4 py-3">
                   <StatusBadge status={vehicle.status} />
                 </td>
@@ -51,15 +82,24 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
       </div>
       <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {rangeStart}–{rangeEnd} de {vehicles.length}{vehicles.length !== totalCount ? ` (${totalCount} total)` : ''} vehículos
+          {rangeStart}–{rangeEnd} de {vehicles.length}
+          {vehicles.length !== totalCount ? ` (${totalCount} total)` : ''}{' '}
+          vehículos
         </span>
         <div className="flex items-center gap-3">
           {hasActiveFilters && onClearFilters && (
-            <button onClick={onClearFilters} className="text-xs text-lafa-accent hover:underline">
+            <button
+              onClick={onClearFilters}
+              className="text-xs text-lafa-accent hover:underline"
+            >
               Limpiar filtros
             </button>
           )}
-          <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </div>

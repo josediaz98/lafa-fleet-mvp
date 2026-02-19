@@ -11,7 +11,14 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         ...rest,
         hydrated: true,
-        dataRange: dataRange ? { ...dataRange, shiftsHasMore: true, tripsHasMore: true, payrollHasMore: true } : undefined,
+        dataRange: dataRange
+          ? {
+              ...dataRange,
+              shiftsHasMore: true,
+              tripsHasMore: true,
+              payrollHasMore: true,
+            }
+          : undefined,
       };
     }
 
@@ -21,18 +28,25 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'CLOSE_SHIFT':
       return {
         ...state,
-        shifts: state.shifts.map(s =>
+        shifts: state.shifts.map((s) =>
           s.id === action.payload.shiftId
-            ? { ...s, status: 'completado' as const, checkOut: action.payload.checkOut, hoursWorked: action.payload.hoursWorked }
-            : s
+            ? {
+                ...s,
+                status: 'completado' as const,
+                checkOut: action.payload.checkOut,
+                hoursWorked: action.payload.hoursWorked,
+              }
+            : s,
         ),
       };
 
     case 'UPDATE_VEHICLE_STATUS':
       return {
         ...state,
-        vehicles: state.vehicles.map(v =>
-          v.id === action.payload.vehicleId ? { ...v, status: action.payload.status } : v
+        vehicles: state.vehicles.map((v) =>
+          v.id === action.payload.vehicleId
+            ? { ...v, status: action.payload.status }
+            : v,
         ),
       };
 
@@ -45,14 +59,16 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_DRIVER':
       return {
         ...state,
-        drivers: state.drivers.map(d => (d.id === action.payload.id ? action.payload : d)),
+        drivers: state.drivers.map((d) =>
+          d.id === action.payload.id ? action.payload : d,
+        ),
       };
 
     case 'DEACTIVATE_DRIVER':
       return {
         ...state,
-        drivers: state.drivers.map(d =>
-          d.id === action.payload ? { ...d, status: 'inactivo' as const } : d
+        drivers: state.drivers.map((d) =>
+          d.id === action.payload ? { ...d, status: 'inactivo' as const } : d,
         ),
       };
 
@@ -62,7 +78,9 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_VEHICLE':
       return {
         ...state,
-        vehicles: state.vehicles.map(v => (v.id === action.payload.id ? action.payload : v)),
+        vehicles: state.vehicles.map((v) =>
+          v.id === action.payload.id ? action.payload : v,
+        ),
       };
 
     case 'ADD_USER':
@@ -71,28 +89,36 @@ export function appReducer(state: AppState, action: Action): AppState {
     case 'UPDATE_USER':
       return {
         ...state,
-        users: state.users.map(u => (u.id === action.payload.id ? action.payload : u)),
+        users: state.users.map((u) =>
+          u.id === action.payload.id ? action.payload : u,
+        ),
       };
 
     case 'DEACTIVATE_USER':
       return {
         ...state,
-        users: state.users.map(u =>
-          u.id === action.payload ? { ...u, status: 'inactivo' as const } : u
+        users: state.users.map((u) =>
+          u.id === action.payload ? { ...u, status: 'inactivo' as const } : u,
         ),
       };
 
     case 'CLOSE_PAYROLL_WEEK':
-      return { ...state, closedPayroll: [...state.closedPayroll, ...action.payload] };
+      return {
+        ...state,
+        closedPayroll: [...state.closedPayroll, ...action.payload],
+      };
 
     // H4: Match by weekStart (ISO date) instead of weekLabel (locale-dependent string)
     case 'RERUN_PAYROLL_CLOSE': {
-      const superseded = state.closedPayroll.map(p =>
+      const superseded = state.closedPayroll.map((p) =>
         p.weekStart === action.payload.weekStart && p.status === 'cerrado'
           ? { ...p, status: 'superseded' as const }
-          : p
+          : p,
       );
-      return { ...state, closedPayroll: [...superseded, ...action.payload.newRecords] };
+      return {
+        ...state,
+        closedPayroll: [...superseded, ...action.payload.newRecords],
+      };
     }
 
     case 'LOGIN':
@@ -109,7 +135,11 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         shifts: [...state.shifts, ...action.payload.shifts],
         dataRange: state.dataRange
-          ? { ...state.dataRange, shiftsFrom: action.payload.oldestDate, shiftsHasMore: action.payload.hasMore }
+          ? {
+              ...state.dataRange,
+              shiftsFrom: action.payload.oldestDate,
+              shiftsHasMore: action.payload.hasMore,
+            }
           : undefined,
       };
 
@@ -118,7 +148,11 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         trips: [...state.trips, ...action.payload.trips],
         dataRange: state.dataRange
-          ? { ...state.dataRange, tripsFrom: action.payload.oldestDate, tripsHasMore: action.payload.hasMore }
+          ? {
+              ...state.dataRange,
+              tripsFrom: action.payload.oldestDate,
+              tripsHasMore: action.payload.hasMore,
+            }
           : undefined,
       };
 
@@ -127,58 +161,81 @@ export function appReducer(state: AppState, action: Action): AppState {
         ...state,
         closedPayroll: [...state.closedPayroll, ...action.payload.payroll],
         dataRange: state.dataRange
-          ? { ...state.dataRange, payrollFrom: action.payload.oldestDate, payrollHasMore: action.payload.hasMore }
+          ? {
+              ...state.dataRange,
+              payrollFrom: action.payload.oldestDate,
+              payrollHasMore: action.payload.hasMore,
+            }
           : undefined,
       };
 
     // C2: Rollback actions for failed persists
     case 'REMOVE_SHIFT':
-      return { ...state, shifts: state.shifts.filter(s => s.id !== action.payload) };
+      return {
+        ...state,
+        shifts: state.shifts.filter((s) => s.id !== action.payload),
+      };
 
     case 'REMOVE_DRIVER':
-      return { ...state, drivers: state.drivers.filter(d => d.id !== action.payload) };
+      return {
+        ...state,
+        drivers: state.drivers.filter((d) => d.id !== action.payload),
+      };
 
     case 'REMOVE_VEHICLE':
-      return { ...state, vehicles: state.vehicles.filter(v => v.id !== action.payload) };
+      return {
+        ...state,
+        vehicles: state.vehicles.filter((v) => v.id !== action.payload),
+      };
 
     case 'REMOVE_USER':
-      return { ...state, users: state.users.filter(u => u.id !== action.payload) };
+      return {
+        ...state,
+        users: state.users.filter((u) => u.id !== action.payload),
+      };
 
     case 'REMOVE_PAYROLL_WEEK':
       return {
         ...state,
-        closedPayroll: state.closedPayroll.filter(p => !action.payload.includes(p.id)),
+        closedPayroll: state.closedPayroll.filter(
+          (p) => !action.payload.includes(p.id),
+        ),
       };
 
     case 'REMOVE_TRIPS':
       return {
         ...state,
-        trips: state.trips.filter(t => !action.payload.includes(t.id)),
+        trips: state.trips.filter((t) => !action.payload.includes(t.id)),
       };
 
     case 'REVERT_CLOSE_SHIFT':
       return {
         ...state,
-        shifts: state.shifts.map(s =>
+        shifts: state.shifts.map((s) =>
           s.id === action.payload
-            ? { ...s, status: 'en_turno' as const, checkOut: undefined, hoursWorked: undefined }
-            : s
+            ? {
+                ...s,
+                status: 'en_turno' as const,
+                checkOut: undefined,
+                hoursWorked: undefined,
+              }
+            : s,
         ),
       };
 
     case 'REACTIVATE_DRIVER':
       return {
         ...state,
-        drivers: state.drivers.map(d =>
-          d.id === action.payload ? { ...d, status: 'activo' as const } : d
+        drivers: state.drivers.map((d) =>
+          d.id === action.payload ? { ...d, status: 'activo' as const } : d,
         ),
       };
 
     case 'REACTIVATE_USER':
       return {
         ...state,
-        users: state.users.map(u =>
-          u.id === action.payload ? { ...u, status: 'activo' as const } : u
+        users: state.users.map((u) =>
+          u.id === action.payload ? { ...u, status: 'activo' as const } : u,
         ),
       };
 
@@ -186,11 +243,12 @@ export function appReducer(state: AppState, action: Action): AppState {
       return {
         ...state,
         closedPayroll: state.closedPayroll
-          .filter(p => !action.payload.removedIds.includes(p.id))
-          .map(p =>
-            p.weekStart === action.payload.weekStart && p.status === 'superseded'
+          .filter((p) => !action.payload.removedIds.includes(p.id))
+          .map((p) =>
+            p.weekStart === action.payload.weekStart &&
+            p.status === 'superseded'
               ? { ...p, status: 'cerrado' as const }
-              : p
+              : p,
           ),
       };
 

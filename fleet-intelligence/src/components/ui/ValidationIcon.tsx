@@ -15,13 +15,19 @@ export default function ValidationIcon({ estado, msg }: ValidationIconProps) {
       );
     case 'warning':
       return (
-        <span className="inline-flex items-center gap-1 text-xs text-status-alert" title={msg}>
+        <span
+          className="inline-flex items-center gap-1 text-xs text-status-alert"
+          title={msg}
+        >
           <AlertTriangle size={14} /> {msg || 'Warning'}
         </span>
       );
     case 'error':
       return (
-        <span className="inline-flex items-center gap-1 text-xs text-status-danger" title={msg}>
+        <span
+          className="inline-flex items-center gap-1 text-xs text-status-danger"
+          title={msg}
+        >
           <XCircle size={14} /> {msg || 'Error'}
         </span>
       );

@@ -1,5 +1,9 @@
 import { formatMXN } from '@/lib/format';
-import { OVERTIME_THRESHOLD_HOURS, OVERTIME_RATE_PER_HOUR, GOAL_THRESHOLD } from './payroll';
+import {
+  OVERTIME_THRESHOLD_HOURS,
+  OVERTIME_RATE_PER_HOUR,
+  GOAL_THRESHOLD,
+} from './payroll';
 
 interface PayrollSummary {
   driverName: string;
@@ -15,9 +19,22 @@ interface PayrollSummary {
 }
 
 export function generateExplanation(record: PayrollSummary): string {
-  const { driverName, hoursWorked, totalBilled, hoursThreshold, revenueThreshold, goalMet, productivityBonus, overtimePay, totalPay } = record;
-  const avgPerHour = hoursWorked > 0 ? Math.round(totalBilled / hoursWorked) : 0;
-  const isProrated = hoursThreshold < OVERTIME_THRESHOLD_HOURS || revenueThreshold < GOAL_THRESHOLD;
+  const {
+    driverName,
+    hoursWorked,
+    totalBilled,
+    hoursThreshold,
+    revenueThreshold,
+    goalMet,
+    productivityBonus,
+    overtimePay,
+    totalPay,
+  } = record;
+  const avgPerHour =
+    hoursWorked > 0 ? Math.round(totalBilled / hoursWorked) : 0;
+  const isProrated =
+    hoursThreshold < OVERTIME_THRESHOLD_HOURS ||
+    revenueThreshold < GOAL_THRESHOLD;
 
   if (goalMet) {
     let text = `${driverName} alcanzó la meta semanal con ${formatMXN(totalBilled)} facturados en ${hoursWorked}h de trabajo (${formatMXN(avgPerHour)}/hora).`;

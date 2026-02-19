@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { calculateWeeklyPay, isTripInWeek } from '@/features/payroll/lib/payroll';
+import {
+  calculateWeeklyPay,
+  isTripInWeek,
+} from '@/features/payroll/lib/payroll';
 import type { Driver, Trip } from '@/types';
 
 // ---- Helpers ----
@@ -17,7 +20,11 @@ function makeDriver(overrides: Partial<Driver> = {}): Driver {
   };
 }
 
-function makeTrips(didiDriverId: number, total: number, weekStart: string): Trip[] {
+function makeTrips(
+  didiDriverId: number,
+  total: number,
+  weekStart: string,
+): Trip[] {
   // Distribute total across 5 daily aggregates within the week
   const perDay = total / 5;
   const trips: Trip[] = [];
@@ -62,14 +69,22 @@ function runPayroll(opts: {
   const driver = makeDriver(opts.driver);
   const trips = makeTrips(driver.didiDriverId, opts.revenue, WEEK_START);
   const shiftSummaries = [makeShiftSummary(driver.id, opts.hours)];
-  const prevMap = opts.previousWeekHours !== undefined
-    ? new Map([[driver.id, opts.previousWeekHours]])
-    : new Map<string, number>();
+  const prevMap =
+    opts.previousWeekHours !== undefined
+      ? new Map([[driver.id, opts.previousWeekHours]])
+      : new Map<string, number>();
 
   const results = calculateWeeklyPay(
-    [driver], trips, shiftSummaries,
-    WEEK_LABEL, WEEK_START, WEEK_END,
-    'Admin', 1, prevMap, CENTERS,
+    [driver],
+    trips,
+    shiftSummaries,
+    WEEK_LABEL,
+    WEEK_START,
+    WEEK_END,
+    'Admin',
+    1,
+    prevMap,
+    CENTERS,
   );
   expect(results).toHaveLength(1);
   return results[0];
@@ -188,7 +203,7 @@ describe('calculateWeeklyPay', () => {
 
     it('prorated driver misses prorated threshold → $1,000', () => {
       const r = runPayroll({
-        driver: { startDate: '2026-02-20' },  // Starts Friday → 1 day → threshold = 8h / 1200
+        driver: { startDate: '2026-02-20' }, // Starts Friday → 1 day → threshold = 8h / 1200
         hours: 5,
         revenue: 1000,
       });
@@ -231,7 +246,11 @@ describe('calculateWeeklyPay', () => {
 
   describe('Edge Case 7: previous week < 40h → no overtime', () => {
     it('48h worked but prev = 39.5h → no overtime', () => {
-      const r = runPayroll({ hours: 48, revenue: 7000, previousWeekHours: 39.5 });
+      const r = runPayroll({
+        hours: 48,
+        revenue: 7000,
+        previousWeekHours: 39.5,
+      });
       expect(r.goalMet).toBe(true);
       expect(r.overtimePay).toBe(0);
       expect(r.productivityBonus).toBe(200);
@@ -260,7 +279,11 @@ describe('calculateWeeklyPay', () => {
     it('top earner: 48h, $10,750, prev=48h → base + bonus + OT (capped)', () => {
       // Bonus: (10750 - 6000) / 500 = 9.5 → floor(9) → $900
       // OT: min(48-40, 8) = 8h × $50 = $400
-      const r = runPayroll({ hours: 48, revenue: 10750, previousWeekHours: 48 });
+      const r = runPayroll({
+        hours: 48,
+        revenue: 10750,
+        previousWeekHours: 48,
+      });
       expect(r.goalMet).toBe(true);
       expect(r.baseSalary).toBe(2500);
       expect(r.productivityBonus).toBe(900);
@@ -286,9 +309,16 @@ describe('calculateWeeklyPay', () => {
       const trips = makeTrips(driver.didiDriverId, 8000, WEEK_START);
       const shiftSummaries = [makeShiftSummary(driver.id, 45)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results).toHaveLength(0);
     });
@@ -332,9 +362,16 @@ describe('calculateWeeklyPay', () => {
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(6000); // tips NOT included
       expect(results[0].goalMet).toBe(true);
@@ -363,9 +400,16 @@ describe('calculateWeeklyPay', () => {
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       // 4800 + 1199.999 = 5999.999 → Math.round(* 100) / 100 = 6000.00
       expect(results[0].totalBilled).toBe(6000);
@@ -393,9 +437,16 @@ describe('calculateWeeklyPay', () => {
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(5999.99);
       expect(results[0].goalMet).toBe(false);
@@ -425,9 +476,16 @@ describe('calculateWeeklyPay', () => {
       }
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBeCloseTo(5999.99, 2);
       expect(results[0].goalMet).toBe(false);
@@ -439,21 +497,30 @@ describe('calculateWeeklyPay', () => {
     it('trip starting Sunday at 19:50 → counts this week', () => {
       const driver = makeDriver();
       // Sunday is 2026-02-22 (weekEnd)
-      const trips: Trip[] = [{
-        id: 't-sun-1950',
-        didiDriverId: driver.didiDriverId,
-        fecha: '22/02/2026',
-        tripId: 'trip-sun-1950',
-        horaInicio: '19:50',
-        horaFin: '20:30',
-        costo: 6000,
-        propina: 0,
-      }];
+      const trips: Trip[] = [
+        {
+          id: 't-sun-1950',
+          didiDriverId: driver.didiDriverId,
+          fecha: '22/02/2026',
+          tripId: 'trip-sun-1950',
+          horaInicio: '19:50',
+          horaFin: '20:30',
+          costo: 6000,
+          propina: 0,
+        },
+      ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(6000);
       expect(results[0].goalMet).toBe(true);
@@ -461,21 +528,30 @@ describe('calculateWeeklyPay', () => {
 
     it('trip starting Sunday at 20:10 → does NOT count this week', () => {
       const driver = makeDriver();
-      const trips: Trip[] = [{
-        id: 't-sun-2010',
-        didiDriverId: driver.didiDriverId,
-        fecha: '22/02/2026',
-        tripId: 'trip-sun-2010',
-        horaInicio: '20:10',
-        horaFin: '21:00',
-        costo: 6000,
-        propina: 0,
-      }];
+      const trips: Trip[] = [
+        {
+          id: 't-sun-2010',
+          didiDriverId: driver.didiDriverId,
+          fecha: '22/02/2026',
+          tripId: 'trip-sun-2010',
+          horaInicio: '20:10',
+          horaFin: '21:00',
+          costo: 6000,
+          propina: 0,
+        },
+      ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(0);
       expect(results[0].goalMet).toBe(false);
@@ -484,21 +560,30 @@ describe('calculateWeeklyPay', () => {
 
     it('trip starting Sunday at exactly 20:00 → does NOT count', () => {
       const driver = makeDriver();
-      const trips: Trip[] = [{
-        id: 't-sun-2000',
-        didiDriverId: driver.didiDriverId,
-        fecha: '22/02/2026',
-        tripId: 'trip-sun-2000',
-        horaInicio: '20:00',
-        horaFin: '20:45',
-        costo: 6000,
-        propina: 0,
-      }];
+      const trips: Trip[] = [
+        {
+          id: 't-sun-2000',
+          didiDriverId: driver.didiDriverId,
+          fecha: '22/02/2026',
+          tripId: 'trip-sun-2000',
+          horaInicio: '20:00',
+          horaFin: '20:45',
+          costo: 6000,
+          propina: 0,
+        },
+      ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(0);
       expect(results[0].goalMet).toBe(false);
@@ -509,21 +594,30 @@ describe('calculateWeeklyPay', () => {
     it('trip 23:50→00:35 assigned based on start date (fecha)', () => {
       const driver = makeDriver();
       // Trip on Saturday night crossing into Sunday — should count (within week)
-      const trips: Trip[] = [{
-        id: 't-overnight',
-        didiDriverId: driver.didiDriverId,
-        fecha: '21/02/2026', // Saturday (within week)
-        tripId: 'trip-overnight',
-        horaInicio: '23:50',
-        horaFin: '00:35',
-        costo: 6000,
-        propina: 0,
-      }];
+      const trips: Trip[] = [
+        {
+          id: 't-overnight',
+          didiDriverId: driver.didiDriverId,
+          fecha: '21/02/2026', // Saturday (within week)
+          tripId: 'trip-overnight',
+          horaInicio: '23:50',
+          horaFin: '00:35',
+          costo: 6000,
+          propina: 0,
+        },
+      ];
       const shiftSummaries = [makeShiftSummary(driver.id, 40)];
       const results = calculateWeeklyPay(
-        [driver], trips, shiftSummaries,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [driver],
+        trips,
+        shiftSummaries,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results[0].totalBilled).toBe(6000);
       expect(results[0].goalMet).toBe(true);
@@ -532,7 +626,11 @@ describe('calculateWeeklyPay', () => {
 
   describe('Fractional overtime: 40.5h + prev >= 40h', () => {
     it('40.5h worked, prev=40h → 0.5h OT = $25', () => {
-      const r = runPayroll({ hours: 40.5, revenue: 7000, previousWeekHours: 40 });
+      const r = runPayroll({
+        hours: 40.5,
+        revenue: 7000,
+        previousWeekHours: 40,
+      });
       expect(r.goalMet).toBe(true);
       expect(r.overtimePay).toBe(25); // 0.5 × $50
     });
@@ -568,24 +666,36 @@ describe('calculateWeeklyPay', () => {
 
   describe('Two drivers in one run — no cross-contamination', () => {
     it('each driver gets independent calculation', () => {
-      const d1 = makeDriver({ id: 'd1', fullName: 'Driver A', didiDriverId: 1001 });
-      const d2 = makeDriver({ id: 'd2', fullName: 'Driver B', didiDriverId: 1002 });
+      const d1 = makeDriver({
+        id: 'd1',
+        fullName: 'Driver A',
+        didiDriverId: 1001,
+      });
+      const d2 = makeDriver({
+        id: 'd2',
+        fullName: 'Driver B',
+        didiDriverId: 1002,
+      });
       const trips = [
         ...makeTrips(1001, 9000, WEEK_START),
         ...makeTrips(1002, 4000, WEEK_START),
       ];
-      const shifts = [
-        makeShiftSummary('d1', 42),
-        makeShiftSummary('d2', 42),
-      ];
+      const shifts = [makeShiftSummary('d1', 42), makeShiftSummary('d2', 42)];
       const results = calculateWeeklyPay(
-        [d1, d2], trips, shifts,
-        WEEK_LABEL, WEEK_START, WEEK_END,
-        'Admin', 1, new Map(), CENTERS,
+        [d1, d2],
+        trips,
+        shifts,
+        WEEK_LABEL,
+        WEEK_START,
+        WEEK_END,
+        'Admin',
+        1,
+        new Map(),
+        CENTERS,
       );
       expect(results).toHaveLength(2);
-      const r1 = results.find(r => r.driverId === 'd1')!;
-      const r2 = results.find(r => r.driverId === 'd2')!;
+      const r1 = results.find((r) => r.driverId === 'd1')!;
+      const r2 = results.find((r) => r.driverId === 'd2')!;
       // D1: goal met, base + bonus
       expect(r1.goalMet).toBe(true);
       expect(r1.totalBilled).toBe(9000);
@@ -599,22 +709,58 @@ describe('calculateWeeklyPay', () => {
 
   describe('isTripInWeek helper', () => {
     it('weekday trip within bounds → true', () => {
-      const trip: Trip = { id: 't1', didiDriverId: 1, fecha: '18/02/2026', tripId: 'x', horaInicio: '10:00', horaFin: '11:00', costo: 100, propina: 0 };
+      const trip: Trip = {
+        id: 't1',
+        didiDriverId: 1,
+        fecha: '18/02/2026',
+        tripId: 'x',
+        horaInicio: '10:00',
+        horaFin: '11:00',
+        costo: 100,
+        propina: 0,
+      };
       expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(true);
     });
 
     it('trip before week start → false', () => {
-      const trip: Trip = { id: 't1', didiDriverId: 1, fecha: '15/02/2026', tripId: 'x', horaInicio: '10:00', horaFin: '11:00', costo: 100, propina: 0 };
+      const trip: Trip = {
+        id: 't1',
+        didiDriverId: 1,
+        fecha: '15/02/2026',
+        tripId: 'x',
+        horaInicio: '10:00',
+        horaFin: '11:00',
+        costo: 100,
+        propina: 0,
+      };
       expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(false);
     });
 
     it('Sunday trip before 20:00 → true', () => {
-      const trip: Trip = { id: 't1', didiDriverId: 1, fecha: '22/02/2026', tripId: 'x', horaInicio: '19:59', horaFin: '20:30', costo: 100, propina: 0 };
+      const trip: Trip = {
+        id: 't1',
+        didiDriverId: 1,
+        fecha: '22/02/2026',
+        tripId: 'x',
+        horaInicio: '19:59',
+        horaFin: '20:30',
+        costo: 100,
+        propina: 0,
+      };
       expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(true);
     });
 
     it('Sunday trip at 20:00 → false', () => {
-      const trip: Trip = { id: 't1', didiDriverId: 1, fecha: '22/02/2026', tripId: 'x', horaInicio: '20:00', horaFin: '20:30', costo: 100, propina: 0 };
+      const trip: Trip = {
+        id: 't1',
+        didiDriverId: 1,
+        fecha: '22/02/2026',
+        tripId: 'x',
+        horaInicio: '20:00',
+        horaFin: '20:30',
+        costo: 100,
+        propina: 0,
+      };
       expect(isTripInWeek(trip, WEEK_START, WEEK_END)).toBe(false);
     });
   });

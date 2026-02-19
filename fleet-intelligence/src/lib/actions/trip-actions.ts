@@ -13,8 +13,17 @@ export async function actionImportTrips(
 ) {
   await withOptimistic(ctx, {
     optimistic: () => ctx.dispatch({ type: 'IMPORT_TRIPS', payload: trips }),
-    persist: () => persistTrips(trips, didiToDriverId, ctx.userId, fileName, warningCount, errorCount),
-    rollback: () => ctx.dispatch({ type: 'REMOVE_TRIPS', payload: trips.map(t => t.id) }),
+    persist: () =>
+      persistTrips(
+        trips,
+        didiToDriverId,
+        ctx.userId,
+        fileName,
+        warningCount,
+        errorCount,
+      ),
+    rollback: () =>
+      ctx.dispatch({ type: 'REMOVE_TRIPS', payload: trips.map((t) => t.id) }),
     successMsg: `${trips.length} viajes importados exitosamente.`,
     errorMsg: 'Error al persistir viajes',
   });

@@ -36,7 +36,12 @@ export interface DbVehicle {
   model: string;
   oem: 'Geely' | 'JAC' | 'GAC';
   center_id: string;
-  status: 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
+  status:
+    | 'disponible'
+    | 'en_turno'
+    | 'cargando'
+    | 'mantenimiento'
+    | 'fuera_de_servicio';
   created_at: string;
 }
 

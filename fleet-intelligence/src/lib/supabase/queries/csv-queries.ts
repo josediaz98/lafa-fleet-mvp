@@ -17,7 +17,9 @@ export interface CsvUploadRecord {
   status: 'procesado' | 'error';
 }
 
-export async function fetchUploadHistory(limit = 20): Promise<CsvUploadRecord[]> {
+export async function fetchUploadHistory(
+  limit = 20,
+): Promise<CsvUploadRecord[]> {
   if (!supabase) return [];
 
   const { data, error } = await supabase
@@ -28,15 +30,17 @@ export async function fetchUploadHistory(limit = 20): Promise<CsvUploadRecord[]>
 
   if (error) throw new Error(error.message);
 
-  return (data ?? []).map((row: DbCsvUpload & { profiles: { name: string } | null }) => ({
-    id: row.id,
-    filename: row.filename,
-    uploadedBy: row.profiles?.name ?? 'Desconocido',
-    uploadedAt: row.uploaded_at,
-    recordCount: row.record_count,
-    validCount: row.valid_count,
-    warningCount: row.warning_count,
-    errorCount: row.error_count,
-    status: row.status,
-  }));
+  return (data ?? []).map(
+    (row: DbCsvUpload & { profiles: { name: string } | null }) => ({
+      id: row.id,
+      filename: row.filename,
+      uploadedBy: row.profiles?.name ?? 'Desconocido',
+      uploadedAt: row.uploaded_at,
+      recordCount: row.record_count,
+      validCount: row.valid_count,
+      warningCount: row.warning_count,
+      errorCount: row.error_count,
+      status: row.status,
+    }),
+  );
 }

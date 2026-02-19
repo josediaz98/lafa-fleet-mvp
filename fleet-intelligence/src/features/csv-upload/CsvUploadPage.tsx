@@ -1,5 +1,13 @@
 import { useState, useRef } from 'react';
-import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter, History } from 'lucide-react';
+import {
+  CheckCircle,
+  AlertTriangle,
+  XCircle,
+  Upload,
+  Download,
+  Filter,
+  History,
+} from 'lucide-react';
 import { useAppState } from '@/app/providers/AppProvider';
 import type { Trip } from '@/types';
 import { formatMXN } from '@/lib/format';
@@ -9,7 +17,12 @@ import { actionImportTrips } from '@/lib/actions';
 import { getWeekBounds } from '@/lib/date-utils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
 import PaginationControls from '@/components/ui/PaginationControls';
-import { parseCsvText, validateRow, CSV_TEMPLATE, type ParsedRow } from './lib/csv-parser';
+import {
+  parseCsvText,
+  validateRow,
+  CSV_TEMPLATE,
+  type ParsedRow,
+} from './lib/csv-parser';
 import UploadHistoryTable from './components/UploadHistoryTable';
 
 const STEPS = [
@@ -31,7 +44,7 @@ export default function CsvUploadPage() {
   const [historyKey, setHistoryKey] = useState(0);
   const [isImporting, setIsImporting] = useState(false);
 
-  const existingTripIds = new Set(trips.map(t => t.tripId));
+  const existingTripIds = new Set(trips.map((t) => t.tripId));
 
   function processFile(file: File) {
     if (file.size > 20 * 1024 * 1024) {
@@ -49,8 +62,15 @@ export default function CsvUploadPage() {
       const seenIds = new Set<string>();
       const driversForValidation = stateDrivers;
       const week = getWeekBounds();
-      const validated = parsed.map(row => {
-        const result = validateRow(row, seenIds, existingTripIds, driversForValidation, week.start, week.end);
+      const validated = parsed.map((row) => {
+        const result = validateRow(
+          row,
+          seenIds,
+          existingTripIds,
+          driversForValidation,
+          week.start,
+          week.end,
+        );
         seenIds.add(row.tripId);
         return result;
       });
@@ -91,8 +111,8 @@ export default function CsvUploadPage() {
 
   async function handleImport() {
     setIsImporting(true);
-    const validRows = rows.filter(r => r.estado !== 'error');
-    const newTrips: Trip[] = validRows.map(r => ({
+    const validRows = rows.filter((r) => r.estado !== 'error');
+    const newTrips: Trip[] = validRows.map((r) => ({
       id: crypto.randomUUID(),
       didiDriverId: r.driverId,
       fecha: r.fecha,
@@ -110,29 +130,51 @@ export default function CsvUploadPage() {
     }
     try {
       // H5: Pass warning/error counts to persist for accurate upload history
-      await actionImportTrips(newTrips, didiToDriverId, fileName, ctx, warningCount, errorCount);
+      await actionImportTrips(
+        newTrips,
+        didiToDriverId,
+        fileName,
+        ctx,
+        warningCount,
+        errorCount,
+      );
       setActiveStep(3);
     } catch {
       ctx.showToast('error', 'Error al importar viajes. Intenta de nuevo.');
     } finally {
       setIsImporting(false);
     }
-    setHistoryKey(k => k + 1);
+    setHistoryKey((k) => k + 1);
   }
 
-  const validCount = rows.filter(r => r.estado === 'valido').length;
-  const warningCount = rows.filter(r => r.estado === 'warning').length;
-  const errorCount = rows.filter(r => r.estado === 'error').length;
+  const validCount = rows.filter((r) => r.estado === 'valido').length;
+  const warningCount = rows.filter((r) => r.estado === 'warning').length;
+  const errorCount = rows.filter((r) => r.estado === 'error').length;
   const importableCount = validCount + warningCount;
-  const totalBilling = rows.filter(r => r.estado !== 'error').reduce((sum, r) => sum + r.costo, 0);
-  const uniqueDrivers = new Set(rows.filter(r => r.estado !== 'error').map(r => r.driverId)).size;
+  const totalBilling = rows
+    .filter((r) => r.estado !== 'error')
+    .reduce((sum, r) => sum + r.costo, 0);
+  const uniqueDrivers = new Set(
+    rows.filter((r) => r.estado !== 'error').map((r) => r.driverId),
+  ).size;
 
-  const displayRows = showOnlyErrors ? rows.filter(r => r.estado === 'error') : rows;
-  const { paginatedItems: paginatedRows, currentPage: csvPage, totalPages: csvTotalPages, setPage: setCsvPage, rangeStart: csvRangeStart, rangeEnd: csvRangeEnd } = usePagination(displayRows, { pageSize: 50 });
+  const displayRows = showOnlyErrors
+    ? rows.filter((r) => r.estado === 'error')
+    : rows;
+  const {
+    paginatedItems: paginatedRows,
+    currentPage: csvPage,
+    totalPages: csvTotalPages,
+    setPage: setCsvPage,
+    rangeStart: csvRangeStart,
+    rangeEnd: csvRangeEnd,
+  } = usePagination(displayRows, { pageSize: 50 });
 
   return (
     <div>
-      <h1 className="text-2xl font-semibold text-lafa-text-primary mb-6">Carga CSV</h1>
+      <h1 className="text-2xl font-semibold text-lafa-text-primary mb-6">
+        Carga CSV
+      </h1>
 
       <div className="flex items-center justify-center gap-4 mb-8">
         {STEPS.map((step, i) => (
@@ -143,15 +185,17 @@ export default function CsvUploadPage() {
                   step.num < activeStep
                     ? 'bg-status-success text-white'
                     : step.num === activeStep
-                    ? 'bg-lafa-accent text-white'
-                    : 'bg-lafa-border text-lafa-text-secondary'
+                      ? 'bg-lafa-accent text-white'
+                      : 'bg-lafa-border text-lafa-text-secondary'
                 }`}
               >
                 {step.num < activeStep ? <CheckCircle size={16} /> : step.num}
               </div>
               <span
                 className={`text-sm font-medium ${
-                  step.num === activeStep ? 'text-lafa-text-primary' : 'text-lafa-text-secondary'
+                  step.num === activeStep
+                    ? 'text-lafa-text-primary'
+                    : 'text-lafa-text-secondary'
                 }`}
               >
                 {step.label}
@@ -172,7 +216,10 @@ export default function CsvUploadPage() {
         <div className="flex flex-col items-center justify-center py-16">
           <div
             onClick={() => fileRef.current?.click()}
-            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragging(true);
+            }}
             onDragLeave={() => setDragging(false)}
             onDrop={handleDrop}
             className={`w-full max-w-md border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 cursor-pointer transition-colors duration-150 ${
@@ -189,7 +236,8 @@ export default function CsvUploadPage() {
                 Arrastra tu archivo CSV aqu{'í'}, o haz click para seleccionar
               </p>
               <p className="text-xs text-lafa-text-secondary">
-                Formato DiDi: Driver ID, Date, Trip ID, Initial time, Final time, Cost, Tip
+                Formato DiDi: Driver ID, Date, Trip ID, Initial time, Final
+                time, Cost, Tip
               </p>
             </div>
           </div>
@@ -233,13 +281,17 @@ export default function CsvUploadPage() {
                     : 'bg-lafa-surface border border-lafa-border text-lafa-text-secondary hover:text-lafa-text-primary'
                 }`}
               >
-                <Filter size={12} /> {showOnlyErrors ? 'Mostrando errores' : 'Solo errores'}
+                <Filter size={12} />{' '}
+                {showOnlyErrors ? 'Mostrando errores' : 'Solo errores'}
               </button>
             )}
           </div>
 
           <div className="flex items-center gap-2 mb-4 text-xs text-lafa-text-secondary">
-            Archivo: <span className="text-lafa-text-primary font-medium">{fileName}</span>
+            Archivo:{' '}
+            <span className="text-lafa-text-primary font-medium">
+              {fileName}
+            </span>
           </div>
 
           <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden mb-6">
@@ -247,15 +299,33 @@ export default function CsvUploadPage() {
               <table className="w-full text-sm">
                 <thead className="sticky top-0 bg-lafa-surface z-10">
                   <tr className="border-b border-lafa-border">
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Driver ID</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Conductor</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Fecha</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Trip ID</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Hora inicio</th>
-                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Hora fin</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Costo</th>
-                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Propina</th>
-                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">Estado</th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Driver ID
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Conductor
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Fecha
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Trip ID
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Hora inicio
+                    </th>
+                    <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Hora fin
+                    </th>
+                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Costo
+                    </th>
+                    <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Propina
+                    </th>
+                    <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+                      Estado
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -266,24 +336,47 @@ export default function CsvUploadPage() {
                         row.estado === 'error'
                           ? 'bg-status-danger/5'
                           : row.estado === 'warning'
-                          ? 'bg-status-alert/5'
-                          : i % 2 === 0
-                          ? 'bg-transparent'
-                          : 'bg-lafa-bg/30'
+                            ? 'bg-status-alert/5'
+                            : i % 2 === 0
+                              ? 'bg-transparent'
+                              : 'bg-lafa-bg/30'
                       }`}
                     >
-                      <td className="px-4 py-3 text-lafa-text-primary font-mono">{row.driverId}</td>
-                      <td className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-status-alert' : 'text-lafa-text-secondary'}`}>
-                        {row.matchedDriverName ?? '—'}
-                        {row.matchType === 'fuzzy' && <span className="text-[10px] ml-1">(fuzzy)</span>}
+                      <td className="px-4 py-3 text-lafa-text-primary font-mono">
+                        {row.driverId}
                       </td>
-                      <td className="px-4 py-3 text-lafa-text-secondary">{row.fecha}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary font-mono text-xs">{row.tripId}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary">{row.horaInicio}</td>
-                      <td className="px-4 py-3 text-lafa-text-secondary">{row.horaFin}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-primary">${row.costo.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-right text-lafa-text-secondary">${row.propina.toFixed(2)}</td>
-                      <td className="px-4 py-3 text-center"><ValidationIcon estado={row.estado} msg={row.errorMsg} /></td>
+                      <td
+                        className={`px-4 py-3 text-sm ${row.matchType === 'fuzzy' ? 'text-status-alert' : 'text-lafa-text-secondary'}`}
+                      >
+                        {row.matchedDriverName ?? '—'}
+                        {row.matchType === 'fuzzy' && (
+                          <span className="text-[10px] ml-1">(fuzzy)</span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-lafa-text-secondary">
+                        {row.fecha}
+                      </td>
+                      <td className="px-4 py-3 text-lafa-text-secondary font-mono text-xs">
+                        {row.tripId}
+                      </td>
+                      <td className="px-4 py-3 text-lafa-text-secondary">
+                        {row.horaInicio}
+                      </td>
+                      <td className="px-4 py-3 text-lafa-text-secondary">
+                        {row.horaFin}
+                      </td>
+                      <td className="px-4 py-3 text-right text-lafa-text-primary">
+                        ${row.costo.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-right text-lafa-text-secondary">
+                        ${row.propina.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <ValidationIcon
+                          estado={row.estado}
+                          msg={row.errorMsg}
+                        />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -293,13 +386,22 @@ export default function CsvUploadPage() {
               <span className="text-xs text-lafa-text-secondary">
                 {csvRangeStart}–{csvRangeEnd} de {displayRows.length} filas
               </span>
-              <PaginationControls currentPage={csvPage} totalPages={csvTotalPages} onPageChange={setCsvPage} />
+              <PaginationControls
+                currentPage={csvPage}
+                totalPages={csvTotalPages}
+                onPageChange={setCsvPage}
+              />
             </div>
           </div>
 
           <div className="flex items-center justify-end gap-3">
             <button
-              onClick={() => { setActiveStep(1); setRows([]); setFileName(''); if (fileRef.current) fileRef.current.value = ''; }}
+              onClick={() => {
+                setActiveStep(1);
+                setRows([]);
+                setFileName('');
+                if (fileRef.current) fileRef.current.value = '';
+              }}
               className="px-5 py-2.5 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors duration-150"
             >
               {'← Atrás'}
@@ -309,7 +411,11 @@ export default function CsvUploadPage() {
               disabled={importableCount === 0 || isImporting}
               className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isImporting ? 'Importando...' : <>Importar {importableCount} viajes &rarr;</>}
+              {isImporting ? (
+                'Importando...'
+              ) : (
+                <>Importar {importableCount} viajes &rarr;</>
+              )}
             </button>
           </div>
         </>
@@ -320,28 +426,48 @@ export default function CsvUploadPage() {
           <div className="w-16 h-16 rounded-full bg-status-success/15 flex items-center justify-center mb-4">
             <CheckCircle size={32} className="text-status-success" />
           </div>
-          <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">{'Importación completada'}</h2>
+          <h2 className="text-lg font-semibold text-lafa-text-primary mb-2">
+            {'Importación completada'}
+          </h2>
           <div className="bg-lafa-accent/10 border border-lafa-accent/20 rounded-xl p-3 mb-4 text-sm text-lafa-text-primary text-center max-w-lg">
-            {importableCount} viajes importados, mapeados a {uniqueDrivers} conductores. {formatMXN(totalBilling)} facturados.
-            {warningCount > 0 ? ` ${warningCount} advertencia${warningCount !== 1 ? 's' : ''}.` : ''}
-            {errorCount > 0 ? ` ${errorCount} registro${errorCount !== 1 ? 's' : ''} con error descartado${errorCount !== 1 ? 's' : ''}.` : ''}
+            {importableCount} viajes importados, mapeados a {uniqueDrivers}{' '}
+            conductores. {formatMXN(totalBilling)} facturados.
+            {warningCount > 0
+              ? ` ${warningCount} advertencia${warningCount !== 1 ? 's' : ''}.`
+              : ''}
+            {errorCount > 0
+              ? ` ${errorCount} registro${errorCount !== 1 ? 's' : ''} con error descartado${errorCount !== 1 ? 's' : ''}.`
+              : ''}
           </div>
           <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4 mb-6 grid grid-cols-3 gap-6 text-center">
             <div>
               <p className="text-xs text-lafa-text-secondary">Viajes</p>
-              <p className="text-lg font-bold text-lafa-text-primary">{importableCount}</p>
+              <p className="text-lg font-bold text-lafa-text-primary">
+                {importableCount}
+              </p>
             </div>
             <div>
-              <p className="text-xs text-lafa-text-secondary">{'Facturación'}</p>
-              <p className="text-lg font-bold text-lafa-text-primary">{formatMXN(totalBilling)}</p>
+              <p className="text-xs text-lafa-text-secondary">
+                {'Facturación'}
+              </p>
+              <p className="text-lg font-bold text-lafa-text-primary">
+                {formatMXN(totalBilling)}
+              </p>
             </div>
             <div>
               <p className="text-xs text-lafa-text-secondary">Conductores</p>
-              <p className="text-lg font-bold text-lafa-text-primary">{uniqueDrivers}</p>
+              <p className="text-lg font-bold text-lafa-text-primary">
+                {uniqueDrivers}
+              </p>
             </div>
           </div>
           <button
-            onClick={() => { setActiveStep(1); setRows([]); setFileName(''); if (fileRef.current) fileRef.current.value = ''; }}
+            onClick={() => {
+              setActiveStep(1);
+              setRows([]);
+              setFileName('');
+              if (fileRef.current) fileRef.current.value = '';
+            }}
             className="px-5 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150"
           >
             Cargar otro archivo

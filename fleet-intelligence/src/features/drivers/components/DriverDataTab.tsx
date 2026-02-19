@@ -21,7 +21,12 @@ interface DriverDataTabProps {
   onDeactivate: () => void;
 }
 
-export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }: DriverDataTabProps) {
+export default function DriverDataTab({
+  driver,
+  isAdmin,
+  onEdit,
+  onDeactivate,
+}: DriverDataTabProps) {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState<DriverFormState>({
     fullName: '',
@@ -66,18 +71,20 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
     return (
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre completo</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Nombre completo
+          </label>
           <input
             value={form.fullName}
-            onChange={e => setForm({ ...form, fullName: e.target.value })}
+            onChange={(e) => setForm({ ...form, fullName: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <SearchableSelect
           label="Centro"
-          options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+          options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
           value={form.centerId}
-          onChange={v => setForm({ ...form, centerId: v })}
+          onChange={(v) => setForm({ ...form, centerId: v })}
           searchable={false}
         />
         <SearchableSelect
@@ -87,7 +94,7 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
             { value: 'nocturno', label: 'Nocturno' },
           ]}
           value={form.defaultShift}
-          onChange={v => setForm({ ...form, defaultShift: v })}
+          onChange={(v) => setForm({ ...form, defaultShift: v })}
           searchable={false}
         />
         {formError && <p className="text-sm text-status-danger">{formError}</p>}
@@ -114,15 +121,21 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
           <p className="text-xs text-lafa-text-secondary">Nombre completo</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{driver.fullName}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {driver.fullName}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">DiDi ID</p>
-          <p className="text-sm font-medium text-lafa-text-primary font-mono">{driver.didiDriverId}</p>
+          <p className="text-sm font-medium text-lafa-text-primary font-mono">
+            {driver.didiDriverId}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Centro</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{getCenterName(driver.centerId)}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {getCenterName(driver.centerId)}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Turno default</p>
@@ -130,7 +143,9 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Fecha ingreso</p>
-          <p className="text-sm font-medium text-lafa-text-primary">{driver.startDate}</p>
+          <p className="text-sm font-medium text-lafa-text-primary">
+            {driver.startDate}
+          </p>
         </div>
         <div>
           <p className="text-xs text-lafa-text-secondary">Status</p>
@@ -155,7 +170,9 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
         </div>
       )}
       {!isAdmin && (
-        <p className="text-xs text-lafa-text-secondary italic">Solo lectura. Contacta a un administrador para hacer cambios.</p>
+        <p className="text-xs text-lafa-text-secondary italic">
+          Solo lectura. Contacta a un administrador para hacer cambios.
+        </p>
       )}
     </>
   );

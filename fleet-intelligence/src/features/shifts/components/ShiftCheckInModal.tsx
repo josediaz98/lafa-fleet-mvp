@@ -15,7 +15,14 @@ interface ShiftCheckInModalProps {
   onCheckIn: (driverId: string, vehicleId: string) => Promise<void> | void;
 }
 
-export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, shifts, onCheckIn }: ShiftCheckInModalProps) {
+export default function ShiftCheckInModal({
+  open,
+  onClose,
+  drivers,
+  vehicles,
+  shifts,
+  onCheckIn,
+}: ShiftCheckInModalProps) {
   const [selectedDriverId, setSelectedDriverId] = useState('');
   const [selectedVehicleId, setSelectedVehicleId] = useState('');
   const [formError, setFormError] = useState('');
@@ -30,41 +37,61 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
     }
   }, [open]);
 
-  const selectedDriver = drivers.find(d => d.id === selectedDriverId);
-  const selectedVehicle = vehicles.find(v => v.id === selectedVehicleId);
-  const centerMismatch = selectedDriver && selectedVehicle && selectedDriver.centerId !== selectedVehicle.centerId;
+  const selectedDriver = drivers.find((d) => d.id === selectedDriverId);
+  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId);
+  const centerMismatch =
+    selectedDriver &&
+    selectedVehicle &&
+    selectedDriver.centerId !== selectedVehicle.centerId;
 
   useEffect(() => {
     if (formError) setFormError('');
   }, [selectedDriverId, selectedVehicleId]);
 
-  const driverOptions = useMemo(() => drivers.map(d => {
-    const center = CENTERS.find(c => c.id === d.centerId)?.name ?? '';
-    return {
-      value: d.id,
-      label: d.fullName,
-      sublabel: `${center} · ${d.defaultShift === 'diurno' ? 'Diurno' : 'Nocturno'}`,
-    };
-  }), [drivers]);
+  const driverOptions = useMemo(
+    () =>
+      drivers.map((d) => {
+        const center = CENTERS.find((c) => c.id === d.centerId)?.name ?? '';
+        return {
+          value: d.id,
+          label: d.fullName,
+          sublabel: `${center} · ${d.defaultShift === 'diurno' ? 'Diurno' : 'Nocturno'}`,
+        };
+      }),
+    [drivers],
+  );
 
-  const vehicleOptions = useMemo(() => vehicles.map(v => {
-    const center = CENTERS.find(c => c.id === v.centerId)?.name ?? '';
-    return {
-      value: v.id,
-      label: `${v.plate} · ${v.model}`,
-      sublabel: `${center} · ${v.oem}`,
-    };
-  }), [vehicles]);
+  const vehicleOptions = useMemo(
+    () =>
+      vehicles.map((v) => {
+        const center = CENTERS.find((c) => c.id === v.centerId)?.name ?? '';
+        return {
+          value: v.id,
+          label: `${v.plate} · ${v.model}`,
+          sublabel: `${center} · ${v.oem}`,
+        };
+      }),
+    [vehicles],
+  );
 
   const driverHadShiftToday = useMemo(() => {
     if (!selectedDriver) return false;
     const today = new Date().toISOString().slice(0, 10);
-    return shifts.some(s => s.driverId === selectedDriver.id && s.checkIn.startsWith(today) && s.status === 'completado');
+    return shifts.some(
+      (s) =>
+        s.driverId === selectedDriver.id &&
+        s.checkIn.startsWith(today) &&
+        s.status === 'completado',
+    );
   }, [selectedDriver, shifts]);
 
   const driverHasActiveShift = useMemo(() => {
     if (!selectedDriver) return false;
-    return shifts.some(s => s.driverId === selectedDriver.id && (s.status === 'en_turno' || s.status === 'pendiente_revision'));
+    return shifts.some(
+      (s) =>
+        s.driverId === selectedDriver.id &&
+        (s.status === 'en_turno' || s.status === 'pendiente_revision'),
+    );
   }, [selectedDriver, shifts]);
 
   async function handleSubmit() {
@@ -97,7 +124,9 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Centro</span>
-              <span className="text-lafa-text-primary font-medium">{CENTERS.find(c => c.id === selectedDriver.centerId)?.name}</span>
+              <span className="text-lafa-text-primary font-medium">
+                {CENTERS.find((c) => c.id === selectedDriver.centerId)?.name}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Turno default</span>
@@ -130,11 +159,15 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
           <div className="bg-lafa-bg rounded-lg p-3 text-xs space-y-1">
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">Centro</span>
-              <span className="text-lafa-text-primary font-medium">{CENTERS.find(c => c.id === selectedVehicle.centerId)?.name}</span>
+              <span className="text-lafa-text-primary font-medium">
+                {CENTERS.find((c) => c.id === selectedVehicle.centerId)?.name}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-lafa-text-secondary">OEM</span>
-              <span className="text-lafa-text-primary">{selectedVehicle.oem}</span>
+              <span className="text-lafa-text-primary">
+                {selectedVehicle.oem}
+              </span>
             </div>
           </div>
         )}
@@ -142,13 +175,13 @@ export default function ShiftCheckInModal({ open, onClose, drivers, vehicles, sh
         {centerMismatch && (
           <div className="flex items-center gap-2 bg-status-alert/10 border border-status-alert/20 rounded-lg p-3 text-xs text-status-alert">
             <AlertTriangle size={14} className="shrink-0" />
-            <span>El conductor y el vehículo pertenecen a centros diferentes.</span>
+            <span>
+              El conductor y el vehículo pertenecen a centros diferentes.
+            </span>
           </div>
         )}
 
-        {formError && (
-          <p className="text-sm text-status-danger">{formError}</p>
-        )}
+        {formError && <p className="text-sm text-status-danger">{formError}</p>}
 
         <div className="flex items-center justify-end gap-3 pt-2">
           <button

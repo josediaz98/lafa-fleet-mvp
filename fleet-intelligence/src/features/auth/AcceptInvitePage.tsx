@@ -29,11 +29,17 @@ export default function AcceptInvitePage() {
 
     let handled = false;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session?.user) {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (
+        (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') &&
+        session?.user
+      ) {
         handled = true;
         try {
-          const { data: profile } = await supabase!.from('profiles')
+          const { data: profile } = await supabase!
+            .from('profiles')
             .select('name, status')
             .eq('id', session.user.id)
             .single();
@@ -76,7 +82,9 @@ export default function AcceptInvitePage() {
     setLoading(true);
 
     // Set password
-    const { error: updateError } = await supabase!.auth.updateUser({ password });
+    const { error: updateError } = await supabase!.auth.updateUser({
+      password,
+    });
     if (updateError) {
       setLoading(false);
       setError(updateError.message);
@@ -84,9 +92,12 @@ export default function AcceptInvitePage() {
     }
 
     // Activate profile (uses RLS self-activate policy)
-    const { data: { user } } = await supabase!.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase!.auth.getUser();
     if (user) {
-      const { error: activateError } = await supabase!.from('profiles')
+      const { error: activateError } = await supabase!
+        .from('profiles')
         .update({ status: 'activo' })
         .eq('id', user.id);
 
@@ -100,17 +111,25 @@ export default function AcceptInvitePage() {
     setLoading(false);
     setDone(true);
 
-    const { data: profile } = await supabase!.from('profiles')
-      .select('*').eq('id', user!.id).single();
+    const { data: profile } = await supabase!
+      .from('profiles')
+      .select('*')
+      .eq('id', user!.id)
+      .single();
     if (profile) {
       const session = {
-        userId: profile.id, name: profile.name,
-        role: profile.role as UserRole, centerId: profile.center_id,
+        userId: profile.id,
+        name: profile.name,
+        role: profile.role as UserRole,
+        centerId: profile.center_id,
       };
       localStorage.setItem('lafa_session', JSON.stringify(session));
       dispatch({ type: 'LOGIN', payload: session });
       const data = await fetchAllData();
-      dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } });
+      dispatch({
+        type: 'HYDRATE',
+        payload: { ...data, dataSource: 'supabase' as const },
+      });
       showToast('success', `Bienvenido, ${profile.name}`);
     }
     setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
@@ -135,8 +154,8 @@ export default function AcceptInvitePage() {
                 Enlace no válido
               </h1>
               <p className="text-sm text-lafa-text-secondary">
-                El enlace de invitación ha expirado o ya fue utilizado.
-                Solicita una nueva invitación a tu administrador.
+                El enlace de invitación ha expirado o ya fue utilizado. Solicita
+                una nueva invitación a tu administrador.
               </p>
               <Link
                 to="/login"
@@ -148,7 +167,9 @@ export default function AcceptInvitePage() {
           ) : (
             <>
               <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
-              <p className="text-sm text-lafa-text-secondary">Verificando invitación...</p>
+              <p className="text-sm text-lafa-text-secondary">
+                Verificando invitación...
+              </p>
             </>
           )}
         </div>
@@ -195,17 +216,25 @@ export default function AcceptInvitePage() {
                   type="password"
                   required
                   value={password}
-                  onChange={e => { setPassword(e.target.value); setError(''); }}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError('');
+                  }}
                   placeholder="Contraseña"
                   className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
                 />
-                <p className="text-xs text-lafa-text-secondary mt-1">Minimo 6 caracteres</p>
+                <p className="text-xs text-lafa-text-secondary mt-1">
+                  Minimo 6 caracteres
+                </p>
               </div>
               <input
                 type="password"
                 required
                 value={confirm}
-                onChange={e => { setConfirm(e.target.value); setError(''); }}
+                onChange={(e) => {
+                  setConfirm(e.target.value);
+                  setError('');
+                }}
                 placeholder="Confirmar contraseña"
                 className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
               />

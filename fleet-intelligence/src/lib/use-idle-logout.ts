@@ -12,11 +12,13 @@ export function useIdleLogout(onLogout: () => void) {
       timerRef.current = setTimeout(stableLogout, IDLE_TIMEOUT);
     }
     const events = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    events.forEach(e => window.addEventListener(e, resetTimer, { passive: true }));
+    events.forEach((e) =>
+      window.addEventListener(e, resetTimer, { passive: true }),
+    );
     resetTimer();
     return () => {
       clearTimeout(timerRef.current);
-      events.forEach(e => window.removeEventListener(e, resetTimer));
+      events.forEach((e) => window.removeEventListener(e, resetTimer));
     };
   }, [stableLogout]);
 }

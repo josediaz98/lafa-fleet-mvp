@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
       const redirectTo = `${window.location.origin}${import.meta.env.BASE_URL}reset-password`;
       await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo });
     } else {
-      await new Promise(r => setTimeout(r, 1200));
+      await new Promise((r) => setTimeout(r, 1200));
     }
 
     // Always show success to prevent email enumeration
@@ -44,7 +44,8 @@ export default function ForgotPasswordPage() {
               Revisa tu correo
             </h1>
             <p className="text-sm text-lafa-text-secondary leading-relaxed">
-              Si tu cuenta existe, recibirás un enlace para restablecer tu contraseña.
+              Si tu cuenta existe, recibirás un enlace para restablecer tu
+              contraseña.
             </p>
             <Link
               to="/login"
@@ -70,7 +71,7 @@ export default function ForgotPasswordPage() {
                 type="email"
                 required
                 value={email}
-                onChange={e => setEmail(e.target.value)}
+                onChange={(e) => setEmail(e.target.value)}
                 placeholder="correo@ejemplo.com"
                 className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
               />

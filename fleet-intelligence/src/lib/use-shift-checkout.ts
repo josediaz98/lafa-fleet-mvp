@@ -12,7 +12,7 @@ export function useShiftCheckOut() {
   const [closingShiftId, setClosingShiftId] = useState<string | null>(null);
 
   async function handleCheckOut(shiftId: string) {
-    const shift = shifts.find(s => s.id === shiftId);
+    const shift = shifts.find((s) => s.id === shiftId);
     if (!shift) return;
 
     const hours = shiftHours(shift.checkIn);
@@ -31,7 +31,13 @@ export function useShiftCheckOut() {
     try {
       const checkOutTime = new Date().toISOString();
       await actionCheckOut(
-        { shiftId, checkOut: checkOutTime, hoursWorked: hours, vehicleId: shift.vehicleId || undefined, driverName: shift.driverName },
+        {
+          shiftId,
+          checkOut: checkOutTime,
+          hoursWorked: hours,
+          vehicleId: shift.vehicleId || undefined,
+          driverName: shift.driverName,
+        },
         ctx,
       );
     } finally {

@@ -9,11 +9,19 @@ interface SlidePanelProps {
   children: ReactNode;
 }
 
-export default function SlidePanel({ open, onClose, title, children }: SlidePanelProps) {
+export default function SlidePanel({
+  open,
+  onClose,
+  title,
+  children,
+}: SlidePanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
   const titleId = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -39,7 +47,12 @@ export default function SlidePanel({ open, onClose, title, children }: SlidePane
         className="fixed top-0 right-0 bottom-0 z-[71] w-full max-w-md bg-lafa-surface border-l border-lafa-border shadow-2xl overflow-y-auto transition-transform duration-150"
       >
         <div className="sticky top-0 z-10 bg-lafa-surface border-b border-lafa-border px-6 py-4 flex items-center justify-between">
-          <h2 id={titleId} className="text-lg font-semibold text-lafa-text-primary truncate">{title}</h2>
+          <h2
+            id={titleId}
+            className="text-lg font-semibold text-lafa-text-primary truncate"
+          >
+            {title}
+          </h2>
           <button
             onClick={onClose}
             aria-label="Cerrar panel"

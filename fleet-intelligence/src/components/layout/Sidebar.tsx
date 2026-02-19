@@ -33,8 +33,18 @@ const NAV_GROUPS: NavGroup[] = [
   {
     label: 'Operaciones',
     items: [
-      { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, adminOnly: false },
-      { to: '/shifts', label: 'Gestión de Turnos', icon: Clock, adminOnly: false },
+      {
+        to: '/dashboard',
+        label: 'Dashboard',
+        icon: LayoutDashboard,
+        adminOnly: false,
+      },
+      {
+        to: '/shifts',
+        label: 'Gestión de Turnos',
+        icon: Clock,
+        adminOnly: false,
+      },
     ],
   },
   {
@@ -70,17 +80,21 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   const navigate = useNavigate();
 
   const isAdmin = session?.role === 'admin';
-  const visibleGroups = NAV_GROUPS
-    .map(group => ({
-      ...group,
-      items: group.items.filter(item => !item.adminOnly || isAdmin),
-    }))
-    .filter(group => group.items.length > 0);
-  const initials = session?.name?.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase() ?? '';
+  const visibleGroups = NAV_GROUPS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => !item.adminOnly || isAdmin),
+  })).filter((group) => group.items.length > 0);
+  const initials =
+    session?.name
+      ?.split(' ')
+      .map((w) => w[0])
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() ?? '';
   const centerName = session?.centerId
-    ? getCenterName(session.centerId)
-      ?? CENTERS.find(c => c.id === session.centerId)?.name
-      ?? '—'
+    ? (getCenterName(session.centerId) ??
+      CENTERS.find((c) => c.id === session.centerId)?.name ??
+      '—')
     : null;
 
   function handleLogout() {
@@ -95,7 +109,10 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
   return (
     <>
       {mobileOpen && (
-        <div className="fixed inset-0 z-40 bg-black/50 lg:hidden" onClick={onClose} />
+        <div
+          className="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          onClick={onClose}
+        />
       )}
       <aside
         className={`fixed left-0 top-0 h-screen w-64 bg-lafa-sidebar border-r border-lafa-border flex flex-col z-50 transition-transform duration-300 lg:translate-x-0 ${
@@ -106,12 +123,20 @@ export default function Sidebar({ mobileOpen, onClose }: SidebarProps) {
           <div className="flex items-center gap-3">
             <LafaLogo className="h-5 w-auto" />
           </div>
-          <button onClick={onClose} aria-label="Cerrar menu" className="lg:hidden p-1 rounded hover:bg-lafa-border transition-colors duration-150">
+          <button
+            onClick={onClose}
+            aria-label="Cerrar menu"
+            className="lg:hidden p-1 rounded hover:bg-lafa-border transition-colors duration-150"
+          >
             <X size={18} className="text-lafa-text-secondary" />
           </button>
         </div>
 
-        <nav className="flex-1 px-3 py-2" role="navigation" aria-label="Navegacion principal">
+        <nav
+          className="flex-1 px-3 py-2"
+          role="navigation"
+          aria-label="Navegacion principal"
+        >
           {visibleGroups.map((group, idx) => (
             <div key={group.label} className={idx > 0 ? 'mt-5' : ''}>
               <p className="px-3 mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-lafa-text-secondary/60">

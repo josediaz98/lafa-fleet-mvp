@@ -2,7 +2,7 @@ import { CENTERS } from '@/data/constants';
 
 export function getCenterName(centerId: string | null): string {
   if (!centerId) return 'Todos';
-  return CENTERS.find(c => c.id === centerId)?.name ?? '';
+  return CENTERS.find((c) => c.id === centerId)?.name ?? '';
 }
 
 export function formatMXN(amount: number): string {
@@ -26,6 +26,8 @@ export function timeAgo(isoDate: string): string {
   const weeks = Math.floor(days / 7);
   if (weeks < 4) return `hace ${weeks}sem`;
   return new Date(isoDate).toLocaleDateString('es-MX', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 }

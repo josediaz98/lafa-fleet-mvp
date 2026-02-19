@@ -8,7 +8,9 @@ interface DriverPayrollTabProps {
   payrollHistory: PayrollRecord[];
 }
 
-export default function DriverPayrollTab({ payrollHistory }: DriverPayrollTabProps) {
+export default function DriverPayrollTab({
+  payrollHistory,
+}: DriverPayrollTabProps) {
   const navigate = useNavigate();
 
   if (payrollHistory.length === 0) {
@@ -27,20 +29,38 @@ export default function DriverPayrollTab({ payrollHistory }: DriverPayrollTabPro
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
-              <th className="text-left px-3 py-2 text-xs font-medium text-lafa-text-secondary">Semana</th>
-              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Horas</th>
-              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Facturación</th>
-              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">Pago</th>
-              <th className="text-center px-3 py-2 text-xs font-medium text-lafa-text-secondary">Meta</th>
+              <th className="text-left px-3 py-2 text-xs font-medium text-lafa-text-secondary">
+                Semana
+              </th>
+              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">
+                Horas
+              </th>
+              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">
+                Facturación
+              </th>
+              <th className="text-right px-3 py-2 text-xs font-medium text-lafa-text-secondary">
+                Pago
+              </th>
+              <th className="text-center px-3 py-2 text-xs font-medium text-lafa-text-secondary">
+                Meta
+              </th>
             </tr>
           </thead>
           <tbody>
-            {payrollHistory.map(row => (
+            {payrollHistory.map((row) => (
               <tr key={row.id} className="border-b border-lafa-border/50">
-                <td className="px-3 py-2 text-lafa-text-primary text-xs">{row.weekLabel ?? '—'}</td>
-                <td className="px-3 py-2 text-right text-lafa-text-secondary">{row.hoursWorked}h</td>
-                <td className="px-3 py-2 text-right text-lafa-text-secondary">{formatMXN(row.totalBilled)}</td>
-                <td className="px-3 py-2 text-right font-medium text-lafa-text-primary">{formatMXN(row.totalPay)}</td>
+                <td className="px-3 py-2 text-lafa-text-primary text-xs">
+                  {row.weekLabel ?? '—'}
+                </td>
+                <td className="px-3 py-2 text-right text-lafa-text-secondary">
+                  {row.hoursWorked}h
+                </td>
+                <td className="px-3 py-2 text-right text-lafa-text-secondary">
+                  {formatMXN(row.totalBilled)}
+                </td>
+                <td className="px-3 py-2 text-right font-medium text-lafa-text-primary">
+                  {formatMXN(row.totalPay)}
+                </td>
                 <td className="px-3 py-2 text-center">
                   {row.goalMet ? (
                     <span className="text-status-success text-xs">Sí</span>

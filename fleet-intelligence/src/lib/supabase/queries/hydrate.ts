@@ -1,12 +1,32 @@
 import { supabase } from '../client';
 import type {
-  DbCenter, DbProfile, DbDriver, DbVehicle, DbShift, DbTrip, DbWeeklyPayroll,
+  DbCenter,
+  DbProfile,
+  DbDriver,
+  DbVehicle,
+  DbShift,
+  DbTrip,
+  DbWeeklyPayroll,
 } from '../types';
 import {
   setLookupMaps,
-  mapCenter, mapDriver, mapVehicle, mapShift, mapTrip, mapProfile, mapPayroll,
+  mapCenter,
+  mapDriver,
+  mapVehicle,
+  mapShift,
+  mapTrip,
+  mapProfile,
+  mapPayroll,
 } from '@/lib/mappers';
-import type { Center, Driver, Vehicle, Shift, Trip, PayrollRecord, User } from '@/types';
+import type {
+  Center,
+  Driver,
+  Vehicle,
+  Shift,
+  Trip,
+  PayrollRecord,
+  User,
+} from '@/types';
 
 // ─────────────────────────────────────────────────────────────
 // Constants shared with paginated queries
@@ -19,13 +39,16 @@ export const PAGE_SIZE = 500;
 // Date range utilities
 // ─────────────────────────────────────────────────────────────
 
-export function getDateRange(weeksBack: number = WEEKS_TO_FETCH): { start: string; end: string } {
+export function getDateRange(weeksBack: number = WEEKS_TO_FETCH): {
+  start: string;
+  end: string;
+} {
   const now = new Date();
   const end = new Date(now);
   end.setDate(end.getDate() + 7); // Include future week for edge cases
 
   const start = new Date(now);
-  start.setDate(start.getDate() - (weeksBack * 7));
+  start.setDate(start.getDate() - weeksBack * 7);
 
   return {
     start: start.toISOString().slice(0, 10),
@@ -76,58 +99,72 @@ export async function fetchAllData(): Promise<HydrateData> {
 
   const range = getDateRange(WEEKS_TO_FETCH);
 
-  const [centersRes, driversRes, vehiclesRes, profilesRes, shiftsRes, tripsRes, payrollRes, activeShiftsRes] =
-    await Promise.all([
-      // Static data - fetch all
-      supabase.from('centers').select('*'),
-      supabase.from('drivers').select('*'),
-      supabase.from('vehicles').select('*'),
-      supabase.from('profiles').select('*'),
+  const [
+    centersRes,
+    driversRes,
+    vehiclesRes,
+    profilesRes,
+    shiftsRes,
+    tripsRes,
+    payrollRes,
+    activeShiftsRes,
+  ] = await Promise.all([
+    // Static data - fetch all
+    supabase.from('centers').select('*'),
+    supabase.from('drivers').select('*'),
+    supabase.from('vehicles').select('*'),
+    supabase.from('profiles').select('*'),
 
-      // Time-series data - fetch with date filter
-      supabase
-        .from('shifts')
-        .select('*')
-        .gte('check_in', range.start)
-        .order('check_in', { ascending: false })
-        .limit(PAGE_SIZE * 4),
+    // Time-series data - fetch with date filter
+    supabase
+      .from('shifts')
+      .select('*')
+      .gte('check_in', range.start)
+      .order('check_in', { ascending: false })
+      .limit(PAGE_SIZE * 4),
 
-      supabase
-        .from('trips')
-        .select('*')
-        .gte('date', range.start)
-        .order('date', { ascending: false })
-        .limit(PAGE_SIZE * 10),
+    supabase
+      .from('trips')
+      .select('*')
+      .gte('date', range.start)
+      .order('date', { ascending: false })
+      .limit(PAGE_SIZE * 10),
 
-      supabase
-        .from('weekly_payroll')
-        .select('*')
-        .gte('week_start', range.start)
-        .order('week_start', { ascending: false })
-        .limit(PAGE_SIZE),
+    supabase
+      .from('weekly_payroll')
+      .select('*')
+      .gte('week_start', range.start)
+      .order('week_start', { ascending: false })
+      .limit(PAGE_SIZE),
 
-      // ISSUE-2 fix: Dedicated query for active shifts (no date filter) — prevents false reconciliation
-      supabase
-        .from('shifts')
-        .select('vehicle_id')
-        .eq('status', 'en_turno'),
-    ]);
+    // ISSUE-2 fix: Dedicated query for active shifts (no date filter) — prevents false reconciliation
+    supabase.from('shifts').select('vehicle_id').eq('status', 'en_turno'),
+  ]);
 
   // C4: Check individual query errors — critical tables throw, non-critical degrade gracefully
   const criticalErrors: string[] = [];
-  if (centersRes.error) criticalErrors.push(`centers: ${centersRes.error.message}`);
-  if (driversRes.error) criticalErrors.push(`drivers: ${driversRes.error.message}`);
-  if (vehiclesRes.error) criticalErrors.push(`vehicles: ${vehiclesRes.error.message}`);
-  if (shiftsRes.error) criticalErrors.push(`shifts: ${shiftsRes.error.message}`);
+  if (centersRes.error)
+    criticalErrors.push(`centers: ${centersRes.error.message}`);
+  if (driversRes.error)
+    criticalErrors.push(`drivers: ${driversRes.error.message}`);
+  if (vehiclesRes.error)
+    criticalErrors.push(`vehicles: ${vehiclesRes.error.message}`);
+  if (shiftsRes.error)
+    criticalErrors.push(`shifts: ${shiftsRes.error.message}`);
   if (tripsRes.error) criticalErrors.push(`trips: ${tripsRes.error.message}`);
-  if (payrollRes.error) criticalErrors.push(`weekly_payroll: ${payrollRes.error.message}`);
-  if (activeShiftsRes.error) criticalErrors.push(`active_shifts: ${activeShiftsRes.error.message}`);
+  if (payrollRes.error)
+    criticalErrors.push(`weekly_payroll: ${payrollRes.error.message}`);
+  if (activeShiftsRes.error)
+    criticalErrors.push(`active_shifts: ${activeShiftsRes.error.message}`);
   if (criticalErrors.length > 0) {
     throw new Error(`Failed to fetch data: ${criticalErrors.join('; ')}`);
   }
   // profiles may be incomplete for supervisors (RLS) — not critical
   if (profilesRes.error) {
-    console.warn('Profiles query returned error (may be RLS-scoped):', profilesRes.error.message);
+    console.warn(
+      'Profiles query returned error (may be RLS-scoped):',
+      profilesRes.error.message,
+    );
   }
 
   const centers = (centersRes.data ?? []) as DbCenter[];
@@ -144,16 +181,28 @@ export async function fetchAllData(): Promise<HydrateData> {
   // BUG-1 fix: Reconcile vehicle status — if a vehicle is 'en_turno' but has no active shift, reset to 'disponible'
   // ISSUE-2 fix: Use dedicated active shifts query (no date filter) instead of windowed shifts
   const activeShiftVehicleIds = new Set(
-    ((activeShiftsRes.data ?? []) as { vehicle_id: string }[]).map(s => s.vehicle_id),
+    ((activeShiftsRes.data ?? []) as { vehicle_id: string }[]).map(
+      (s) => s.vehicle_id,
+    ),
   );
   for (const v of vehicles) {
     if (v.status === 'en_turno' && !activeShiftVehicleIds.has(v.id)) {
-      console.warn(`[fetchAllData] Reconciling vehicle ${v.id} (${v.plate}): en_turno with no active shift → disponible`);
+      console.warn(
+        `[fetchAllData] Reconciling vehicle ${v.id} (${v.plate}): en_turno with no active shift → disponible`,
+      );
       v.status = 'disponible';
       // Fire-and-forget DB correction
-      supabase.from('vehicles').update({ status: 'disponible' }).eq('id', v.id).then(({ error }) => {
-        if (error) console.error(`[fetchAllData] Failed to reconcile vehicle ${v.id} in DB:`, error.message);
-      });
+      supabase
+        .from('vehicles')
+        .update({ status: 'disponible' })
+        .eq('id', v.id)
+        .then(({ error }) => {
+          if (error)
+            console.error(
+              `[fetchAllData] Failed to reconcile vehicle ${v.id} in DB:`,
+              error.message,
+            );
+        });
     }
   }
 
@@ -182,7 +231,7 @@ export async function fetchAllData(): Promise<HydrateData> {
 
 export async function fetchShiftsByDateRange(
   startDate: string,
-  endDate: string
+  endDate: string,
 ): Promise<Shift[]> {
   if (!supabase) throw new Error('Supabase not configured');
 
@@ -199,7 +248,7 @@ export async function fetchShiftsByDateRange(
 
 export async function fetchTripsByDateRange(
   startDate: string,
-  endDate: string
+  endDate: string,
 ): Promise<Trip[]> {
   if (!supabase) throw new Error('Supabase not configured');
 

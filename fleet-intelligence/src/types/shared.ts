@@ -1,7 +1,12 @@
 // ---- Status Enums (M1+M2) ----
 
 export type DriverStatus = 'activo' | 'inactivo';
-export type VehicleStatus = 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
+export type VehicleStatus =
+  | 'disponible'
+  | 'en_turno'
+  | 'cargando'
+  | 'mantenimiento'
+  | 'fuera_de_servicio';
 export type ShiftStatus = 'en_turno' | 'completado' | 'pendiente_revision';
 export type UserStatus = 'activo' | 'inactivo' | 'invitado';
 export type PayrollStatus = 'borrador' | 'cerrado' | 'superseded';
@@ -128,10 +133,19 @@ export interface AppState {
 // ---- Actions ----
 
 export type Action =
-  | { type: 'HYDRATE'; payload: Omit<AppState, 'session' | 'hydrated' | 'authChecked'> }
+  | {
+      type: 'HYDRATE';
+      payload: Omit<AppState, 'session' | 'hydrated' | 'authChecked'>;
+    }
   | { type: 'ADD_SHIFT'; payload: Shift }
-  | { type: 'CLOSE_SHIFT'; payload: { shiftId: string; checkOut: string; hoursWorked: number } }
-  | { type: 'UPDATE_VEHICLE_STATUS'; payload: { vehicleId: string; status: VehicleStatus } }
+  | {
+      type: 'CLOSE_SHIFT';
+      payload: { shiftId: string; checkOut: string; hoursWorked: number };
+    }
+  | {
+      type: 'UPDATE_VEHICLE_STATUS';
+      payload: { vehicleId: string; status: VehicleStatus };
+    }
   | { type: 'IMPORT_TRIPS'; payload: Trip[] }
   | { type: 'ADD_DRIVER'; payload: Driver }
   | { type: 'UPDATE_DRIVER'; payload: Driver }
@@ -142,12 +156,28 @@ export type Action =
   | { type: 'UPDATE_USER'; payload: User }
   | { type: 'DEACTIVATE_USER'; payload: string }
   | { type: 'CLOSE_PAYROLL_WEEK'; payload: PayrollRecord[] }
-  | { type: 'RERUN_PAYROLL_CLOSE'; payload: { weekStart: string; newRecords: PayrollRecord[] } }
+  | {
+      type: 'RERUN_PAYROLL_CLOSE';
+      payload: { weekStart: string; newRecords: PayrollRecord[] };
+    }
   | { type: 'LOGIN'; payload: Session }
   | { type: 'LOGOUT' }
-  | { type: 'APPEND_SHIFTS'; payload: { shifts: Shift[]; oldestDate: string; hasMore: boolean } }
-  | { type: 'APPEND_TRIPS'; payload: { trips: Trip[]; oldestDate: string; hasMore: boolean } }
-  | { type: 'APPEND_PAYROLL'; payload: { payroll: PayrollRecord[]; oldestDate: string; hasMore: boolean } }
+  | {
+      type: 'APPEND_SHIFTS';
+      payload: { shifts: Shift[]; oldestDate: string; hasMore: boolean };
+    }
+  | {
+      type: 'APPEND_TRIPS';
+      payload: { trips: Trip[]; oldestDate: string; hasMore: boolean };
+    }
+  | {
+      type: 'APPEND_PAYROLL';
+      payload: {
+        payroll: PayrollRecord[];
+        oldestDate: string;
+        hasMore: boolean;
+      };
+    }
   | { type: 'AUTH_CHECKED' }
   // C2: Rollback actions for optimistic update failures
   | { type: 'REMOVE_SHIFT'; payload: string }
@@ -159,4 +189,7 @@ export type Action =
   | { type: 'REVERT_CLOSE_SHIFT'; payload: string }
   | { type: 'REACTIVATE_DRIVER'; payload: string }
   | { type: 'REACTIVATE_USER'; payload: string }
-  | { type: 'REVERT_RERUN_PAYROLL'; payload: { weekStart: string; removedIds: string[] } };
+  | {
+      type: 'REVERT_RERUN_PAYROLL';
+      payload: { weekStart: string; removedIds: string[] };
+    };

@@ -4,7 +4,10 @@ import type { PayrollRecord } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useActionContext } from '@/lib/action-context';
-import { calculateWeeklyPay, exportPayrollCsv } from '@/features/payroll/lib/payroll';
+import {
+  calculateWeeklyPay,
+  exportPayrollCsv,
+} from '@/features/payroll/lib/payroll';
 import { buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
 import { usePayrollData, usePayrollStats } from './lib/use-payroll-data';
@@ -20,9 +23,17 @@ type PayrollTab = 'actual' | 'cerradas';
 
 export default function PayrollPage() {
   const {
-    drivers, trips, shifts, closedPayroll, session,
-    week, isCurrentWeekClosed, previousWeekHours,
-    livePayroll, closedWeeks, filterByCenter,
+    drivers,
+    trips,
+    shifts,
+    closedPayroll,
+    session,
+    week,
+    isCurrentWeekClosed,
+    previousWeekHours,
+    livePayroll,
+    closedWeeks,
+    filterByCenter,
   } = usePayrollData();
   const ctx = useActionContext();
   const { isAdmin } = useCenterFilter();
@@ -40,13 +51,20 @@ export default function PayrollPage() {
   const currentClosed = filterByCenter(closedWeeks.get(selectedWeek) ?? []);
   const displayData = tab === 'actual' ? livePayroll : currentClosed;
 
-  const { weekSummary, totalNomina, driversWithGoal, goalPct, totalBilled, avgPerHour } = usePayrollStats(displayData);
+  const {
+    weekSummary,
+    totalNomina,
+    driversWithGoal,
+    goalPct,
+    totalBilled,
+    avgPerHour,
+  } = usePayrollStats(displayData);
 
   const selectedRowTrips = useMemo(() => {
     if (!selectedRow) return [];
-    const driver = drivers.find(d => d.fullName === selectedRow.driverName);
+    const driver = drivers.find((d) => d.fullName === selectedRow.driverName);
     if (!driver) return [];
-    return trips.filter(t => t.didiDriverId === driver.didiDriverId);
+    return trips.filter((t) => t.didiDriverId === driver.didiDriverId);
   }, [selectedRow, drivers, trips]);
 
   async function handleCloseWeek() {
@@ -61,9 +79,21 @@ export default function PayrollPage() {
 
     setIsClosing(true);
     try {
-      const activeDrivers = filterByCenter(drivers).filter(d => d.status === 'activo');
+      const activeDrivers = filterByCenter(drivers).filter(
+        (d) => d.status === 'activo',
+      );
       const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
-      const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, week.label, week.start, week.end, session?.name ?? '', 1, previousWeekHours);
+      const records = calculateWeeklyPay(
+        activeDrivers,
+        trips,
+        shiftSummaries,
+        week.label,
+        week.start,
+        week.end,
+        session?.name ?? '',
+        1,
+        previousWeekHours,
+      );
       await actionClosePayroll(records, week.label, ctx);
       setTab('cerradas');
       setSelectedWeek(week.label);
@@ -75,7 +105,8 @@ export default function PayrollPage() {
   async function handleRerun() {
     const ok = await confirm({
       title: 'Re-ejecutar cierre',
-      description: 'Se recalculará la nómina de la semana cerrada. La versión anterior se marcará como superseded.',
+      description:
+        'Se recalculará la nómina de la semana cerrada. La versión anterior se marcará como superseded.',
       confirmLabel: 'Re-ejecutar',
       variant: 'danger',
     });
@@ -83,14 +114,35 @@ export default function PayrollPage() {
 
     setIsClosing(true);
     try {
-      const closedForWeek = closedPayroll.filter(p => p.weekLabel === selectedWeek && p.status === 'cerrado');
-      const latestVersion = Math.max(...closedForWeek.map(p => p.version ?? 1), 0);
+      const closedForWeek = closedPayroll.filter(
+        (p) => p.weekLabel === selectedWeek && p.status === 'cerrado',
+      );
+      const latestVersion = Math.max(
+        ...closedForWeek.map((p) => p.version ?? 1),
+        0,
+      );
       const rerunWeekStart = closedForWeek[0]?.weekStart ?? week.start;
       const rerunWeekEnd = closedForWeek[0]?.weekEnd ?? week.end;
-      const activeDrivers = drivers.filter(d => d.status === 'activo');
+      const activeDrivers = drivers.filter((d) => d.status === 'activo');
       const shiftSummaries = buildShiftSummaries(activeDrivers, shifts);
-      const records = calculateWeeklyPay(activeDrivers, trips, shiftSummaries, selectedWeek, rerunWeekStart, rerunWeekEnd, session?.name ?? '', latestVersion + 1, previousWeekHours);
-      await actionRerunPayroll(rerunWeekStart, selectedWeek, records, latestVersion + 1, ctx);
+      const records = calculateWeeklyPay(
+        activeDrivers,
+        trips,
+        shiftSummaries,
+        selectedWeek,
+        rerunWeekStart,
+        rerunWeekEnd,
+        session?.name ?? '',
+        latestVersion + 1,
+        previousWeekHours,
+      );
+      await actionRerunPayroll(
+        rerunWeekStart,
+        selectedWeek,
+        records,
+        latestVersion + 1,
+        ctx,
+      );
     } finally {
       setIsClosing(false);
     }
@@ -106,7 +158,9 @@ export default function PayrollPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <h1 className="text-2xl font-semibold text-lafa-text-primary">{'Nómina'}</h1>
+        <h1 className="text-2xl font-semibold text-lafa-text-primary">
+          {'Nómina'}
+        </h1>
         <div className="flex items-center gap-3 flex-wrap">
           <CenterFilterDropdown />
           {tab === 'actual' && isAdmin && !isCurrentWeekClosed && (
@@ -140,20 +194,28 @@ export default function PayrollPage() {
         <button
           onClick={() => setTab('actual')}
           className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
-            tab === 'actual' ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+            tab === 'actual'
+              ? 'text-lafa-accent'
+              : 'text-lafa-text-secondary hover:text-lafa-text-primary'
           }`}
         >
           Semana actual (borrador)
-          {tab === 'actual' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />}
+          {tab === 'actual' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
+          )}
         </button>
         <button
           onClick={() => setTab('cerradas')}
           className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
-            tab === 'cerradas' ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+            tab === 'cerradas'
+              ? 'text-lafa-accent'
+              : 'text-lafa-text-secondary hover:text-lafa-text-primary'
           }`}
         >
           Cerradas
-          {tab === 'cerradas' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />}
+          {tab === 'cerradas' && (
+            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
+          )}
         </button>
       </div>
 
@@ -161,7 +223,9 @@ export default function PayrollPage() {
         {tab === 'actual' && !isCurrentWeekClosed && (
           <p className="text-sm text-lafa-text-secondary">
             {'Semana: '}
-            <span className="text-lafa-text-primary font-medium">{week.label}</span>
+            <span className="text-lafa-text-primary font-medium">
+              {week.label}
+            </span>
             <span className="ml-2 text-status-alert">(borrador en vivo)</span>
           </p>
         )}
@@ -169,9 +233,9 @@ export default function PayrollPage() {
           <div className="flex items-center gap-2">
             <span className="text-sm text-lafa-text-secondary">Semana:</span>
             <SearchableSelect
-              options={weekOptions.map(w => ({ value: w, label: w }))}
+              options={weekOptions.map((w) => ({ value: w, label: w }))}
               value={selectedWeek}
-              onChange={v => setSelectedWeek(v)}
+              onChange={(v) => setSelectedWeek(v)}
               searchable={false}
             />
           </div>
@@ -179,7 +243,9 @@ export default function PayrollPage() {
         {tab === 'cerradas' && weekOptions.length === 1 && (
           <p className="text-sm text-lafa-text-secondary">
             {'Semana: '}
-            <span className="text-lafa-text-primary font-medium">{selectedWeek}</span>
+            <span className="text-lafa-text-primary font-medium">
+              {selectedWeek}
+            </span>
           </p>
         )}
       </div>
@@ -191,7 +257,10 @@ export default function PayrollPage() {
           description={`La nómina de ${week.label} ya fue cerrada. Revisa los resultados en la pestaña Cerradas.`}
         >
           <button
-            onClick={() => { setTab('cerradas'); setSelectedWeek(week.label); }}
+            onClick={() => {
+              setTab('cerradas');
+              setSelectedWeek(week.label);
+            }}
             className="mt-3 px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors duration-150"
           >
             Ver en Cerradas
@@ -203,7 +272,9 @@ export default function PayrollPage() {
         <EmptyState
           icon={Upload}
           title="Sin datos de viajes"
-          description={'Importa viajes desde Carga CSV para ver el cálculo de nómina en vivo.'}
+          description={
+            'Importa viajes desde Carga CSV para ver el cálculo de nómina en vivo.'
+          }
         />
       )}
 

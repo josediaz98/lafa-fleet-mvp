@@ -6,7 +6,11 @@ interface PaginationControlsProps {
   onPageChange: (page: number) => void;
 }
 
-export default function PaginationControls({ currentPage, totalPages, onPageChange }: PaginationControlsProps) {
+export default function PaginationControls({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationControlsProps) {
   return (
     <div className="flex items-center gap-2">
       <button

@@ -32,16 +32,23 @@ export interface VehicleFormData {
 export function validateVehicleForm(
   form: VehicleFormData,
   existingPlates: string[],
-  currentPlate?: string
+  currentPlate?: string,
 ): string | null {
-  if (!isRequired(form.plate) || !isRequired(form.model) || !isRequired(form.oem) || !isRequired(form.centerId)) {
+  if (
+    !isRequired(form.plate) ||
+    !isRequired(form.model) ||
+    !isRequired(form.oem) ||
+    !isRequired(form.centerId)
+  ) {
     return 'Todos los campos son obligatorios.';
   }
 
   const normalizedPlate = form.plate.trim().toLowerCase();
-  const isDuplicate = existingPlates.some(p => {
+  const isDuplicate = existingPlates.some((p) => {
     const existing = p.toLowerCase();
-    return existing === normalizedPlate && existing !== currentPlate?.toLowerCase();
+    return (
+      existing === normalizedPlate && existing !== currentPlate?.toLowerCase()
+    );
   });
 
   if (isDuplicate) {
@@ -93,7 +100,9 @@ export function validateUserCreate(
   //   return 'Solo correos @lafa-mx.com permitidos.';
   // }
 
-  const emailExists = users.some(u => u.email.toLowerCase() === form.email.trim().toLowerCase());
+  const emailExists = users.some(
+    (u) => u.email.toLowerCase() === form.email.trim().toLowerCase(),
+  );
   if (emailExists) {
     return 'Ya existe un usuario con ese email.';
   }
@@ -104,7 +113,7 @@ export function validateUserCreate(
 export function validateUserEdit(
   form: UserFormData,
   users: UserRecord[],
-  currentUserId: string
+  currentUserId: string,
 ): string | null {
   if (!isRequired(form.name) || !isRequired(form.email)) {
     return 'Nombre y email son obligatorios.';
@@ -115,7 +124,9 @@ export function validateUserEdit(
   }
 
   const emailExists = users.some(
-    u => u.email.toLowerCase() === form.email.trim().toLowerCase() && u.id !== currentUserId
+    (u) =>
+      u.email.toLowerCase() === form.email.trim().toLowerCase() &&
+      u.id !== currentUserId,
   );
   if (emailExists) {
     return 'Ya existe otro usuario con ese email.';
@@ -138,9 +149,13 @@ export interface DriverFormData {
 
 export function validateDriverCreate(
   form: DriverFormData,
-  existingDidiIds: number[]
+  existingDidiIds: number[],
 ): string | null {
-  if (!isRequired(form.fullName) || !isRequired(form.didiDriverId) || !isRequired(form.centerId)) {
+  if (
+    !isRequired(form.fullName) ||
+    !isRequired(form.didiDriverId) ||
+    !isRequired(form.centerId)
+  ) {
     return 'Todos los campos son obligatorios.';
   }
 

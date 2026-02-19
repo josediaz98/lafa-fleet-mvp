@@ -15,7 +15,12 @@ interface DriverCreateModalProps {
   onCreate: (form: DriverFormState) => void;
 }
 
-export default function DriverCreateModal({ defaultCenterId, drivers, onClose, onCreate }: DriverCreateModalProps) {
+export default function DriverCreateModal({
+  defaultCenterId,
+  drivers,
+  onClose,
+  onCreate,
+}: DriverCreateModalProps) {
   const [form, setForm] = useState<DriverFormState>({
     fullName: '',
     didiDriverId: '',
@@ -26,7 +31,7 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
   const [formError, setFormError] = useState('');
 
   function handleCreate() {
-    const existingDidiIds = drivers.map(d => d.didiDriverId);
+    const existingDidiIds = drivers.map((d) => d.didiDriverId);
     const error = validateDriverCreate(form, existingDidiIds);
     if (error) {
       setFormError(error);
@@ -40,30 +45,38 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
       <div className="fixed inset-0 z-[80] bg-black/50" onClick={onClose} />
       <div className="fixed inset-0 z-[81] flex items-center justify-center p-4">
         <div className="bg-lafa-surface border border-lafa-border rounded-xl p-6 max-w-md w-full shadow-2xl">
-          <h3 className="text-lg font-semibold text-lafa-text-primary mb-5">Nuevo conductor</h3>
+          <h3 className="text-lg font-semibold text-lafa-text-primary mb-5">
+            Nuevo conductor
+          </h3>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre completo</label>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+                Nombre completo
+              </label>
               <input
                 value={form.fullName}
-                onChange={e => setForm({ ...form, fullName: e.target.value })}
+                onChange={(e) => setForm({ ...form, fullName: e.target.value })}
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">DiDi Driver ID</label>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+                DiDi Driver ID
+              </label>
               <input
                 type="number"
                 value={form.didiDriverId}
-                onChange={e => setForm({ ...form, didiDriverId: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, didiDriverId: e.target.value })
+                }
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               />
             </div>
             <SearchableSelect
               label="Centro"
-              options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+              options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
               value={form.centerId}
-              onChange={v => setForm({ ...form, centerId: v })}
+              onChange={(v) => setForm({ ...form, centerId: v })}
               searchable={false}
             />
             <SearchableSelect
@@ -73,19 +86,25 @@ export default function DriverCreateModal({ defaultCenterId, drivers, onClose, o
                 { value: 'nocturno', label: 'Nocturno' },
               ]}
               value={form.defaultShift}
-              onChange={v => setForm({ ...form, defaultShift: v })}
+              onChange={(v) => setForm({ ...form, defaultShift: v })}
               searchable={false}
             />
             <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Fecha ingreso</label>
+              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+                Fecha ingreso
+              </label>
               <input
                 type="date"
                 value={form.startDate}
-                onChange={e => setForm({ ...form, startDate: e.target.value })}
+                onChange={(e) =>
+                  setForm({ ...form, startDate: e.target.value })
+                }
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               />
             </div>
-            {formError && <p className="text-sm text-status-danger">{formError}</p>}
+            {formError && (
+              <p className="text-sm text-status-danger">{formError}</p>
+            )}
             <div className="flex items-center justify-end gap-3 pt-2">
               <button
                 onClick={onClose}

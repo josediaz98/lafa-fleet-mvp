@@ -10,7 +10,13 @@ import SearchableSelect from '@/components/ui/SearchableSelect';
 interface UserCreateModalProps {
   open: boolean;
   onClose: () => void;
-  users: Array<{ id: string; email: string; role: string; status: string; centerId: string | null }>;
+  users: Array<{
+    id: string;
+    email: string;
+    role: string;
+    status: string;
+    centerId: string | null;
+  }>;
   onCreate: (user: User) => void;
 }
 
@@ -21,8 +27,16 @@ const emptyForm: UserFormData = {
   centerId: '',
 };
 
-export default function UserCreateModal({ open, onClose, users, onCreate }: UserCreateModalProps) {
-  const [form, setForm] = useState<UserFormData>({ ...emptyForm, centerId: CENTERS[0]?.id ?? '' });
+export default function UserCreateModal({
+  open,
+  onClose,
+  users,
+  onCreate,
+}: UserCreateModalProps) {
+  const [form, setForm] = useState<UserFormData>({
+    ...emptyForm,
+    centerId: CENTERS[0]?.id ?? '',
+  });
   const [formError, setFormError] = useState('');
   const supabaseMode = isSupabaseConfigured;
 
@@ -52,42 +66,62 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={supabaseMode ? 'Invitar usuario' : 'Nuevo usuario'}>
+    <Modal
+      open={open}
+      onClose={onClose}
+      title={supabaseMode ? 'Invitar usuario' : 'Nuevo usuario'}
+    >
       <div className="space-y-4">
         {supabaseMode ? (
           <div className="flex items-start gap-2.5 p-3 bg-lafa-accent/5 border border-lafa-accent/20 rounded-lg">
             <Mail className="w-4 h-4 text-lafa-accent mt-0.5 shrink-0" />
             <p className="text-xs text-lafa-text-secondary leading-relaxed">
-              Se enviará un correo de invitación para que el usuario configure su contraseña.
+              Se enviará un correo de invitación para que el usuario configure
+              su contraseña.
             </p>
           </div>
         ) : (
           <div className="flex items-start gap-2.5 p-3 bg-status-danger/5 border border-status-danger/20 rounded-lg">
             <AlertTriangle className="w-4 h-4 text-status-danger mt-0.5 shrink-0" />
             <p className="text-xs text-status-danger leading-relaxed">
-              La conexión con Supabase no está configurada. No se pueden crear usuarios en modo demo.
+              La conexión con Supabase no está configurada. No se pueden crear
+              usuarios en modo demo.
             </p>
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Nombre</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Nombre
+          </label>
           <input
             value={form.name}
-            onChange={e => { setForm({ ...form, name: e.target.value }); setFormError(''); }}
+            onChange={(e) => {
+              setForm({ ...form, name: e.target.value });
+              setFormError('');
+            }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Email</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Email
+          </label>
           <input
             type="email"
             value={form.email}
-            onChange={e => { setForm({ ...form, email: e.target.value }); setFormError(''); }}
+            onChange={(e) => {
+              setForm({ ...form, email: e.target.value });
+              setFormError('');
+            }}
             className={`w-full px-3 py-2.5 bg-lafa-bg border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent ${
-              formError.toLowerCase().includes('email') ? 'border-status-danger' : 'border-lafa-border'
+              formError.toLowerCase().includes('email')
+                ? 'border-status-danger'
+                : 'border-lafa-border'
             }`}
           />
-          <p className="text-xs text-lafa-text-secondary mt-1">Email corporativo del usuario</p>
+          <p className="text-xs text-lafa-text-secondary mt-1">
+            Email corporativo del usuario
+          </p>
         </div>
         <SearchableSelect
           label="Rol"
@@ -96,15 +130,21 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
             { value: 'supervisor', label: 'Supervisor' },
           ]}
           value={form.role}
-          onChange={v => { setForm({ ...form, role: v as 'admin' | 'supervisor' }); setFormError(''); }}
+          onChange={(v) => {
+            setForm({ ...form, role: v as 'admin' | 'supervisor' });
+            setFormError('');
+          }}
           searchable={false}
         />
         {form.role === 'supervisor' && (
           <SearchableSelect
             label="Centro"
-            options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+            options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
             value={form.centerId}
-            onChange={v => { setForm({ ...form, centerId: v }); setFormError(''); }}
+            onChange={(v) => {
+              setForm({ ...form, centerId: v });
+              setFormError('');
+            }}
             searchable={false}
           />
         )}

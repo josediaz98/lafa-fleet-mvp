@@ -9,7 +9,10 @@ interface DriverShiftTabProps {
   activeShift: Shift | null;
 }
 
-export default function DriverShiftTab({ shiftHistory, activeShift }: DriverShiftTabProps) {
+export default function DriverShiftTab({
+  shiftHistory,
+  activeShift,
+}: DriverShiftTabProps) {
   if (shiftHistory.length === 0 && !activeShift) {
     return (
       <EmptyState
@@ -25,12 +28,19 @@ export default function DriverShiftTab({ shiftHistory, activeShift }: DriverShif
       {activeShift && (
         <div className="bg-status-active/5 border border-status-active/20 rounded-lg p-3">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-lafa-text-primary">Turno activo</span>
+            <span className="text-xs font-medium text-lafa-text-primary">
+              Turno activo
+            </span>
             <StatusBadge status="en_turno" />
           </div>
           <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
-            <span>{activeShift.plate} · {activeShift.model}</span>
-            <span>Check-in: {formatTime(activeShift.checkIn)} · {getElapsedTime(activeShift.checkIn)}</span>
+            <span>
+              {activeShift.plate} · {activeShift.model}
+            </span>
+            <span>
+              Check-in: {formatTime(activeShift.checkIn)} ·{' '}
+              {getElapsedTime(activeShift.checkIn)}
+            </span>
           </div>
         </div>
       )}
@@ -41,18 +51,26 @@ export default function DriverShiftTab({ shiftHistory, activeShift }: DriverShif
         </p>
       )}
 
-      {shiftHistory.map(shift => (
+      {shiftHistory.map((shift) => (
         <div key={shift.id} className="bg-lafa-bg rounded-lg p-3">
           <div className="flex items-center justify-between mb-1">
             <span className="text-xs font-medium text-lafa-text-primary">
-              {new Date(shift.checkIn).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric', month: 'short' })}
+              {new Date(shift.checkIn).toLocaleDateString('es-MX', {
+                weekday: 'short',
+                day: 'numeric',
+                month: 'short',
+              })}
             </span>
             {shift.hoursWorked !== undefined && (
-              <span className="text-xs font-medium text-status-success">{shift.hoursWorked}h</span>
+              <span className="text-xs font-medium text-status-success">
+                {shift.hoursWorked}h
+              </span>
             )}
           </div>
           <div className="flex items-center justify-between text-xs text-lafa-text-secondary">
-            <span>{shift.plate} · {shift.model}</span>
+            <span>
+              {shift.plate} · {shift.model}
+            </span>
             <span>
               {formatTime(shift.checkIn)}
               {shift.checkOut ? ` → ${formatTime(shift.checkOut)}` : ''}

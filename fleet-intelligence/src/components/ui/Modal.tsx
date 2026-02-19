@@ -11,8 +11,11 @@ interface ModalProps {
 export default function Modal({ open, onClose, title, children }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
   const titleId = useId();
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -30,16 +33,24 @@ export default function Modal({ open, onClose, title, children }: ModalProps) {
   return (
     <>
       <div className="fixed inset-0 z-[80] bg-black/50" onClick={onClose} />
-      <div className="fixed inset-0 z-[81] flex items-center justify-center p-4" onClick={onClose}>
+      <div
+        className="fixed inset-0 z-[81] flex items-center justify-center p-4"
+        onClick={onClose}
+      >
         <div
-          onClick={e => e.stopPropagation()}
+          onClick={(e) => e.stopPropagation()}
           ref={dialogRef}
           role="dialog"
           aria-modal="true"
           aria-labelledby={titleId}
           className="bg-lafa-surface border border-lafa-border rounded-2xl p-6 max-w-md w-full shadow-2xl"
         >
-          <h3 id={titleId} className="text-lg font-semibold text-lafa-text-primary mb-5">{title}</h3>
+          <h3
+            id={titleId}
+            className="text-lg font-semibold text-lafa-text-primary mb-5"
+          >
+            {title}
+          </h3>
           {children}
         </div>
       </div>

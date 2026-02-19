@@ -1,4 +1,8 @@
-export { fetchAllData, fetchShiftsByDateRange, fetchTripsByDateRange } from './hydrate';
+export {
+  fetchAllData,
+  fetchShiftsByDateRange,
+  fetchTripsByDateRange,
+} from './hydrate';
 export type { HydrateData } from './hydrate';
 
 export { fetchShiftsPage, fetchTripsPage, fetchPayrollPage } from './paginated';

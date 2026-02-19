@@ -1,4 +1,11 @@
-import { createContext, useContext, useReducer, useEffect, type ReactNode, type Dispatch } from 'react';
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  type ReactNode,
+  type Dispatch,
+} from 'react';
 import { DEV_DRIVERS, DEV_VEHICLES, DEV_ADMIN } from '@/data/dev-seed';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { fetchAllData } from '@/lib/supabase/queries';
@@ -15,30 +22,41 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (!isSupabaseConfigured) {
-      dispatch({ type: 'HYDRATE', payload: {
-        drivers: DEV_DRIVERS as Driver[],
-        vehicles: DEV_VEHICLES as Vehicle[],
-        shifts: [],
-        users: [DEV_ADMIN as User],
-        trips: [],
-        closedPayroll: [],
-        dataSource: 'mock' as const,
-      }});
+      dispatch({
+        type: 'HYDRATE',
+        payload: {
+          drivers: DEV_DRIVERS as Driver[],
+          vehicles: DEV_VEHICLES as Vehicle[],
+          shifts: [],
+          users: [DEV_ADMIN as User],
+          trips: [],
+          closedPayroll: [],
+          dataSource: 'mock' as const,
+        },
+      });
       return;
     }
     fetchAllData()
-      .then(data => dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } }))
-      .catch(err => {
+      .then((data) =>
+        dispatch({
+          type: 'HYDRATE',
+          payload: { ...data, dataSource: 'supabase' as const },
+        }),
+      )
+      .catch((err) => {
         console.error('Failed to load from Supabase:', err);
-        dispatch({ type: 'HYDRATE', payload: {
-          drivers: [],
-          vehicles: [],
-          shifts: [],
-          users: [],
-          trips: [],
-          closedPayroll: [],
-          dataSource: 'supabase' as const,
-        }});
+        dispatch({
+          type: 'HYDRATE',
+          payload: {
+            drivers: [],
+            vehicles: [],
+            shifts: [],
+            users: [],
+            trips: [],
+            closedPayroll: [],
+            dataSource: 'supabase' as const,
+          },
+        });
       });
   }, []);
 

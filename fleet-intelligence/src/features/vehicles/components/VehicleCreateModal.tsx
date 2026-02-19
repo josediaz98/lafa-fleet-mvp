@@ -13,10 +13,24 @@ interface VehicleCreateModalProps {
   onCreate: (vehicle: Vehicle) => void;
 }
 
-const emptyForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
+const emptyForm: VehicleFormData = {
+  plate: '',
+  model: '',
+  oem: '',
+  centerId: '',
+};
 
-export default function VehicleCreateModal({ open, onClose, existingPlates, defaultCenterId, onCreate }: VehicleCreateModalProps) {
-  const [form, setForm] = useState<VehicleFormData>({ ...emptyForm, centerId: defaultCenterId });
+export default function VehicleCreateModal({
+  open,
+  onClose,
+  existingPlates,
+  defaultCenterId,
+  onCreate,
+}: VehicleCreateModalProps) {
+  const [form, setForm] = useState<VehicleFormData>({
+    ...emptyForm,
+    centerId: defaultCenterId,
+  });
   const [formError, setFormError] = useState('');
 
   useEffect(() => {
@@ -48,37 +62,43 @@ export default function VehicleCreateModal({ open, onClose, existingPlates, defa
     <Modal open={open} onClose={onClose} title={'Nuevo vehículo'}>
       <div className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Placa
+          </label>
           <input
             value={form.plate}
-            onChange={e => setForm({ ...form, plate: e.target.value })}
+            onChange={(e) => setForm({ ...form, plate: e.target.value })}
             placeholder="ABC-123"
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            Modelo
+          </label>
           <input
             value={form.model}
-            onChange={e => setForm({ ...form, model: e.target.value })}
+            onChange={(e) => setForm({ ...form, model: e.target.value })}
             placeholder="Geometry C"
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
+          <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">
+            OEM
+          </label>
           <input
             value={form.oem}
-            onChange={e => setForm({ ...form, oem: e.target.value })}
+            onChange={(e) => setForm({ ...form, oem: e.target.value })}
             placeholder="Geely"
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           />
         </div>
         <SearchableSelect
           label="Centro"
-          options={CENTERS.map(c => ({ value: c.id, label: c.name }))}
+          options={CENTERS.map((c) => ({ value: c.id, label: c.name }))}
           value={form.centerId}
-          onChange={v => setForm({ ...form, centerId: v })}
+          onChange={(v) => setForm({ ...form, centerId: v })}
           searchable={false}
         />
         {formError && <p className="text-sm text-status-danger">{formError}</p>}

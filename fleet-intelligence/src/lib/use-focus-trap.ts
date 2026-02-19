@@ -11,7 +11,8 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>) {
     const previouslyFocused = document.activeElement as HTMLElement | null;
 
     // Focus the first focusable element
-    const focusableElements = container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+    const focusableElements =
+      container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
     if (focusableElements.length > 0) {
       focusableElements[0].focus();
     }
@@ -19,7 +20,8 @@ export function useFocusTrap(containerRef: RefObject<HTMLElement | null>) {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key !== 'Tab') return;
 
-      const focusable = container!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
+      const focusable =
+        container!.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       if (focusable.length === 0) return;
 
       const first = focusable[0];

@@ -18,25 +18,47 @@ interface PayrollTableProps {
   onSelectRow: (row: PayrollRecord) => void;
 }
 
-export default function PayrollTable({ data, tab, totalNomina, previousWeekHours, onSelectRow }: PayrollTableProps) {
+export default function PayrollTable({
+  data,
+  tab,
+  totalNomina,
+  previousWeekHours,
+  onSelectRow,
+}: PayrollTableProps) {
   const [sortKey, setSortKey] = useState<SortKey>('driverName');
   const [sortAsc, setSortAsc] = useState(true);
 
   function handleSort(key: SortKey) {
     if (sortKey === key) setSortAsc(!sortAsc);
-    else { setSortKey(key); setSortAsc(true); }
+    else {
+      setSortKey(key);
+      setSortAsc(true);
+    }
   }
 
-  const sorted = useMemo(() => [...data].sort((a, b) => {
-    const aVal = a[sortKey];
-    const bVal = b[sortKey];
-    if (typeof aVal === 'string' && typeof bVal === 'string') {
-      return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    }
-    return sortAsc ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
-  }), [data, sortKey, sortAsc]);
+  const sorted = useMemo(
+    () =>
+      [...data].sort((a, b) => {
+        const aVal = a[sortKey];
+        const bVal = b[sortKey];
+        if (typeof aVal === 'string' && typeof bVal === 'string') {
+          return sortAsc ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
+        }
+        return sortAsc
+          ? (aVal as number) - (bVal as number)
+          : (bVal as number) - (aVal as number);
+      }),
+    [data, sortKey, sortAsc],
+  );
 
-  const { paginatedItems: paginatedRows, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(sorted);
+  const {
+    paginatedItems: paginatedRows,
+    currentPage,
+    totalPages,
+    setPage,
+    rangeStart,
+    rangeEnd,
+  } = usePagination(sorted);
 
   function SortHeader({ label, field }: { label: string; field: SortKey }) {
     return (
@@ -56,24 +78,43 @@ export default function PayrollTable({ data, tab, totalNomina, previousWeekHours
           <thead className="bg-lafa-surface">
             <tr className="border-b border-lafa-border">
               <SortHeader label="Conductor" field="driverName" />
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Centro</th>
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Centro
+              </th>
               <SortHeader label="Horas" field="hoursWorked" />
               <SortHeader label={'Facturación'} field="totalBilled" />
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Meta</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Base</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Bono</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Overtime</th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Apoyo</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Meta
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Base
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Bono
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Overtime
+              </th>
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Apoyo
+              </th>
               <SortHeader label="Pago total" field="totalPay" />
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Flags</th>
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">Status</th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Flags
+              </th>
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody>
             {sorted.length === 0 && (
               <tr>
                 <td colSpan={12} className="px-4 py-8">
-                  <EmptyState icon={Receipt} title={'Sin registros de nómina'} />
+                  <EmptyState
+                    icon={Receipt}
+                    title={'Sin registros de nómina'}
+                  />
                 </td>
               </tr>
             )}
@@ -85,36 +126,71 @@ export default function PayrollTable({ data, tab, totalNomina, previousWeekHours
                   i % 2 === 0 ? 'bg-transparent' : 'bg-lafa-bg/30'
                 }`}
               >
-                <td className="px-4 py-3 text-lafa-text-primary font-medium whitespace-nowrap">{row.driverName}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary">{row.center}</td>
-                <td className="px-4 py-3 text-lafa-text-secondary" title={`Meta: ${row.hoursThreshold}h`}>
-                  {row.hoursWorked}h
-                  <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{row.hoursThreshold}h</span>
+                <td className="px-4 py-3 text-lafa-text-primary font-medium whitespace-nowrap">
+                  {row.driverName}
                 </td>
-                <td className="px-4 py-3 text-lafa-text-primary whitespace-nowrap" title={`Meta: ${formatMXN(row.revenueThreshold)}`}>
+                <td className="px-4 py-3 text-lafa-text-secondary">
+                  {row.center}
+                </td>
+                <td
+                  className="px-4 py-3 text-lafa-text-secondary"
+                  title={`Meta: ${row.hoursThreshold}h`}
+                >
+                  {row.hoursWorked}h
+                  <span className="text-[10px] text-lafa-text-secondary/60 ml-1">
+                    /{row.hoursThreshold}h
+                  </span>
+                </td>
+                <td
+                  className="px-4 py-3 text-lafa-text-primary whitespace-nowrap"
+                  title={`Meta: ${formatMXN(row.revenueThreshold)}`}
+                >
                   {formatMXN(row.totalBilled)}
-                  <span className="text-[10px] text-lafa-text-secondary/60 ml-1">/{formatMXN(row.revenueThreshold)}</span>
+                  <span className="text-[10px] text-lafa-text-secondary/60 ml-1">
+                    /{formatMXN(row.revenueThreshold)}
+                  </span>
                 </td>
                 <td className="px-4 py-3 text-center">
                   {row.goalMet ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">{'\u00a0Sí\u00a0'}</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">
+                      {'\u00a0Sí\u00a0'}
+                    </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">No</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">
+                      No
+                    </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.baseSalary)}</td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.productivityBonus)}</td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{formatMXN(row.overtimePay)}</td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">{row.goalMet ? '—' : formatMXN(SUPPORT_AMOUNT)}</td>
-                <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">{formatMXN(row.totalPay)}</td>
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
+                  {formatMXN(row.baseSalary)}
+                </td>
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
+                  {formatMXN(row.productivityBonus)}
+                </td>
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
+                  {formatMXN(row.overtimePay)}
+                </td>
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
+                  {row.goalMet ? '—' : formatMXN(SUPPORT_AMOUNT)}
+                </td>
+                <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">
+                  {formatMXN(row.totalPay)}
+                </td>
                 <td className="px-4 py-3">
                   {(() => {
-                    const flags = getPayrollFlags(row, previousWeekHours.get(row.driverId));
+                    const flags = getPayrollFlags(
+                      row,
+                      previousWeekHours.get(row.driverId),
+                    );
                     if (flags.length === 0) return null;
                     return (
                       <div className="flex flex-col gap-0.5">
                         {flags.map((f, fi) => (
-                          <span key={fi} className="inline-flex items-center gap-1 text-[10px] font-medium whitespace-nowrap" style={{ color: f.color }}>
+                          <span
+                            key={fi}
+                            className="inline-flex items-center gap-1 text-[10px] font-medium whitespace-nowrap"
+                            style={{ color: f.color }}
+                          >
                             <AlertTriangle size={10} />
                             {f.label}
                           </span>
@@ -125,11 +201,17 @@ export default function PayrollTable({ data, tab, totalNomina, previousWeekHours
                 </td>
                 <td className="px-4 py-3 text-center">
                   {tab === 'actual' ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-alert/15 text-status-alert">Borrador</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-alert/15 text-status-alert">
+                      Borrador
+                    </span>
                   ) : row.status === 'cerrado' ? (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">Cerrado</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">
+                      Cerrado
+                    </span>
                   ) : (
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">Superseded</span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">
+                      Superseded
+                    </span>
                   )}
                 </td>
               </tr>
@@ -139,15 +221,21 @@ export default function PayrollTable({ data, tab, totalNomina, previousWeekHours
       </div>
       <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {rangeStart}–{rangeEnd} de {data.length} conductor{data.length !== 1 ? 'es' : ''}
+          {rangeStart}–{rangeEnd} de {data.length} conductor
+          {data.length !== 1 ? 'es' : ''}
         </span>
         <div className="flex items-center gap-3">
           {data.length > 0 && (
             <span className="text-xs font-medium text-lafa-text-primary">
-              {'Total: '}{formatMXN(totalNomina)}
+              {'Total: '}
+              {formatMXN(totalNomina)}
             </span>
           )}
-          <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </div>

@@ -27,7 +27,9 @@ export default function ResetPasswordPage() {
 
     let handled = false;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         handled = true;
         setReady(true);
@@ -58,7 +60,9 @@ export default function ResetPasswordPage() {
     }
 
     setLoading(true);
-    const { error: updateError } = await supabase!.auth.updateUser({ password });
+    const { error: updateError } = await supabase!.auth.updateUser({
+      password,
+    });
     setLoading(false);
 
     if (updateError) {
@@ -67,16 +71,29 @@ export default function ResetPasswordPage() {
     }
 
     setDone(true);
-    const { data: { user } } = await supabase!.auth.getUser();
+    const {
+      data: { user },
+    } = await supabase!.auth.getUser();
     if (user) {
-      const { data: profile } = await supabase!.from('profiles')
-        .select('*').eq('id', user.id).single();
+      const { data: profile } = await supabase!
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
       if (profile && profile.status === 'activo') {
-        const session = { userId: profile.id, name: profile.name, role: profile.role, centerId: profile.center_id };
+        const session = {
+          userId: profile.id,
+          name: profile.name,
+          role: profile.role,
+          centerId: profile.center_id,
+        };
         localStorage.setItem('lafa_session', JSON.stringify(session));
         dispatch({ type: 'LOGIN', payload: session });
         const data = await fetchAllData();
-        dispatch({ type: 'HYDRATE', payload: { ...data, dataSource: 'supabase' as const } });
+        dispatch({
+          type: 'HYDRATE',
+          payload: { ...data, dataSource: 'supabase' as const },
+        });
         showToast('success', 'Contraseña actualizada');
       }
     }
@@ -115,7 +132,9 @@ export default function ResetPasswordPage() {
           ) : (
             <>
               <Loader2 className="w-6 h-6 animate-spin text-lafa-accent mx-auto mb-4" />
-              <p className="text-sm text-lafa-text-secondary">Verificando enlace...</p>
+              <p className="text-sm text-lafa-text-secondary">
+                Verificando enlace...
+              </p>
             </>
           )}
         </div>
@@ -162,17 +181,25 @@ export default function ResetPasswordPage() {
                   type="password"
                   required
                   value={password}
-                  onChange={e => { setPassword(e.target.value); setError(''); }}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setError('');
+                  }}
                   placeholder="Nueva contraseña"
                   className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
                 />
-                <p className="text-xs text-lafa-text-secondary mt-1">Minimo 6 caracteres</p>
+                <p className="text-xs text-lafa-text-secondary mt-1">
+                  Minimo 6 caracteres
+                </p>
               </div>
               <input
                 type="password"
                 required
                 value={confirm}
-                onChange={e => { setConfirm(e.target.value); setError(''); }}
+                onChange={(e) => {
+                  setConfirm(e.target.value);
+                  setError('');
+                }}
                 placeholder="Confirmar contraseña"
                 className="w-full px-4 py-3 bg-lafa-surface/50 border border-lafa-border/50 rounded-lg text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent/70 focus:ring-1 focus:ring-lafa-accent/30 focus:bg-lafa-surface transition-all duration-200"
               />

@@ -36,16 +36,20 @@ export default function DriverDetailPanel({
   return (
     <div>
       <div className="flex gap-1 border-b border-lafa-border mb-5">
-        {PANEL_TABS.map(t => (
+        {PANEL_TABS.map((t) => (
           <button
             key={t.key}
             onClick={() => setPanelTab(t.key)}
             className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 relative ${
-              panelTab === t.key ? 'text-lafa-accent' : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+              panelTab === t.key
+                ? 'text-lafa-accent'
+                : 'text-lafa-text-secondary hover:text-lafa-text-primary'
             }`}
           >
             {t.label}
-            {panelTab === t.key && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />}
+            {panelTab === t.key && (
+              <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-lafa-accent" />
+            )}
           </button>
         ))}
       </div>
