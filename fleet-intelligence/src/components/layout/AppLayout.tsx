@@ -1,12 +1,24 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { Menu, AlertTriangle } from 'lucide-react';
+import { Menu, AlertTriangle, Loader2 } from 'lucide-react';
 import Sidebar from './Sidebar';
 import { useAppState } from '@/app/providers/AppProvider';
 
 export default function AppLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { dataSource } = useAppState();
+  const { dataSource, hydrated } = useAppState();
+
+  // Show loading screen while fetching data from Supabase
+  if (!hydrated) {
+    return (
+      <div className="min-h-screen bg-lafa-bg flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 size={32} className="text-lafa-accent animate-spin" />
+          <p className="text-lafa-text-secondary text-sm">Cargando datos...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-lafa-bg">
