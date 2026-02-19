@@ -6,7 +6,7 @@ import { useCenterFilter } from '@/lib/use-center-filter';
 import { formatTime } from '@/lib/date-utils';
 import { formatMXN } from '@/lib/format';
 import { getWeekBounds, shiftHours } from '@/lib/date-utils';
-import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/constants';
+import { REFRESH_INTERVAL, SHIFT_WINDOW_MS } from '@/lib/config';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionCheckOut } from '@/lib/actions';

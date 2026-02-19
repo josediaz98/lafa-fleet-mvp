@@ -1,5 +1,5 @@
 import { formatTime, getElapsedTime } from '@/lib/date-utils';
-import { SHIFT_WINDOW_MS } from '@/lib/constants';
+import { SHIFT_WINDOW_MS } from '@/lib/config';
 import StatusBadge from '@/components/ui/StatusBadge';
 
 interface ShiftCardProps {
