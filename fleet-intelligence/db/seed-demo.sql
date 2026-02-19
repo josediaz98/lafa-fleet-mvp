@@ -141,8 +141,8 @@ INSERT INTO weekly_payroll (driver_id, week_start, week_end, hours_worked, total
 -- (payroll was computed from them and is already in weekly_payroll).
 
 INSERT INTO csv_uploads (id, filename, uploaded_by, uploaded_at, record_count, valid_count, warning_count, error_count, status) VALUES
-  ('00000000-0000-0000-0000-00000000c001', 'viajes-semana-02-08-feb.csv', '00000000-0000-0000-0000-00000000a001', '2026-02-09T10:00:00-06:00', 104, 104, 0, 0, 'procesado'),
-  ('00000000-0000-0000-0000-00000000c002', 'viajes-semana-09-15-feb.csv', '00000000-0000-0000-0000-00000000a001', '2026-02-16T10:00:00-06:00', 112, 112, 0, 0, 'procesado');
+  ('00000000-0000-0000-0000-00000000c001', 'viajes-semana-02-08-feb.csv', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24', '2026-02-09T10:00:00-06:00', 104, 104, 0, 0, 'procesado'),
+  ('00000000-0000-0000-0000-00000000c002', 'viajes-semana-09-15-feb.csv', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24', '2026-02-16T10:00:00-06:00', 112, 112, 0, 0, 'procesado');
 
 
 -- ============================================================
@@ -371,9 +371,9 @@ INSERT INTO shifts (id, driver_id, vehicle_id, check_in, check_out, hours_worked
 -- d7 (Roma) — high earner, 4 completed shifts Mon-Thu
 
 INSERT INTO shifts (id, driver_id, vehicle_id, check_in, check_out, hours_worked, status, created_by) VALUES
-  ('00000000-0000-0000-0000-0000005fa001', '00000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000b0002', '2026-02-20T06:00:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
-  ('00000000-0000-0000-0000-0000005fa002', '00000000-0000-0000-0000-0000000d0004', '00000000-0000-0000-0000-0000000b0004', '2026-02-20T06:30:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
-  ('00000000-0000-0000-0000-0000005fa003', '00000000-0000-0000-0000-0000000d0007', '00000000-0000-0000-0000-0000000b0007', '2026-02-20T05:45:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24');
+  ('00000000-0000-0000-0000-0000005fa001', '00000000-0000-0000-0000-0000000d0001', '00000000-0000-0000-0000-0000000b0002', '2026-02-19T06:00:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
+  ('00000000-0000-0000-0000-0000005fa002', '00000000-0000-0000-0000-0000000d0004', '00000000-0000-0000-0000-0000000b0004', '2026-02-19T06:30:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24'),
+  ('00000000-0000-0000-0000-0000005fa003', '00000000-0000-0000-0000-0000000d0007', '00000000-0000-0000-0000-0000000b0007', '2026-02-19T05:45:00-06:00', NULL, NULL, 'en_turno', '0571c7bc-ee3d-43e7-97ef-2f5bc30e0b24');
 
 -- Mark those 3 vehicles as en_turno
 UPDATE vehicles SET status = 'en_turno' WHERE id IN (
