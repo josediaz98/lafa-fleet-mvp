@@ -1,13 +1,18 @@
+# System
 .DS_Store
 .claude/
+
+# Dependencies
 node_modules/
 
-# Fleet Intelligence (React/Vite)
-fleet-intelligence/node_modules/
-fleet-intelligence/dist/
-fleet-intelligence/.env
-fleet-intelligence/.env.local
-fleet-intelligence/tsconfig.tsbuildinfo
-
-# Vercel build output
+# Build output
+dist/
 .vercel
+
+# Environment
+.env
+.env.local
+*.local
+
+# TypeScript build cache
+tsconfig.tsbuildinfo
