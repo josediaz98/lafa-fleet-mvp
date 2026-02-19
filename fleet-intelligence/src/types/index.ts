@@ -55,6 +55,15 @@ export interface Session {
   centerId: string | null;
 }
 
+export interface DataRange {
+  shiftsFrom: string;
+  tripsFrom: string;
+  payrollFrom: string;
+  shiftsHasMore?: boolean;
+  tripsHasMore?: boolean;
+  payrollHasMore?: boolean;
+}
+
 export interface AppState {
   drivers: Driver[];
   vehicles: Vehicle[];
@@ -65,6 +74,7 @@ export interface AppState {
   session: Session | null;
   hydrated: boolean;
   dataSource: 'supabase' | 'mock';
+  dataRange?: DataRange;
 }
 
 // ---- Actions ----
@@ -86,4 +96,7 @@ export type Action =
   | { type: 'CLOSE_PAYROLL_WEEK'; payload: PayrollRecord[] }
   | { type: 'RERUN_PAYROLL_CLOSE'; payload: { weekLabel: string; newRecords: PayrollRecord[] } }
   | { type: 'LOGIN'; payload: Session }
-  | { type: 'LOGOUT' };
+  | { type: 'LOGOUT' }
+  | { type: 'APPEND_SHIFTS'; payload: { shifts: Shift[]; oldestDate: string; hasMore: boolean } }
+  | { type: 'APPEND_TRIPS'; payload: { trips: Trip[]; oldestDate: string; hasMore: boolean } }
+  | { type: 'APPEND_PAYROLL'; payload: { payroll: PayrollRecord[]; oldestDate: string; hasMore: boolean } };

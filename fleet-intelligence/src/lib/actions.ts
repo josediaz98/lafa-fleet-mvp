@@ -20,6 +20,11 @@ import {
   persistUpdateUser,
   persistDeactivateUser,
 } from '@/lib/supabase/mutations';
+import {
+  fetchShiftsPage,
+  fetchTripsPage,
+  fetchPayrollPage,
+} from '@/lib/supabase/queries';
 
 type AppDispatch = Dispatch<Action>;
 type ShowToast = (type: 'success' | 'error' | 'warning', message: string) => void;
@@ -213,4 +218,78 @@ export async function actionDeactivateUser(
   const { error } = await persistDeactivateUser(userId);
   if (error) { showToast('error', `Error al desactivar usuario: ${error.message}`); return; }
   showToast('success', `${userName} desactivado.`);
+}
+
+// ---- Pagination: Load more historical data ----
+
+export async function actionLoadMoreShifts(
+  beforeDate: string,
+  dispatch: AppDispatch,
+  showToast: ShowToast,
+): Promise<boolean> {
+  try {
+    const result = await fetchShiftsPage(beforeDate);
+    if (result.data.length > 0) {
+      dispatch({
+        type: 'APPEND_SHIFTS',
+        payload: {
+          shifts: result.data,
+          oldestDate: result.oldestDate ?? beforeDate,
+          hasMore: result.hasMore,
+        },
+      });
+    }
+    return result.hasMore;
+  } catch (err) {
+    showToast('error', 'Error al cargar más turnos.');
+    return false;
+  }
+}
+
+export async function actionLoadMoreTrips(
+  beforeDate: string,
+  dispatch: AppDispatch,
+  showToast: ShowToast,
+): Promise<boolean> {
+  try {
+    const result = await fetchTripsPage(beforeDate);
+    if (result.data.length > 0) {
+      dispatch({
+        type: 'APPEND_TRIPS',
+        payload: {
+          trips: result.data,
+          oldestDate: result.oldestDate ?? beforeDate,
+          hasMore: result.hasMore,
+        },
+      });
+    }
+    return result.hasMore;
+  } catch (err) {
+    showToast('error', 'Error al cargar más viajes.');
+    return false;
+  }
+}
+
+export async function actionLoadMorePayroll(
+  beforeDate: string,
+  dispatch: AppDispatch,
+  showToast: ShowToast,
+): Promise<boolean> {
+  try {
+    const result = await fetchPayrollPage(beforeDate);
+    if (result.data.length > 0) {
+      dispatch({
+        type: 'APPEND_PAYROLL',
+        payload: {
+          payroll: result.data,
+          oldestDate: result.oldestDate ?? beforeDate,
+          hasMore: result.hasMore,
+        },
+      });
+    }
+    return result.hasMore;
+  } catch (err) {
+    showToast('error', 'Error al cargar más registros de nómina.');
+    return false;
+  }
 }

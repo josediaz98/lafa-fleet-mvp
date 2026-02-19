@@ -17,8 +17,15 @@ import type {
 
 function appReducer(state: AppState, action: Action): AppState {
   switch (action.type) {
-    case 'HYDRATE':
-      return { ...state, ...action.payload, hydrated: true };
+    case 'HYDRATE': {
+      const { dataRange, ...rest } = action.payload;
+      return {
+        ...state,
+        ...rest,
+        hydrated: true,
+        dataRange: dataRange ? { ...dataRange, shiftsHasMore: true, tripsHasMore: true, payrollHasMore: true } : undefined,
+      };
+    }
 
     case 'ADD_SHIFT':
       return { ...state, shifts: [...state.shifts, action.payload] };
@@ -104,6 +111,33 @@ function appReducer(state: AppState, action: Action): AppState {
 
     case 'LOGOUT':
       return { ...state, session: null };
+
+    case 'APPEND_SHIFTS':
+      return {
+        ...state,
+        shifts: [...state.shifts, ...action.payload.shifts],
+        dataRange: state.dataRange
+          ? { ...state.dataRange, shiftsFrom: action.payload.oldestDate, shiftsHasMore: action.payload.hasMore }
+          : undefined,
+      };
+
+    case 'APPEND_TRIPS':
+      return {
+        ...state,
+        trips: [...state.trips, ...action.payload.trips],
+        dataRange: state.dataRange
+          ? { ...state.dataRange, tripsFrom: action.payload.oldestDate, tripsHasMore: action.payload.hasMore }
+          : undefined,
+      };
+
+    case 'APPEND_PAYROLL':
+      return {
+        ...state,
+        closedPayroll: [...state.closedPayroll, ...action.payload.payroll],
+        dataRange: state.dataRange
+          ? { ...state.dataRange, payrollFrom: action.payload.oldestDate, payrollHasMore: action.payload.hasMore }
+          : undefined,
+      };
 
     default:
       return state;
