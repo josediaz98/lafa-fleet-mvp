@@ -3,10 +3,12 @@ import { CheckCircle, AlertTriangle, XCircle, Upload, Download, Filter, History 
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Trip } from '@/types';
 import { formatMXN } from '@/lib/format';
+import { usePagination } from '@/lib/use-pagination';
 import { useToast } from '@/app/providers/ToastProvider';
 import { actionImportTrips } from '@/lib/actions';
 import { getWeekBounds } from '@/lib/date-utils';
 import ValidationIcon from '@/components/ui/ValidationIcon';
+import PaginationControls from '@/components/ui/PaginationControls';
 import { parseCsvText, validateRow, CSV_TEMPLATE, type ParsedRow } from './lib/csv-parser';
 import UploadHistoryTable from './components/UploadHistoryTable';
 
@@ -127,6 +129,7 @@ export default function CsvUploadPage() {
   const uniqueDrivers = new Set(rows.filter(r => r.estado !== 'error').map(r => r.driverId)).size;
 
   const displayRows = showOnlyErrors ? rows.filter(r => r.estado === 'error') : rows;
+  const { paginatedItems: paginatedRows, currentPage: csvPage, totalPages: csvTotalPages, setPage: setCsvPage, rangeStart: csvRangeStart, rangeEnd: csvRangeEnd } = usePagination(displayRows, { pageSize: 50 });
 
   return (
     <div>
@@ -257,7 +260,7 @@ export default function CsvUploadPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {displayRows.map((row, i) => (
+                  {paginatedRows.map((row, i) => (
                     <tr
                       key={`${row.tripId}-${i}`}
                       className={`border-b border-lafa-border/50 ${
@@ -286,6 +289,12 @@ export default function CsvUploadPage() {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+              <span className="text-xs text-lafa-text-secondary">
+                {csvRangeStart}–{csvRangeEnd} de {displayRows.length} filas
+              </span>
+              <PaginationControls currentPage={csvPage} totalPages={csvTotalPages} onPageChange={setCsvPage} />
             </div>
           </div>
 

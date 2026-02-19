@@ -1,6 +1,8 @@
 import type { User, Session } from '@/types';
 import { getCenterName } from '@/lib/format';
+import { usePagination } from '@/lib/use-pagination';
 import StatusBadge from '@/components/ui/StatusBadge';
+import PaginationControls from '@/components/ui/PaginationControls';
 
 interface UserTableProps {
   users: User[];
@@ -9,6 +11,8 @@ interface UserTableProps {
 }
 
 export default function UserTable({ users, session, onSelect }: UserTableProps) {
+  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(users);
+
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -23,7 +27,7 @@ export default function UserTable({ users, session, onSelect }: UserTableProps) 
             </tr>
           </thead>
           <tbody>
-            {users.map((user, i) => {
+            {paginatedItems.map((user, i) => {
               const isCurrentUser = session && user.id === session.userId;
               return (
                 <tr
@@ -53,10 +57,11 @@ export default function UserTable({ users, session, onSelect }: UserTableProps) 
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {users.length} usuario{users.length !== 1 ? 's' : ''}
+          {rangeStart}–{rangeEnd} de {users.length} usuario{users.length !== 1 ? 's' : ''}
         </span>
+        <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </div>
   );

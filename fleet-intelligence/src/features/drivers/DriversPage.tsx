@@ -3,6 +3,7 @@ import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Driver } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
+import { usePagination } from '@/lib/use-pagination';
 import { CENTERS } from '@/data/constants';
 import { getCenterName } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
@@ -10,6 +11,7 @@ import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionAddDriver, actionUpdateDriver, actionDeactivateDriver } from '@/lib/actions';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import StatusBadge from '@/components/ui/StatusBadge';
+import PaginationControls from '@/components/ui/PaginationControls';
 import SlidePanel from '@/components/ui/SlidePanel';
 import DriverCreateModal from './components/DriverCreateModal';
 import DriverDetailPanel from './components/DriverDetailPanel';
@@ -56,6 +58,8 @@ export default function DriversPage() {
     }
     return result;
   }, [centeredDrivers, statusFilter, shiftFilter, search]);
+
+  const { paginatedItems: paginatedDrivers, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(filtered);
 
   const driverPayrollHistory = useMemo(() => {
     if (!selectedDriver) return [];
@@ -211,7 +215,7 @@ export default function DriversPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((driver, i) => (
+              {paginatedDrivers.map((driver, i) => (
                 <tr
                   key={driver.id}
                   onClick={() => setSelectedDriver(driver)}
@@ -232,16 +236,19 @@ export default function DriversPage() {
         </div>
         <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
           <span className="text-xs text-lafa-text-secondary">
-            {filtered.length} de {centeredDrivers.length} conductores
+            {rangeStart}–{rangeEnd} de {filtered.length} conductores
           </span>
-          {(statusFilter !== 'todos' || shiftFilter !== 'todos' || search) && (
-            <button
-              onClick={() => { setSearch(''); setStatusFilter('todos'); setShiftFilter('todos'); }}
-              className="text-xs text-lafa-accent hover:underline"
-            >
-              Limpiar filtros
-            </button>
-          )}
+          <div className="flex items-center gap-3">
+            {(statusFilter !== 'todos' || shiftFilter !== 'todos' || search) && (
+              <button
+                onClick={() => { setSearch(''); setStatusFilter('todos'); setShiftFilter('todos'); }}
+                className="text-xs text-lafa-accent hover:underline"
+              >
+                Limpiar filtros
+              </button>
+            )}
+            <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+          </div>
         </div>
       </div>
 

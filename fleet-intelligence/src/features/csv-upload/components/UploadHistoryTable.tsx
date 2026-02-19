@@ -3,8 +3,10 @@ import { FileSpreadsheet, RefreshCw } from 'lucide-react';
 import { fetchUploadHistory, type CsvUploadRecord } from '@/lib/supabase/queries';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { timeAgo } from '@/lib/format';
+import { usePagination } from '@/lib/use-pagination';
 import { SkeletonTableRows } from '@/components/ui/Skeleton';
 import StatusBadge from '@/components/ui/StatusBadge';
+import PaginationControls from '@/components/ui/PaginationControls';
 import EmptyState from '@/components/ui/EmptyState';
 
 interface UploadHistoryTableProps {
@@ -32,6 +34,9 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
   }, []);
 
   useEffect(() => { load(); }, [load, refreshKey]);
+
+  const records = state.kind === 'loaded' ? state.records : [];
+  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(records, { pageSize: 10 });
 
   // Mock mode — Supabase not configured
   if (!isSupabaseConfigured) {
@@ -72,8 +77,6 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
     );
   }
 
-  const { records } = state;
-
   if (records.length === 0) {
     return <EmptyState icon={FileSpreadsheet} title="Sin cargas previas" description="Importa tu primer archivo CSV arriba." />;
   }
@@ -94,7 +97,7 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
             </tr>
           </thead>
           <tbody>
-            {records.map((r, i) => (
+            {paginatedItems.map((r, i) => (
               <tr
                 key={r.id}
                 className={`border-b border-lafa-border/50 hover:bg-lafa-accent/5 transition-colors duration-100 ${
@@ -119,8 +122,11 @@ export default function UploadHistoryTable({ refreshKey }: UploadHistoryTablePro
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border text-xs text-lafa-text-secondary">
-        Mostrando {records.length} cargas
+      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+        <span className="text-xs text-lafa-text-secondary">
+          {rangeStart}–{rangeEnd} de {records.length} cargas
+        </span>
+        <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
       </div>
     </div>
   );

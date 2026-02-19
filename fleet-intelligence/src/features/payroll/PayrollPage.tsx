@@ -3,6 +3,7 @@ import { Upload, Receipt, AlertTriangle } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { PayrollRecord } from '@/types';
 import { useCenterFilter } from '@/lib/use-center-filter';
+import { usePagination } from '@/lib/use-pagination';
 import { formatMXN } from '@/lib/format';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
@@ -11,7 +12,8 @@ import { getWeekBounds, buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
 import { getPayrollFlags, generateWeekSummary } from '@/features/payroll/lib/payroll-flags';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
-import Select from '@/components/ui/Select';
+import SearchableSelect from '@/components/ui/SearchableSelect';
+import PaginationControls from '@/components/ui/PaginationControls';
 import SlidePanel from '@/components/ui/SlidePanel';
 import EmptyState from '@/components/ui/EmptyState';
 import PayrollSummaryCards from './components/PayrollSummaryCards';
@@ -84,6 +86,8 @@ export default function PayrollPage() {
     }
     return sortAsc ? (aVal as number) - (bVal as number) : (bVal as number) - (aVal as number);
   }), [displayData, sortKey, sortAsc]);
+
+  const { paginatedItems: paginatedRows, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(sorted);
 
   const weekSummary = useMemo(() => generateWeekSummary(displayData), [displayData]);
   const totalNomina = weekSummary.totalPayroll;
@@ -234,15 +238,12 @@ export default function PayrollPage() {
         {tab === 'cerradas' && weekOptions.length > 1 && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-lafa-text-secondary">Semana:</span>
-            <Select
+            <SearchableSelect
+              options={weekOptions.map(w => ({ value: w, label: w }))}
               value={selectedWeek}
-              onChange={e => setSelectedWeek(e.target.value)}
-              className="px-3 py-1.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-            >
-              {weekOptions.map(w => (
-                <option key={w} value={w}>{w}</option>
-              ))}
-            </Select>
+              onChange={v => setSelectedWeek(v)}
+              searchable={false}
+            />
           </div>
         )}
         {tab === 'cerradas' && weekOptions.length === 1 && (
@@ -310,7 +311,7 @@ export default function PayrollPage() {
                       </td>
                     </tr>
                   )}
-                  {sorted.map((row, i) => (
+                  {paginatedRows.map((row, i) => (
                     <tr
                       key={row.id}
                       onClick={() => setSelectedRow(row)}
@@ -372,13 +373,16 @@ export default function PayrollPage() {
             </div>
             <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
               <span className="text-xs text-lafa-text-secondary">
-                {displayData.length} conductor{displayData.length !== 1 ? 'es' : ''}
+                {rangeStart}–{rangeEnd} de {displayData.length} conductor{displayData.length !== 1 ? 'es' : ''}
               </span>
-              {displayData.length > 0 && (
-                <span className="text-xs font-medium text-lafa-text-primary">
-                  {'Total: '}{formatMXN(totalNomina)}
-                </span>
-              )}
+              <div className="flex items-center gap-3">
+                {displayData.length > 0 && (
+                  <span className="text-xs font-medium text-lafa-text-primary">
+                    {'Total: '}{formatMXN(totalNomina)}
+                  </span>
+                )}
+                <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+              </div>
             </div>
           </div>
         </>

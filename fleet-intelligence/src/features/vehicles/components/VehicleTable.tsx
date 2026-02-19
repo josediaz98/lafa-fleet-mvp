@@ -1,6 +1,8 @@
 import type { Vehicle } from '@/types';
 import { getCenterName } from '@/lib/format';
+import { usePagination } from '@/lib/use-pagination';
 import StatusBadge from '@/components/ui/StatusBadge';
+import PaginationControls from '@/components/ui/PaginationControls';
 
 interface VehicleTableProps {
   vehicles: Vehicle[];
@@ -11,6 +13,8 @@ interface VehicleTableProps {
 }
 
 export default function VehicleTable({ vehicles, totalCount, onSelect, hasActiveFilters, onClearFilters }: VehicleTableProps) {
+  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(vehicles);
+
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -25,7 +29,7 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
             </tr>
           </thead>
           <tbody>
-            {vehicles.map((vehicle, i) => (
+            {paginatedItems.map((vehicle, i) => (
               <tr
                 key={vehicle.id}
                 className={`border-b border-lafa-border/50 cursor-pointer hover:bg-lafa-accent/5 transition-colors duration-150 ${
@@ -47,13 +51,16 @@ export default function VehicleTable({ vehicles, totalCount, onSelect, hasActive
       </div>
       <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {vehicles.length} de {totalCount} vehículos
+          {rangeStart}–{rangeEnd} de {vehicles.length}{vehicles.length !== totalCount ? ` (${totalCount} total)` : ''} vehículos
         </span>
-        {hasActiveFilters && onClearFilters && (
-          <button onClick={onClearFilters} className="text-xs text-lafa-accent hover:underline">
-            Limpiar filtros
-          </button>
-        )}
+        <div className="flex items-center gap-3">
+          {hasActiveFilters && onClearFilters && (
+            <button onClick={onClearFilters} className="text-xs text-lafa-accent hover:underline">
+              Limpiar filtros
+            </button>
+          )}
+          <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
+        </div>
       </div>
     </div>
   );

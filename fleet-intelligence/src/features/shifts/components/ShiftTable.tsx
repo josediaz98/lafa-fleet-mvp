@@ -1,4 +1,6 @@
 import { formatTime } from '@/lib/date-utils';
+import { usePagination } from '@/lib/use-pagination';
+import PaginationControls from '@/components/ui/PaginationControls';
 
 interface CompletedShift {
   id: string;
@@ -19,6 +21,7 @@ interface ShiftTableProps {
 
 export default function ShiftTable({ shifts, hasActiveFilters, onClearFilters }: ShiftTableProps) {
   const totalHours = shifts.reduce((sum, s) => sum + (s.hoursWorked ?? 0), 0);
+  const { paginatedItems, currentPage, totalPages, setPage, rangeStart, rangeEnd } = usePagination(shifts);
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
@@ -36,7 +39,7 @@ export default function ShiftTable({ shifts, hasActiveFilters, onClearFilters }:
             </tr>
           </thead>
           <tbody>
-            {shifts.map((shift, i) => (
+            {paginatedItems.map((shift, i) => (
               <tr
                 key={shift.id}
                 className={`border-b border-lafa-border/50 ${i % 2 !== 0 ? 'bg-lafa-bg/30' : ''}`}
@@ -57,7 +60,7 @@ export default function ShiftTable({ shifts, hasActiveFilters, onClearFilters }:
       </div>
       <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {shifts.length} turno{shifts.length !== 1 ? 's' : ''} completado{shifts.length !== 1 ? 's' : ''}
+          {rangeStart}–{rangeEnd} de {shifts.length} turno{shifts.length !== 1 ? 's' : ''}
         </span>
         <div className="flex items-center gap-3">
           {hasActiveFilters && onClearFilters && (
@@ -66,6 +69,7 @@ export default function ShiftTable({ shifts, hasActiveFilters, onClearFilters }:
             </button>
           )}
           <span className="text-xs font-semibold text-status-success">{totalHours.toFixed(1)}h total</span>
+          <PaginationControls currentPage={currentPage} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </div>
     </div>
