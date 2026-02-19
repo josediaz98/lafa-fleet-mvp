@@ -17,7 +17,7 @@ Use a table for commits with columns: Date | Work Type | Hash | Key Updates | De
 
 Classify each commit into a Reforge work type based on the conventional commit prefix:
 - feat → Feature | growth (if acquisition/activation/retention related)
-- fix, test → Quality
+- fix, test, style (UX/UI) → Quality
 - refactor, style, chore → Debt
 - perf, ci, build → Scale
 - docs → Knowledge

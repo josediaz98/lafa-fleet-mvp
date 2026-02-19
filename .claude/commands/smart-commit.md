@@ -11,7 +11,7 @@ Classify the work using the Reforge product work taxonomy and add a `Work-Type` 
 - growth — acquisition, activation, engagement, or retention improvements
 - scale — infrastructure, performance, CI/CD, deployment, reliability
 - debt — refactoring, cleanup, code style, dependency updates
-- quality — bug fixes, tests, error handling
+- quality — bug fixes, tests, error handling, UX/UI polish
 - knowledge — documentation, research, READMEs
 
 Stage all relevant files (exclude .env, credentials, large binaries) and create the commit.
