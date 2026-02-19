@@ -113,7 +113,7 @@ export function validateRow(
     }
   }
 
-  if (row.costo > 500) {
+  if (row.costo > 2500) {
     return { ...row, estado: 'warning', errorMsg: 'Tarifa inusualmente alta' };
   }
 
