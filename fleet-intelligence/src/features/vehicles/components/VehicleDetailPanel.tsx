@@ -5,6 +5,7 @@ import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
 import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
+import Select from '@/components/ui/Select';
 
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
 const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
@@ -102,7 +103,7 @@ export default function VehicleDetailPanel({
         </div>
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-          <select
+          <Select
             value={editForm.centerId}
             onChange={e => setEditForm({ ...editForm, centerId: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
@@ -110,7 +111,7 @@ export default function VehicleDetailPanel({
             {MOCK_CENTERS.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
-          </select>
+          </Select>
         </div>
         {editError && <p className="text-sm text-status-danger">{editError}</p>}
         <div className="flex gap-3">

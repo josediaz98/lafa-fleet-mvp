@@ -10,6 +10,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { actionAddUser, actionUpdateUser, actionDeactivateUser } from '@/lib/actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
+import Select from '@/components/ui/Select';
 import SlidePanel from '@/components/ui/SlidePanel';
 import UserTable from './components/UserTable';
 import UserCreateModal from './components/UserCreateModal';
@@ -125,7 +126,7 @@ export default function UsersPage() {
         </button>
       </div>
 
-      <div className="relative z-[75]">
+      <div>
         <div className="relative mb-4 max-w-sm">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
           <input
@@ -220,19 +221,19 @@ export default function UsersPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
-              <select
+              <Select
                 value={form.role}
                 onChange={e => setForm({ ...form, role: e.target.value })}
                 className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
               >
                 <option value="admin">Admin</option>
                 <option value="supervisor">Supervisor</option>
-              </select>
+              </Select>
             </div>
             {form.role === 'supervisor' && (
               <div>
                 <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-                <select
+                <Select
                   value={form.centerId}
                   onChange={e => setForm({ ...form, centerId: e.target.value })}
                   className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
@@ -240,7 +241,7 @@ export default function UsersPage() {
                   {MOCK_CENTERS.map(c => (
                     <option key={c.id} value={c.id}>{c.name}</option>
                   ))}
-                </select>
+                </Select>
               </div>
             )}
             {formError && <p className="text-sm text-status-danger">{formError}</p>}

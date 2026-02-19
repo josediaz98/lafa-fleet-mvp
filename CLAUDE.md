@@ -26,17 +26,18 @@ npx serve .
 cd fleet-intelligence && npm install   # first time only
 cd fleet-intelligence && npm run dev   # localhost:5173 — works without Supabase (falls back to mock data)
 cd fleet-intelligence && npm run build # production → dist/
-cd fleet-intelligence && npm run test  # vitest — payroll logic tests
+cd fleet-intelligence && npm run test  # vitest — payroll logic tests (run after any payroll change)
 ```
 
-### Environment Variables (fleet-intelligence/.env.local)
+## Environment Variables
 
-```
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-anon-key
-```
-
-Optional — app falls back to mock data when not configured.
+| Variable | Location | Required | Notes |
+|----------|----------|----------|-------|
+| `PORT` | Root `.env` | No | Express server port (default: 3000) |
+| `SUPABASE_URL` | Root `.env` | For invite API | Server-side Supabase URL |
+| `SUPABASE_SERVICE_ROLE_KEY` | Root `.env` | For invite API | Server-side admin key |
+| `VITE_SUPABASE_URL` | `fleet-intelligence/.env.local` | No | Client-side (mock data fallback) |
+| `VITE_SUPABASE_ANON_KEY` | `fleet-intelligence/.env.local` | No | Client-side (mock data fallback) |
 
 ## Deployment (Railway)
 
@@ -44,6 +45,8 @@ Express server (`server.js`) on Railway with Railpack builder. Config in `railwa
 Build: `npm install && npm run build` → Start: `npm run start`
 Health check: `/api/health`
 Public URL: `https://lafa-production.up.railway.app/`
+
+No linter, no CI pipeline, no git hooks. Railway auto-deploys from `main`.
 
 ## Directory Layout
 
@@ -55,7 +58,8 @@ Public URL: `https://lafa-production.up.railway.app/`
 │   ├── images/              ← Static images (favicon, og-image, photos, logos)
 │   └── {dashboard,battery,collections,fleetmap,onboarding,roadmap}/
 ├── fleet-intelligence/      ← Fleet Intelligence MVP (React + TS + Vite)
-│   └── src/                 ← app/, components/, features/, lib/, types/, data/
+│   ├── src/                 ← app/, components/, features/, lib/, types/, data/
+│   └── db/                  ← Supabase SQL setup + email templates
 └── content/                 ← Research & strategy (Markdown)
     ├── thesis/              ← 8-chapter VC thesis (summary layer)
     ├── analysis/            ← Evidence layer (fleet/, fintech/, market/)
@@ -73,9 +77,15 @@ Public URL: `https://lafa-production.up.railway.app/`
 - **Products:** Driver-as-Employee (DaE) + Lease-to-Own (LTO, launched Dec 2025)
 - **Tech status:** Stage 0 — everything is spreadsheets
 - **Platform partner:** DiDi (Premier launched Oct 2025)
+- **Roles:** Admin (full access) + Supervisor (center-scoped). Drivers are NOT system users.
 - **Hiring:** Jose → Levi Garcia (Head of Product) → JJ (CEO)
 
-## Tooling
+## Instruction Surface
 
-No linter, no CI pipeline, no git hooks. Railway auto-deploys from `main`.
-Run `npm run test` in `fleet-intelligence/` after modifying payroll code.
+Per-directory conventions are enforced via `.claude/rules/`:
+
+| File | Scope | Rules |
+|------|-------|-------|
+| `fleet-intelligence.md` | `fleet-intelligence/**` | TypeScript strict, feature modules, service layer, Spanish statuses, Tailwind tokens |
+| `content.md` | `content/**` | English only, MECE data ownership, layer separation (thesis/analysis/strategy) |
+| `site.md` | `site/**` | Vanilla JS, no build step, IIFE pattern, CDN only, i18n attributes |

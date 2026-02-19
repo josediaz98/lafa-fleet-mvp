@@ -4,6 +4,7 @@ import { MOCK_CENTERS } from '@/data/mock-data';
 import { getCenterName } from '@/lib/format';
 import { validateDriverEdit } from '@/lib/validators';
 import StatusBadge from '@/components/ui/StatusBadge';
+import Select from '@/components/ui/Select';
 
 interface DriverFormState {
   fullName: string;
@@ -74,7 +75,7 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
         </div>
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-          <select
+          <Select
             value={form.centerId}
             onChange={e => setForm({ ...form, centerId: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
@@ -82,18 +83,18 @@ export default function DriverDataTab({ driver, isAdmin, onEdit, onDeactivate }:
             {MOCK_CENTERS.map(c => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Turno default</label>
-          <select
+          <Select
             value={form.defaultShift}
             onChange={e => setForm({ ...form, defaultShift: e.target.value })}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
             <option value="diurno">Diurno</option>
             <option value="nocturno">Nocturno</option>
-          </select>
+          </Select>
         </div>
         {formError && <p className="text-sm text-status-danger">{formError}</p>}
         <div className="flex gap-3">

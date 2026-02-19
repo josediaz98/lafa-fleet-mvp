@@ -1,6 +1,6 @@
 # Fleet Intelligence MVP
 
-React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CLAUDE.md for commands, env vars, and deployment.
+React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CLAUDE.md for commands, env vars, and deployment. See `.claude/rules/fleet-intelligence.md` for strict coding rules (TypeScript, service layer, status enums, tokens).
 
 ## src/ Directory Roles
 
@@ -9,7 +9,7 @@ React 18 + TypeScript + Vite 6 SPA for fleet operations and payroll. See root CL
 | `app/` | Entry point, App.tsx (router), providers (AppProvider, ToastProvider) | `App.tsx` defines all routes |
 | `components/` | Shared UI: `layout/` (AppLayout, Sidebar) + `ui/` (Modal, StatusBadge, etc.) | Reusable UI components |
 | `features/` | Feature modules — one dir per domain (8 total) | `payroll/`, `drivers/`, `shifts/` |
-| `lib/` | Service layer, utils, Supabase client + queries/mutations | `actions.ts` is the main entry point |
+| `lib/` | Service layer, utils, hooks, Supabase client + queries/mutations | `actions.ts` is the main entry point |
 | `types/` | Domain types, AppState, Action union — single source in `shared.ts` | Import types from `@/types` |
 | `data/` | Mock data fallback (`mock-data.ts`) — also exports base types | Types re-exported via `types/shared.ts` |
 
@@ -36,6 +36,9 @@ React Router v6 with basename from `BASE_URL` (`/fleet-intelligence/` in product
 | Path | Feature | Guard |
 |------|---------|-------|
 | `/login` | auth | None |
+| `/forgot-password` | auth | None |
+| `/reset-password` | auth | None |
+| `/accept-invite` | auth | None |
 | `/dashboard` | dashboard | RequireAuth |
 | `/shifts` | shifts | RequireAuth |
 | `/drivers` | drivers | RequireAuth |
@@ -44,7 +47,7 @@ React Router v6 with basename from `BASE_URL` (`/fleet-intelligence/` in product
 | `/csv-upload` | csv-upload | RequireAuth + RequireAdmin |
 | `/users` | users | RequireAuth + RequireAdmin |
 
-All routes except `/login` are nested inside `RequireAuth` via `AppLayout`. `RequireAdmin` wraps individual routes within that layout. `RequireAuth` redirects to `/login`. `RequireAdmin` redirects to `/dashboard`.
+All routes except auth are nested inside `RequireAuth` via `AppLayout`. `RequireAdmin` wraps individual routes within that layout. `RequireAuth` redirects to `/login`. `RequireAdmin` redirects to `/dashboard`.
 
 ## Data Flow
 

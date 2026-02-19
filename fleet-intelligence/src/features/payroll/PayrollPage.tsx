@@ -11,6 +11,7 @@ import { getWeekBounds, buildShiftSummaries } from '@/lib/date-utils';
 import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
 import { getPayrollFlags, generateWeekSummary } from '@/features/payroll/lib/payroll-flags';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
+import Select from '@/components/ui/Select';
 import SlidePanel from '@/components/ui/SlidePanel';
 import EmptyState from '@/components/ui/EmptyState';
 import PayrollSummaryCards from './components/PayrollSummaryCards';
@@ -220,7 +221,7 @@ export default function PayrollPage() {
         {tab === 'cerradas' && weekOptions.length > 1 && (
           <div className="flex items-center gap-2">
             <span className="text-sm text-lafa-text-secondary">Semana:</span>
-            <select
+            <Select
               value={selectedWeek}
               onChange={e => setSelectedWeek(e.target.value)}
               className="px-3 py-1.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
@@ -228,7 +229,7 @@ export default function PayrollPage() {
               {weekOptions.map(w => (
                 <option key={w} value={w}>{w}</option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
         {tab === 'cerradas' && weekOptions.length === 1 && (

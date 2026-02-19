@@ -1,5 +1,6 @@
 import { useCenterFilter } from '@/lib/use-center-filter';
 import { MOCK_CENTERS } from '@/data/mock-data';
+import Select from '@/components/ui/Select';
 
 interface CenterFilterDropdownProps {
   variant?: 'select' | 'pills';
@@ -39,7 +40,7 @@ export default function CenterFilterDropdown({ variant = 'select' }: CenterFilte
   }
 
   return (
-    <select
+    <Select
       value={selectedCenterName}
       onChange={e => {
         const name = e.target.value;
@@ -54,6 +55,6 @@ export default function CenterFilterDropdown({ variant = 'select' }: CenterFilte
       {['Todos', ...MOCK_CENTERS.map(c => c.name)].map(c => (
         <option key={c} value={c}>{c}</option>
       ))}
-    </select>
+    </Select>
   );
 }

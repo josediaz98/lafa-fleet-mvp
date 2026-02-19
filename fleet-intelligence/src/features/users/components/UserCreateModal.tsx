@@ -5,6 +5,7 @@ import { MOCK_CENTERS } from '@/data/mock-data';
 import { isSupabaseConfigured } from '@/lib/supabase/client';
 import { validateUserCreate, type UserFormData } from '@/lib/validators';
 import Modal from '@/components/ui/Modal';
+import Select from '@/components/ui/Select';
 
 interface UserCreateModalProps {
   open: boolean;
@@ -99,19 +100,19 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
         )}
         <div>
           <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Rol</label>
-          <select
+          <Select
             value={form.role}
             onChange={e => { setForm({ ...form, role: e.target.value }); setFormError(''); }}
             className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
           >
             <option value="admin">Admin</option>
             <option value="supervisor">Supervisor</option>
-          </select>
+          </Select>
         </div>
         {form.role === 'supervisor' && (
           <div>
             <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-            <select
+            <Select
               value={form.centerId}
               onChange={e => { setForm({ ...form, centerId: e.target.value }); setFormError(''); }}
               className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
@@ -119,7 +120,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
               {MOCK_CENTERS.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
         {formError && <p className="text-sm text-status-danger">{formError}</p>}
