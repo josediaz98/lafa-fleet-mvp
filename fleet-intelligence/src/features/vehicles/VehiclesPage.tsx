@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Car, Zap, Wrench, AlertTriangle } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { useAppState, useAppDispatch } from '@/app/providers/AppProvider';
 import type { Vehicle } from '@/types';
 import { useCenterFilter } from '@/components/ui/use-center-filter';
@@ -7,19 +7,25 @@ import { MOCK_CENTERS } from '@/data/mock-data';
 import { useToast } from '@/app/providers/ToastProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { actionVehicleStatus, actionAddVehicle, actionUpdateVehicle } from '@/lib/actions';
-import { validateVehicleForm, type VehicleFormData } from '@/lib/validators';
-import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
-import StatusBadge from '@/components/ui/StatusBadge';
-import SlidePanel from '@/components/ui/SlidePanel';
-import { getCenterName } from '@/lib/format';
 import { STATUS_LABELS } from '@/lib/status-map';
+import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
+import SlidePanel from '@/components/ui/SlidePanel';
 import VehicleTable from './components/VehicleTable';
 import VehicleCreateModal from './components/VehicleCreateModal';
+import VehicleDetailPanel from './components/VehicleDetailPanel';
+
+type StatusFilter = 'todos' | 'disponible' | 'en_turno' | 'cargando' | 'mantenimiento' | 'fuera_de_servicio';
 
 const ALL_STATUSES = ['disponible', 'en_turno', 'cargando', 'mantenimiento', 'fuera_de_servicio'];
-const SUPERVISOR_STATUSES = ['disponible', 'cargando', 'mantenimiento'];
 
-const emptyEditForm: VehicleFormData = { plate: '', model: '', oem: '', centerId: '' };
+const statusFilters: { key: StatusFilter; label: string }[] = [
+  { key: 'todos', label: 'Todos' },
+  { key: 'disponible', label: 'Disponible' },
+  { key: 'en_turno', label: 'En turno' },
+  { key: 'cargando', label: 'Cargando' },
+  { key: 'mantenimiento', label: 'Mant.' },
+  { key: 'fuera_de_servicio', label: 'Fuera' },
+];
 
 export default function VehiclesPage() {
   const { vehicles, shifts } = useAppState();
@@ -29,18 +35,11 @@ export default function VehiclesPage() {
   const { confirm } = useConfirmDialog();
 
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('todos');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-  const [editMode, setEditMode] = useState(false);
-  const [editForm, setEditForm] = useState<VehicleFormData>(emptyEditForm);
-  const [editError, setEditError] = useState('');
 
   const centeredVehicles = filterByCenter(vehicles);
-  const filtered = centeredVehicles.filter(v =>
-    v.plate.toLowerCase().includes(search.toLowerCase()) ||
-    v.model.toLowerCase().includes(search.toLowerCase()) ||
-    v.oem.toLowerCase().includes(search.toLowerCase())
-  );
 
   const statusSummary = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -51,23 +50,27 @@ export default function VehiclesPage() {
     return counts;
   }, [centeredVehicles]);
 
-  const vehicleShifts = useMemo(() => {
-    if (!selectedVehicle) return [];
-    return shifts
-      .filter(s => s.vehicleId === selectedVehicle.id)
-      .sort((a, b) => new Date(b.checkIn).getTime() - new Date(a.checkIn).getTime())
-      .slice(0, 10);
-  }, [selectedVehicle, shifts]);
-
-  function getAvailableStatuses(vehicle: Vehicle) {
-    const statuses = (isAdmin ? ALL_STATUSES : SUPERVISOR_STATUSES).filter(s => s !== 'en_turno');
-    const hasActiveShift = shifts.some(
-      s => s.vehicleId === vehicle.id && s.status === 'en_turno'
-    );
-    if (hasActiveShift) {
-      return statuses.filter(s => s !== 'disponible');
+  const filtered = useMemo(() => {
+    let result = centeredVehicles;
+    if (statusFilter !== 'todos') {
+      result = result.filter(v => v.status === statusFilter);
     }
-    return statuses;
+    if (search) {
+      const q = search.toLowerCase();
+      result = result.filter(v =>
+        v.plate.toLowerCase().includes(q) ||
+        v.model.toLowerCase().includes(q) ||
+        v.oem.toLowerCase().includes(q)
+      );
+    }
+    return result;
+  }, [centeredVehicles, statusFilter, search]);
+
+  const hasActiveFilters = statusFilter !== 'todos' || search !== '';
+
+  function clearFilters() {
+    setSearch('');
+    setStatusFilter('todos');
   }
 
   async function handleStatusChange(vehicle: Vehicle, newStatus: string) {
@@ -82,51 +85,25 @@ export default function VehiclesPage() {
       if (!ok) return;
     }
     await actionVehicleStatus(vehicle.id, newStatus, vehicle.plate, STATUS_LABELS[newStatus] ?? newStatus, dispatch, showToast);
+    setSelectedVehicle({ ...vehicle, status: newStatus });
   }
 
   function handleCreateVehicle(vehicle: Vehicle) {
     actionAddVehicle(vehicle, dispatch, showToast);
   }
 
-  function openVehicleEdit() {
-    if (!selectedVehicle) return;
-    setEditForm({ plate: selectedVehicle.plate, model: selectedVehicle.model, oem: selectedVehicle.oem, centerId: selectedVehicle.centerId });
-    setEditError('');
-    setEditMode(true);
-  }
-
-  function handleSaveVehicleEdit() {
-    if (!selectedVehicle) return;
-    const existingPlates = vehicles.map(v => v.plate);
-    const error = validateVehicleForm(editForm, existingPlates, selectedVehicle.plate);
-    if (error) {
-      setEditError(error);
-      return;
-    }
-    const updated: Vehicle = {
-      ...selectedVehicle,
-      plate: editForm.plate.trim().toUpperCase(),
-      model: editForm.model.trim(),
-      oem: editForm.oem.trim(),
-      centerId: editForm.centerId,
-    };
+  function handleEditVehicle(updated: Vehicle) {
     actionUpdateVehicle(updated, dispatch, showToast);
     setSelectedVehicle(updated);
-    setEditMode(false);
   }
-
-  const summaryItems = [
-    { key: 'disponible', label: 'Disponibles', color: 'text-[#22C55E]', icon: Car },
-    { key: 'en_turno', label: 'En turno', color: 'text-[#3B82F6]', icon: Car },
-    { key: 'cargando', label: 'Cargando', color: 'text-[#EAB308]', icon: Zap },
-    { key: 'mantenimiento', label: 'Mantenimiento', color: 'text-[#F97316]', icon: Wrench },
-    { key: 'fuera_de_servicio', label: 'Fuera de servicio', color: 'text-[#EF4444]', icon: AlertTriangle },
-  ];
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold text-lafa-text-primary">{'Vehículos'}</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+        <div>
+          <h1 className="text-2xl font-bold text-lafa-text-primary">Vehículos</h1>
+          <p className="text-sm text-lafa-text-secondary mt-0.5">Gestión y estado de la flota</p>
+        </div>
         <div className="flex items-center gap-3">
           <CenterFilterDropdown />
           {isAdmin && (
@@ -134,192 +111,62 @@ export default function VehiclesPage() {
               onClick={() => setShowCreateModal(true)}
               className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
             >
-              <Plus size={16} /> {'Nuevo vehículo'}
+              <Plus size={16} /> Nuevo vehículo
             </button>
           )}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mb-5">
-        {summaryItems.map(item => {
-          const Icon = item.icon;
-          return (
-            <div key={item.key} className="bg-lafa-surface border border-lafa-border rounded-xl p-3 flex items-center gap-3">
-              <div className={`p-2 rounded-lg bg-lafa-bg ${item.color}`}>
-                <Icon size={16} />
-              </div>
-              <div>
-                <p className="text-lg font-bold text-lafa-text-primary">{statusSummary[item.key]}</p>
-                <p className="text-xs text-lafa-text-secondary">{item.label}</p>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="relative mb-4 max-w-sm">
-        <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
-        <input
-          type="text"
-          placeholder="Buscar por placa, modelo u OEM..."
-          value={search}
-          onChange={e => setSearch(e.target.value)}
-          className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
-        />
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-4">
+        <div className="relative max-w-sm flex-1">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-lafa-text-secondary" />
+          <input
+            type="text"
+            placeholder="Buscar por placa, modelo u OEM..."
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
+          />
+        </div>
+        <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5 flex-wrap">
+          {statusFilters.map(f => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              className={`px-3 py-1.5 text-xs font-medium rounded transition-colors ${
+                statusFilter === f.key
+                  ? 'bg-lafa-accent text-white'
+                  : 'text-lafa-text-secondary hover:text-lafa-text-primary'
+              }`}
+            >
+              {f.label}{f.key !== 'todos' && statusSummary[f.key] > 0 ? ` (${statusSummary[f.key]})` : ''}
+            </button>
+          ))}
+        </div>
       </div>
 
       <VehicleTable
         vehicles={filtered}
         totalCount={centeredVehicles.length}
         onSelect={setSelectedVehicle}
+        hasActiveFilters={hasActiveFilters}
+        onClearFilters={clearFilters}
       />
 
       <SlidePanel
         open={!!selectedVehicle}
-        onClose={() => { setSelectedVehicle(null); setEditMode(false); }}
+        onClose={() => setSelectedVehicle(null)}
         title={selectedVehicle ? `${selectedVehicle.plate} — ${selectedVehicle.model}` : ''}
       >
-        {selectedVehicle && !editMode && (
-          <div>
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Placa</p>
-                <p className="text-sm font-medium text-lafa-text-primary font-mono">{selectedVehicle.plate}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Modelo</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedVehicle.model}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">OEM</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{selectedVehicle.oem}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Centro</p>
-                <p className="text-sm font-medium text-lafa-text-primary">{getCenterName(selectedVehicle.centerId)}</p>
-              </div>
-              <div>
-                <p className="text-xs text-lafa-text-secondary">Status actual</p>
-                <StatusBadge status={selectedVehicle.status} />
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-2">Cambiar status</label>
-              <div className="flex flex-wrap gap-2">
-                {getAvailableStatuses(selectedVehicle).map(s => (
-                  <button
-                    key={s}
-                    onClick={() => {
-                      if (s !== selectedVehicle.status) {
-                        handleStatusChange(selectedVehicle, s);
-                        setSelectedVehicle({ ...selectedVehicle, status: s });
-                      }
-                    }}
-                    className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-                      s === selectedVehicle.status
-                        ? 'border-lafa-accent bg-lafa-accent/10 text-lafa-accent'
-                        : 'border-lafa-border text-lafa-text-secondary hover:border-lafa-text-secondary'
-                    }`}
-                  >
-                    {STATUS_LABELS[s]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {isAdmin && (
-              <div className="mb-6">
-                <button
-                  onClick={openVehicleEdit}
-                  className="px-4 py-2 text-sm font-medium text-lafa-accent border border-lafa-accent/30 rounded hover:bg-lafa-accent/10 transition-colors"
-                >
-                  Editar datos
-                </button>
-              </div>
-            )}
-
-            <div>
-              <h4 className="text-sm font-medium text-lafa-text-primary mb-3">Turnos recientes</h4>
-              {vehicleShifts.length === 0 ? (
-                <p className="text-xs text-lafa-text-secondary">{'Sin turnos registrados para este vehículo.'}</p>
-              ) : (
-                <div className="space-y-2">
-                  {vehicleShifts.map(shift => (
-                    <div key={shift.id} className="bg-lafa-bg rounded-lg p-3 flex items-center justify-between">
-                      <div>
-                        <span className="text-xs font-medium text-lafa-text-primary">{shift.driverName}</span>
-                        <p className="text-xs text-lafa-text-secondary">
-                          {new Date(shift.checkIn).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' })}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <StatusBadge status={shift.status} />
-                        {shift.hoursWorked !== undefined && (
-                          <p className="text-xs text-lafa-text-secondary mt-0.5">{shift.hoursWorked}h</p>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        )}
-        {selectedVehicle && editMode && (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Placa</label>
-              <input
-                value={editForm.plate}
-                onChange={e => setEditForm({ ...editForm, plate: e.target.value })}
-                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Modelo</label>
-              <input
-                value={editForm.model}
-                onChange={e => setEditForm({ ...editForm, model: e.target.value })}
-                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">OEM</label>
-              <input
-                value={editForm.oem}
-                onChange={e => setEditForm({ ...editForm, oem: e.target.value })}
-                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-lafa-text-secondary mb-1.5">Centro</label>
-              <select
-                value={editForm.centerId}
-                onChange={e => setEditForm({ ...editForm, centerId: e.target.value })}
-                className="w-full px-3 py-2.5 bg-lafa-bg border border-lafa-border rounded text-sm text-lafa-text-primary focus:outline-none focus:border-lafa-accent"
-              >
-                {MOCK_CENTERS.map(c => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
-            </div>
-            {editError && <p className="text-sm text-[#EF4444]">{editError}</p>}
-            <div className="flex gap-3">
-              <button
-                onClick={handleSaveVehicleEdit}
-                className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors"
-              >
-                Guardar
-              </button>
-              <button
-                onClick={() => setEditMode(false)}
-                className="px-4 py-2 text-sm font-medium text-lafa-text-secondary border border-lafa-border rounded hover:bg-lafa-border/30 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
+        {selectedVehicle && (
+          <VehicleDetailPanel
+            vehicle={selectedVehicle}
+            shifts={shifts}
+            isAdmin={isAdmin}
+            existingPlates={vehicles.map(v => v.plate)}
+            onStatusChange={handleStatusChange}
+            onEdit={handleEditVehicle}
+          />
         )}
       </SlidePanel>
 

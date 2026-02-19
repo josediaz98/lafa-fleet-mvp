@@ -6,9 +6,11 @@ interface VehicleTableProps {
   vehicles: Vehicle[];
   totalCount: number;
   onSelect: (vehicle: Vehicle) => void;
+  hasActiveFilters?: boolean;
+  onClearFilters?: () => void;
 }
 
-export default function VehicleTable({ vehicles, totalCount, onSelect }: VehicleTableProps) {
+export default function VehicleTable({ vehicles, totalCount, onSelect, hasActiveFilters, onClearFilters }: VehicleTableProps) {
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
       <div className="overflow-x-auto">
@@ -43,10 +45,15 @@ export default function VehicleTable({ vehicles, totalCount, onSelect }: Vehicle
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
         <span className="text-xs text-lafa-text-secondary">
-          {vehicles.length} de {totalCount} {'vehículos'}
+          {vehicles.length} de {totalCount} vehículos
         </span>
+        {hasActiveFilters && onClearFilters && (
+          <button onClick={onClearFilters} className="text-xs text-lafa-accent hover:underline">
+            Limpiar filtros
+          </button>
+        )}
       </div>
     </div>
   );
