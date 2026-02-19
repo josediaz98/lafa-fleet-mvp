@@ -302,7 +302,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'E10X',
     oem: 'JAC',
     centerId: '00000000-0000-0000-0000-00000000c001',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v4',
@@ -318,7 +318,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Geometry C',
     oem: 'Geely',
     centerId: '00000000-0000-0000-0000-00000000c002',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v6',
@@ -358,7 +358,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Aion S',
     oem: 'GAC',
     centerId: '00000000-0000-0000-0000-00000000c003',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v11',
@@ -366,7 +366,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Geometry C',
     oem: 'Geely',
     centerId: '00000000-0000-0000-0000-00000000c001',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v12',
@@ -374,7 +374,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'E10X',
     oem: 'JAC',
     centerId: '00000000-0000-0000-0000-00000000c002',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v13',
@@ -382,7 +382,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Aion S',
     oem: 'GAC',
     centerId: '00000000-0000-0000-0000-00000000c001',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v14',
@@ -390,7 +390,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'E10X',
     oem: 'JAC',
     centerId: '00000000-0000-0000-0000-00000000c001',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v15',
@@ -398,7 +398,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Geometry C',
     oem: 'Geely',
     centerId: '00000000-0000-0000-0000-00000000c002',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v16',
@@ -406,7 +406,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Aion S',
     oem: 'GAC',
     centerId: '00000000-0000-0000-0000-00000000c002',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v17',
@@ -414,7 +414,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'E10X',
     oem: 'JAC',
     centerId: '00000000-0000-0000-0000-00000000c003',
-    status: 'en_turno',
+    status: 'disponible',
   },
   {
     id: 'v18',
@@ -422,7 +422,7 @@ export const DEV_VEHICLES: Vehicle[] = [
     model: 'Geometry C',
     oem: 'Geely',
     centerId: '00000000-0000-0000-0000-00000000c003',
-    status: 'en_turno',
+    status: 'disponible',
   },
 ];
 

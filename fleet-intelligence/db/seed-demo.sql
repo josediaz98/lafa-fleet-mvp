@@ -361,10 +361,10 @@ INSERT INTO shifts (id, driver_id, vehicle_id, check_in, check_out, hours_worked
 
 
 -- ============================================================
--- 5b. ACTIVE SHIFTS — Friday (3 drivers currently on shift)
+-- 5b. ACTIVE SHIFTS — Thursday (3 drivers currently on shift)
 -- ============================================================
 -- One per center so the Activos tab isn't empty on page load.
--- These are Friday morning diurno shifts — timer runs live in UI.
+-- These are Thursday morning diurno shifts — timer runs live in UI.
 
 -- d1 Carlos Mendoza (Vallejo) — top performer, 4 completed shifts Mon-Thu
 -- d4 (Granada) — consistent driver, 4 completed shifts Mon-Thu

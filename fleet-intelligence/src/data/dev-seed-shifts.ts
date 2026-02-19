@@ -119,7 +119,40 @@ function buildShifts(specs: ShiftSpec[]): Shift[] {
 }
 
 // ---------------------------------------------------------------------------
-// Export: 115 completed shifts (28 drivers * 4 + 1 driver * 3)
+// Active shifts — same 3 drivers as seed-demo.sql
 // ---------------------------------------------------------------------------
 
-export const DEV_SHIFTS: Shift[] = buildShifts(SHIFT_SPECS);
+function buildActiveShifts(): Shift[] {
+  const today = new Date();
+  today.setHours(6, 0, 0, 0);
+
+  const specs = [
+    { driverId: 'd1', driverName: 'Carlos Mendoza', vehicleId: 'v2', plate: 'DEF-5678', model: 'Geometry C', center: 'Vallejo', centerId: C1, shift: 'diurno' as const },
+    { driverId: 'd4', driverName: 'Roberto Díaz', vehicleId: 'v4', plate: 'JKL-3456', model: 'Aion S', center: 'Granada', centerId: C2, shift: 'diurno' as const },
+    { driverId: 'd7', driverName: 'Juan García', vehicleId: 'v7', plate: 'STU-4567', model: 'Aion S', center: 'Roma', centerId: C3, shift: 'diurno' as const },
+  ];
+
+  return specs.map((s) => ({
+    id: `shift-${s.driverId}-active`,
+    driverId: s.driverId,
+    driverName: s.driverName,
+    vehicleId: s.vehicleId,
+    plate: s.plate,
+    model: s.model,
+    center: s.center,
+    centerId: s.centerId,
+    checkIn: today.toISOString(),
+    checkOut: undefined,
+    hoursWorked: 0,
+    status: 'en_turno' as const,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Export: 115 completed shifts + 3 active shifts
+// ---------------------------------------------------------------------------
+
+export const DEV_SHIFTS: Shift[] = [
+  ...buildShifts(SHIFT_SPECS),
+  ...buildActiveShifts(),
+];
