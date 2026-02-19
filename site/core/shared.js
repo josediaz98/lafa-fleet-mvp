@@ -1,203 +1,8 @@
 // ============================================================
 // LAFA Internal Tools — Shared Foundation
-// Sidebar nav, mock data (200 vehicles), utilities, chart defaults
+// Sidebar nav, utilities, notifications, page init
+// Requires: design-tokens.js, mock-data.js, i18n.js (loaded first)
 // ============================================================
-
-// ---------- Design Tokens ----------
-const COLORS = {
-  // Brand Core
-  dark: '#1B1A23', card: '#252B37', cardHover: '#2D3444',
-  orange: '#FF5A00', orangeLogo: '#FF6200',
-  // Semantic Status
-  green: '#22C55E', yellow: '#EAB308', red: '#EF4444', blue: '#3B82F6',
-  // Track Colors
-  teal: '#14B8A6',      // DaE track
-  amber: '#F59E0B',     // LTO track
-  // SOH Heatmap
-  sohExcellent: '#16A34A', sohGood: '#22C55E', sohFair: '#4ADE80',
-  sohWatch: '#EAB308', sohCritical: '#EF4444',
-  // Neutrals
-  gray100: '#F3F4F6', gray300: '#D1D5DB', gray400: '#9CA3AF',
-  gray500: '#6B7280', gray600: '#4B5563', gray700: '#374151', gray800: '#1F2937',
-  border: 'rgba(255,255,255,0.06)',
-};
-
-// ---------- Seeded Random ----------
-function seededRandom(seed) {
-  let s = seed;
-  return function () {
-    s = (s * 16807 + 0) % 2147483647;
-    return (s - 1) / 2147483646;
-  };
-}
-const rand = seededRandom(42);
-function randInt(min, max) { return Math.floor(rand() * (max - min + 1)) + min; }
-function randFloat(min, max) { return +(rand() * (max - min) + min).toFixed(2); }
-function pick(arr) { return arr[randInt(0, arr.length - 1)]; }
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = randInt(0, i);
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// ---------- Mexican Names ----------
-const FIRST_NAMES_M = ['Carlos', 'Miguel', 'José', 'Luis', 'Juan', 'Roberto', 'Fernando', 'Alejandro', 'Ricardo', 'Eduardo', 'Francisco', 'Daniel', 'Marco', 'Antonio', 'Sergio', 'Jorge', 'Pedro', 'Rafael', 'Manuel', 'Óscar', 'Arturo', 'Raúl', 'Javier', 'Héctor', 'Enrique', 'Adrián', 'Hugo', 'Armando', 'Víctor', 'Diego'];
-const FIRST_NAMES_F = ['María', 'Ana', 'Laura', 'Sofía', 'Fernanda', 'Gabriela', 'Carmen', 'Patricia', 'Rosa', 'Elena', 'Lucia', 'Isabel', 'Sandra', 'Verónica', 'Claudia', 'Silvia', 'Andrea', 'Diana', 'Guadalupe', 'Teresa'];
-const LAST_NAMES = ['García', 'Hernández', 'López', 'Martínez', 'González', 'Rodríguez', 'Pérez', 'Sánchez', 'Ramírez', 'Torres', 'Flores', 'Rivera', 'Gómez', 'Díaz', 'Cruz', 'Morales', 'Reyes', 'Gutiérrez', 'Ortiz', 'Ramos', 'Mendoza', 'Castillo', 'Vargas', 'Ruiz', 'Jiménez', 'Aguilar', 'Herrera', 'Medina', 'Castro', 'Vega'];
-
-const CDMX_COLONIAS = ['Condesa', 'Roma Norte', 'Roma Sur', 'Polanco', 'Del Valle', 'Narvarte', 'Coyoacán', 'Santa Fe', 'Juárez', 'Centro', 'Tlalpan', 'Iztapalapa', 'Xochimilco', 'Azcapotzalco', 'Reforma'];
-
-// ---------- Vehicle Models ----------
-const VEHICLE_MODELS = {
-  Geely: ['Geometry E', 'Geometry C', 'Emgrand EV'],
-  JAC: ['E10X', 'iEV7S', 'iEVS4'],
-  GAC: ['Aion S', 'Aion Y', 'AION V'],
-};
-
-// ---------- Generate Mock Data ----------
-const OEM_DIST = [];
-for (let i = 0; i < 80; i++) OEM_DIST.push('Geely');
-for (let i = 0; i < 73; i++) OEM_DIST.push('JAC');
-for (let i = 0; i < 47; i++) OEM_DIST.push('GAC');
-
-const PRODUCT_DIST = [];
-for (let i = 0; i < 133; i++) PRODUCT_DIST.push('DaE');
-for (let i = 0; i < 67; i++) PRODUCT_DIST.push('LTO');
-
-const STATUSES = ['active', 'active', 'active', 'active', 'active', 'active', 'active', 'active', 'active', 'active', 'maintenance', 'charging', 'idle'];
-
-const PLATFORMS = ['DiDi', 'DiDi', 'DiDi', 'Uber', 'Uber', 'DiDi+Uber'];
-
-function generateDrivers(count) {
-  const drivers = [];
-  const shuffledOEMs = shuffle(OEM_DIST).slice(0, count);
-  const shuffledProducts = shuffle(PRODUCT_DIST).slice(0, count);
-
-  for (let i = 0; i < count; i++) {
-    const isMale = rand() > 0.3;
-    const firstName = isMale ? pick(FIRST_NAMES_M) : pick(FIRST_NAMES_F);
-    const lastName1 = pick(LAST_NAMES);
-    const lastName2 = pick(LAST_NAMES);
-    const oem = shuffledOEMs[i];
-    const product = shuffledProducts[i];
-    const model = pick(VEHICLE_MODELS[oem]);
-    const vehicleId = `LAF-${String(i + 1).padStart(3, '0')}`;
-    const status = pick(STATUSES);
-    const platform = pick(PLATFORMS);
-
-    // SOH: mostly 92-98%, 5 anomalies below 88%
-    let soh;
-    if (i < 5) {
-      soh = randFloat(78, 87);
-    } else {
-      soh = randFloat(91, 99);
-    }
-
-    const cycles = randInt(200, 1200);
-    const avgTemp = randFloat(20, 28);
-    const rating = randFloat(4.2, 4.95);
-
-    // Revenue: DaE = 6000-9000/week, LTO = up to 10000/week
-    const weeklyRevenue = product === 'DaE' ? randInt(6000, 9000) : randInt(5000, 10000);
-
-    // Payment history (12 weeks)
-    const paymentOnTimeRate = product === 'DaE' ? 0.85 : 0.70;
-    const payments = [];
-    for (let w = 0; w < 12; w++) {
-      const r = rand();
-      let payStatus;
-      if (r < paymentOnTimeRate) payStatus = 'on-time';
-      else if (r < paymentOnTimeRate + 0.10) payStatus = 'late';
-      else payStatus = 'default';
-      payments.push({
-        week: w + 1,
-        amount: product === 'DaE' ? randInt(2500, 3500) : randInt(3000, 5000),
-        status: payStatus,
-        date: new Date(2026, 0, 6 + w * 7).toISOString().split('T')[0],
-      });
-    }
-
-    // Days overdue for collections (0 = current, positive = overdue)
-    const daysOverdue = payments[11].status === 'default' ? randInt(1, 21) : (payments[11].status === 'late' ? randInt(1, 5) : 0);
-
-    drivers.push({
-      id: i + 1,
-      vehicleId,
-      firstName,
-      lastName: `${lastName1} ${lastName2}`,
-      fullName: `${firstName} ${lastName1} ${lastName2}`,
-      shortName: `${firstName} ${lastName1}`,
-      oem,
-      model,
-      product,
-      status,
-      platform,
-      soh,
-      cycles,
-      avgTemp,
-      rating: +rating.toFixed(1),
-      weeklyRevenue,
-      payments,
-      daysOverdue,
-      colonia: pick(CDMX_COLONIAS),
-      phone: `55${randInt(1000, 9999)}${randInt(1000, 9999)}`,
-      joinDate: new Date(2025, randInt(0, 11), randInt(1, 28)).toISOString().split('T')[0],
-      totalTrips: randInt(500, 8000),
-    });
-  }
-  return drivers;
-}
-
-const DRIVERS = generateDrivers(200);
-
-// Computed fleet stats
-const FLEET_STATS = {
-  totalVehicles: 200,
-  activeVehicles: DRIVERS.filter(d => d.status === 'active').length,
-  maintenanceVehicles: DRIVERS.filter(d => d.status === 'maintenance').length,
-  chargingVehicles: DRIVERS.filter(d => d.status === 'charging').length,
-  idleVehicles: DRIVERS.filter(d => d.status === 'idle').length,
-  avgSOH: +(DRIVERS.reduce((s, d) => s + d.soh, 0) / 200).toFixed(1),
-  anomalies: DRIVERS.filter(d => d.soh < 88).length,
-  avgTemp: +(DRIVERS.reduce((s, d) => s + d.avgTemp, 0) / 200).toFixed(1),
-  avgCycles: Math.round(DRIVERS.reduce((s, d) => s + d.cycles, 0) / 200),
-  weeklyRevenue: DRIVERS.reduce((s, d) => s + d.weeklyRevenue, 0),
-  fleetUtilization: +((DRIVERS.filter(d => d.status === 'active').length / 200) * 100).toFixed(1),
-  paymentsOnTime: +((DRIVERS.filter(d => d.payments[11].status === 'on-time').length / 200) * 100).toFixed(1),
-  daeCount: DRIVERS.filter(d => d.product === 'DaE').length,
-  ltoCount: DRIVERS.filter(d => d.product === 'LTO').length,
-  geelyCount: DRIVERS.filter(d => d.oem === 'Geely').length,
-  jacCount: DRIVERS.filter(d => d.oem === 'JAC').length,
-  gacCount: DRIVERS.filter(d => d.oem === 'GAC').length,
-};
-
-// Weekly revenue series (12 weeks)
-const WEEKLY_REVENUE = [];
-for (let w = 0; w < 12; w++) {
-  const daeRev = DRIVERS.filter(d => d.product === 'DaE').reduce((s, d) => s + d.payments[w].amount * (d.payments[w].status !== 'default' ? 1 : 0), 0);
-  const ltoRev = DRIVERS.filter(d => d.product === 'LTO').reduce((s, d) => s + d.payments[w].amount * (d.payments[w].status !== 'default' ? 1 : 0), 0);
-  WEEKLY_REVENUE.push({
-    week: typeof t === 'function' ? t('shared.weekAbbr', { n: w + 1 }) : `Sem ${w + 1}`,
-    date: new Date(2026, 0, 6 + w * 7).toISOString().split('T')[0],
-    dae: daeRev,
-    lto: ltoRev,
-    total: daeRev + ltoRev,
-  });
-}
-
-// Payment status by week (12 weeks)
-const PAYMENT_STATUS_WEEKS = [];
-for (let w = 0; w < 12; w++) {
-  PAYMENT_STATUS_WEEKS.push({
-    week: typeof t === 'function' ? t('shared.weekAbbr', { n: w + 1 }) : `Sem ${w + 1}`,
-    onTime: DRIVERS.filter(d => d.payments[w].status === 'on-time').length,
-    late: DRIVERS.filter(d => d.payments[w].status === 'late').length,
-    default: DRIVERS.filter(d => d.payments[w].status === 'default').length,
-  });
-}
 
 // ---------- Utilities ----------
 function formatMXN(amount) {
@@ -309,38 +114,6 @@ function getInitials(firstName, lastName) {
 function maskPhone(phone) {
   if (!phone || phone.length < 6) return phone;
   return phone.substring(0, 2) + '** *** **' + phone.substring(phone.length - 2);
-}
-
-// ---------- ApexCharts Defaults ----------
-const APEX_DEFAULTS = {
-  chart: {
-    background: 'transparent',
-    foreColor: COLORS.gray400,
-    fontFamily: 'Inter Tight, system-ui, sans-serif',
-    toolbar: { show: false },
-    animations: { enabled: true, easing: 'easeinout', speed: 800 },
-  },
-  grid: {
-    borderColor: 'rgba(255,255,255,0.06)',
-    strokeDashArray: 3,
-  },
-  tooltip: {
-    theme: 'dark',
-    style: { fontSize: '12px' },
-  },
-  colors: [COLORS.orange, COLORS.teal, COLORS.amber, COLORS.green, COLORS.yellow, COLORS.red],
-  stroke: { curve: 'smooth' },
-};
-
-function mergeApexDefaults(opts) {
-  return {
-    ...opts,
-    chart: { ...APEX_DEFAULTS.chart, ...opts.chart },
-    grid: { ...APEX_DEFAULTS.grid, ...opts.grid },
-    tooltip: { ...APEX_DEFAULTS.tooltip, ...opts.tooltip },
-    colors: opts.colors || APEX_DEFAULTS.colors,
-    stroke: { ...APEX_DEFAULTS.stroke, ...opts.stroke },
-  };
 }
 
 // ---------- Sidebar Navigation ----------
@@ -460,7 +233,6 @@ function initSidebar(currentPage) {
     inner.style.zIndex = '50';
     inner.style.height = '100vh';
     inner.querySelectorAll('.sidebar-label, .sidebar-logo').forEach(el => el.classList.remove('hidden'));
-    // Create backdrop
     backdrop = document.createElement('div');
     backdrop.className = 'sidebar-backdrop';
     document.body.appendChild(backdrop);
@@ -667,7 +439,6 @@ function initNotifications() {
     const listEl = panel.querySelector('.notif-list');
     if (listEl) listEl.innerHTML = notifs.map(renderItem).join('');
     updateMarkAllBtn();
-    // Update header text
     const headerTitle = panel.querySelector('.notif-header h3');
     const markAllBtn = panel.querySelector('.notif-mark-all');
     if (headerTitle && typeof t === 'function') headerTitle.textContent = t('shared.notif.title');
@@ -678,7 +449,6 @@ function initNotifications() {
     if (readSet.has(id)) return;
     readSet.add(id);
     saveReadState();
-    // Update just this item visually
     const item = panel.querySelector(`[data-notif-id="${id}"]`);
     if (item) {
       item.classList.remove('is-unread');
@@ -788,13 +558,9 @@ function initPage(pageId, title, subtitle, icons = {}) {
   });
   // On language change: re-render sidebar labels, bottom nav, sweep DOM
   window.addEventListener('langchange', () => {
-    // Re-render sidebar labels
     document.querySelectorAll('#app-sidebar nav a .sidebar-label').forEach((el, i) => {
       if (SIDEBAR_PAGES[i]) el.textContent = sidebarLabel(SIDEBAR_PAGES[i]);
     });
-    // Re-render "Volver a LAFA"
-    const backLabel = document.querySelector('#app-sidebar .sidebar-label:last-of-type');
-    // Find the back link specifically
     const backLink = document.querySelector('#app-sidebar a[href="../"] .sidebar-label');
     if (backLink) backLink.textContent = typeof t === 'function' ? t('shared.sidebar.back') : 'Volver a LAFA';
     // Re-render bottom nav
@@ -844,17 +610,6 @@ function bindFilters(filterIds, callback) {
 }
 
 // ---------- Modal Controller ----------
-// Two modes:
-//   "simple"    — toggles .hidden on the container (dashboard, roadmap)
-//   "animated"  — uses .hidden/.open/.closing classes with CSS transitions (onboarding)
-//
-// Usage:
-//   const modal = L.createModal('detail-modal', { overlay: 'detail-overlay' });
-//   modal.open();  modal.close();
-//
-//   const modal = L.createModal('onboard-modal', { animated: true });
-//   modal.open();  modal.close();
-//
 function createModal(containerId, opts = {}) {
   const el = document.getElementById(containerId);
   if (!el) return { open() {}, close() {}, isOpen() { return false; } };
@@ -897,7 +652,6 @@ function createModal(containerId, opts = {}) {
     const overlay = document.getElementById(overlayId);
     if (overlay) overlay.addEventListener('click', close);
   } else if (animated) {
-    // For animated modals, clicking the backdrop itself closes
     el.addEventListener('click', (e) => {
       if (e.target === el) close();
     });
