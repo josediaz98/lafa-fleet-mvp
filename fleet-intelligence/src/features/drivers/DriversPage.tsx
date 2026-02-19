@@ -82,7 +82,7 @@ export default function DriversPage() {
 
   function handleCreateDriver(createForm: DriverFormState) {
     const newDriver: Driver = {
-      id: `d-${Date.now()}`,
+      id: crypto.randomUUID(),
       fullName: createForm.fullName.trim(),
       didiDriverId: parseInt(createForm.didiDriverId, 10),
       centerId: createForm.centerId,

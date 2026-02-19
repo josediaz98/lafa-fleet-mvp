@@ -88,7 +88,7 @@ export default function ShiftsPage() {
 
     const center = CENTERS.find(c => c.id === driver.centerId);
     const newShift = {
-      id: `s-${Date.now()}`,
+      id: crypto.randomUUID(),
       driverId: driver.id,
       driverName: driver.fullName,
       vehicleId: vehicle.id,

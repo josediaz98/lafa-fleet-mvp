@@ -40,7 +40,7 @@ export default function UserCreateModal({ open, onClose, users, onCreate }: User
       return;
     }
     const newUser: User = {
-      id: `u-${Date.now()}`,
+      id: crypto.randomUUID(),
       name: form.name.trim(),
       email: form.email.trim(),
       role: form.role,

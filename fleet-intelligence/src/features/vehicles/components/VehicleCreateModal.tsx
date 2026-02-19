@@ -33,7 +33,7 @@ export default function VehicleCreateModal({ open, onClose, existingPlates, defa
       return;
     }
     const newVehicle: Vehicle = {
-      id: `v-${Date.now()}`,
+      id: crypto.randomUUID(),
       plate: form.plate.trim().toUpperCase(),
       model: form.model.trim(),
       oem: form.oem.trim(),

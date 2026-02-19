@@ -92,7 +92,7 @@ export default function CsvUploadPage() {
     setIsImporting(true);
     const validRows = rows.filter(r => r.estado !== 'error');
     const newTrips: Trip[] = validRows.map(r => ({
-      id: `t-${r.tripId}`,
+      id: crypto.randomUUID(),
       driverId: r.driverId,
       fecha: r.fecha,
       tripId: r.tripId,
