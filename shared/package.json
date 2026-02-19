@@ -1,0 +1,12 @@
+{
+  "name": "@lafa/shared",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Shared business rules consumed by fleet-intelligence (Vite alias @shared/) and server/ (CommonJS require).",
+  "main": "payroll-rules.js",
+  "types": "payroll-rules.d.ts",
+  "files": [
+    "payroll-rules.js",
+    "payroll-rules.d.ts"
+  ]
+}

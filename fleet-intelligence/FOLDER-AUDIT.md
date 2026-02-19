@@ -1,4 +1,6 @@
-# Folder Audit: fleet-intelligence/src/
+# Folder Audit: fleet-intelligence/
+
+**Re-audit** — Previous audit scored 14/18. Since then: 5 of 6 recommended refactorings were executed (singular folder renames + hook relocation). Payroll module grew by 3 files. New `server/` and `shared/` directories appeared at root level.
 
 ## Detection Summary
 
@@ -8,22 +10,24 @@
 | Framework | React 18 + Vite 6 + Tailwind CSS |
 | Language(s) | TypeScript (strict) |
 | Organization Pattern | Feature-based (hybrid) |
-| Total files | 108 |
-| Total directories | 33 |
-| Max depth | 5 levels (from `src/`) |
-| Avg depth | 3.1 levels |
-| Dominant naming convention | PascalCase (.tsx), kebab-case (.ts), lowercase (dirs) |
+| Total files (src/) | 111 |
+| Total directories (src/) | 34 |
+| Max depth (from src/) | 5 levels (`features/payroll/lib/__tests__/payroll.test.ts`) |
+| Avg depth | ~2.5 levels |
+| Dominant naming | PascalCase (.tsx), kebab-case (.ts), kebab-case (dirs) |
 
-## Health Score: 14/18 — Good
+## Health Score: 15/18 — Excellent
 
-| # | Category | Score | Notes |
-|---|----------|-------|-------|
-| 1 | Architecture Alignment | 2/3 | Closely follows Vite+React Feature-Based reference; minor deviations (no `shared/` wrapper, hooks in `lib/`) |
-| 2 | Naming Consistency | 2/3 | 98% consistent per file type; feature folder plural/singular split (4 singular vs 4 plural) |
-| 3 | Organization Pattern | 3/3 | Clean feature modules with consistent internal structure across all 8 features |
-| 4 | Colocation & Proximity | 2/3 | Feature-specific components and hooks colocated; one domain hook misplaced in shared `lib/` |
-| 5 | Duplication & Waste | 3/3 | Zero duplication, no god folders, no orphaned configs, no synonym directories |
-| 6 | Depth & Navigability | 2/3 | Max 5 levels (test file only); avg 3.1; clear entry points per feature |
+| # | Category | Score | Prev | Notes |
+|---|----------|-------|------|-------|
+| 1 | Architecture Alignment | 2/3 | 2 | Closely follows Vite+React feature-based reference; `@shared/` cross-boundary alias formalized with `package.json` |
+| 2 | Naming Consistency | 3/3 | 2 | All feature folders now singular; 96% PascalCase .tsx, 100% kebab/.lowercase .ts |
+| 3 | Organization Pattern | 3/3 | 3 | Clean, consistent feature modules — a new contributor can predict where any file lives |
+| 4 | Colocation & Proximity | 2/3 | 2 | Feature-specific code well colocated; centralized types/shared.ts is deliberate; only payroll has tests |
+| 5 | Duplication & Waste | 3/3 | 3 | Zero duplication, no god folders (max 12 files), no orphaned configs |
+| 6 | Depth & Navigability | 2/3 | 2 | Max 5 levels (test file only); most paths 2-3 deep; clear entry points per feature |
+
+**Delta:** +1 point from naming consistency (singular folder renames completed).
 
 ## Findings
 
@@ -33,178 +37,148 @@ None.
 
 ### Warning
 
-- **[WARNING]** `src/lib/` root — 12 files mixing hooks (5), utilities (4), and infrastructure (2). Approaching clutter; hooks and utils are distinct concerns that would benefit from subdirectories as the project grows.
+- **[WARNING]** `src/lib/` root — 11 loose files mixing hooks (4: `use-center-filter.tsx`, `use-focus-trap.ts`, `use-idle-logout.ts`, `use-pagination.ts`), pure utils (4: `format.ts`, `date-utils.ts`, `mappers.ts`, `validators.ts`), and infrastructure (3: `config.ts`, `action-context.ts`, `status-map.ts`). Not yet a god folder, but trending toward clutter. **Deferred action from previous audit still applies:** split into `lib/hooks/` + `lib/utils/` when count exceeds 15.
 
-- **[WARNING]** `src/lib/use-shift-checkout.ts` — Shift-specific hook living in the shared `lib/` directory. Should be colocated with its feature at `features/shifts/lib/use-shift-checkout.ts`.
+- **[WARNING]** `src/lib/supabase/mutations.ts` — Previous audit flagged at 342 lines. Still a single file handling all write operations across 6 domains. Will become a god file as features mature. **Carried over from previous audit.**
 
-- **[WARNING]** Feature folder naming inconsistency — 4 singular (`auth/`, `csv-upload/`, `dashboard/`, `payroll/`) vs 4 plural (`drivers/`, `shifts/`, `users/`, `vehicles/`). Convention says singular for feature folders.
-
-- **[WARNING]** `src/lib/supabase/mutations.ts` — 342 lines, single file for all write operations across all domains. Will become a god file as features grow. Consider splitting by domain (`driver-mutations.ts`, `shift-mutations.ts`, etc.) or colocating mutations with their features.
+- **[WARNING]** `src/features/payroll/` — 15 files across 3 subdirectories. Most complex feature module (nearly 3x the average). The `lib/` subdirectory alone has 7 logic files + 1 test. Not actionable yet (each file has a clear responsibility), but monitor — if payroll grows further, consider extracting sub-features (e.g., `payroll/export/`, `payroll/calculation/`).
 
 ### Info
 
-- **[INFO]** `src/lib/use-center-filter.tsx` — Hook with `.tsx` extension (kebab-case naming). Acceptable if it returns JSX, but breaks the PascalCase = .tsx convention (1 of 52 .tsx files).
+- **[INFO]** `src/lib/use-center-filter.tsx` — Hook with `.tsx` extension. Acceptable (it returns JSX via context provider), but it's the only kebab-case .tsx file. All other .tsx files are PascalCase. Consistent with its nature as a hook, not a component.
 
-- **[INFO]** `src/types/index.ts` + `src/types/shared.ts` — Barrel re-exports a single file. Could simplify to just `types/index.ts` containing the types directly.
+- **[INFO]** `src/types/index.ts` + `src/types/shared.ts` — Barrel re-exports a single file. Could simplify to just `types/index.ts` containing the types directly. Minor, no impact.
 
-- **[INFO]** `db/viajes-semana-16-22-feb.csv` — Date-stamped CSV in `db/`. Looks like a one-time data import file rather than a permanent schema artifact.
+- **[INFO]** `db/viajes-semana-16-22-feb.csv` — Date-stamped CSV in `db/`. One-time import artifact, not a schema file.
 
-- **[INFO]** Only `payroll/` has unit tests. Other features (drivers, shifts, vehicles, users, csv-upload) have no test files. Test coverage gap, not a folder structure issue.
-
-- **[INFO]** `data/dev-seed.ts` (438 lines) — Large seed data file. Acceptable for mock data but monitor as it grows.
+- **[INFO]** Only `payroll/` has unit tests (`payroll.test.ts`). Other 7 features have zero test files. Test coverage gap — not a folder structure issue, but worth tracking.
 
 ## Naming Convention Distribution
 
-### .tsx Files (52 total)
+### .tsx Files (54 total)
 
-| Convention | Count | % | Expected For |
-|------------|-------|---|-------------|
-| PascalCase | 50 | 96% | React components, pages |
-| kebab-case | 1 | 2% | Hooks returning JSX (`use-center-filter.tsx`) |
-| lowercase | 1 | 2% | — |
+| Convention | Count | % | Notes |
+|------------|-------|---|-------|
+| PascalCase | 53 | 98% | Components, pages, providers |
+| kebab-case | 1 | 2% | `use-center-filter.tsx` (hook returning JSX) |
 
-### .ts Files (55 total)
+### .ts Files (56 total)
 
-| Convention | Count | % | Expected For |
-|------------|-------|---|-------------|
-| kebab-case | 30 | 55% | Hooks, services, utils, actions |
-| lowercase | 25 | 45% | Single-word files (`index.ts`, `payroll.ts`, `format.ts`) |
+| Convention | Count | % | Notes |
+|------------|-------|---|-------|
+| kebab-case | 31 | 55% | Hooks, actions, utilities, services |
+| lowercase (single-word) | 25 | 45% | `index.ts`, `payroll.ts`, `format.ts`, `types.ts`, etc. |
 
-### Directories (33 total)
+### Directories (34 total)
 
-| Convention | Count | % | Expected For |
-|------------|-------|---|-------------|
-| lowercase | 31 | 94% | Single-word dirs (`lib`, `components`, `auth`) |
-| kebab-case | 1 | 3% | Multi-word feature (`csv-upload`) |
-| special | 1 | 3% | Test convention (`__tests__`) |
+| Convention | Count | % | Notes |
+|------------|-------|---|-------|
+| lowercase | 31 | 91% | `lib`, `components`, `auth`, `payroll` |
+| kebab-case | 2 | 6% | `csv-upload`, `dev-seed` |
+| special | 1 | 3% | `__tests__` |
+
+**No naming drift.** Zero camelCase files or directories. Convention is clean and enforced by habit.
 
 ## Directory Size Distribution
 
-| Directory | Files | Status |
-|-----------|-------|--------|
-| `src/lib/` | 12 | Monitor |
-| `src/components/ui/` | 12 | Monitor |
-| `src/lib/actions/` | 9 | Healthy |
-| `src/features/payroll/lib/` | 6 | Healthy |
-| `src/features/auth/` | 5 | Healthy |
-| `src/features/csv-upload/components/` | 5 | Healthy |
-| `src/features/drivers/components/` | 5 | Healthy |
-| `src/data/` | 5 | Healthy |
+| Directory | Files | Status | Notes |
+|-----------|-------|--------|-------|
+| `src/components/ui/` | 12 | Monitor | Shared UI primitives — healthy, all reusable |
+| `src/lib/` (root) | 11 | Monitor | Mix of hooks + utils + infra — split deferred |
+| `src/lib/actions/` | 9 | Healthy | 8 domain files + barrel |
+| `src/features/payroll/lib/` | 7 | Healthy | Most complex; monitor growth |
+| `src/lib/supabase/` | 4+4 | Healthy | client + types + mutations + queries/ (4 files) |
+| `src/features/payroll/components/` | 5 | Healthy | |
+| `src/features/driver/components/` | 5 | Healthy | |
+| `src/features/csv-upload/components/` | 5 | Healthy | |
+| `src/data/` | 5 | Healthy | Constants + dev seed |
 
-No directories exceed the Warning threshold (16+).
+No directories exceed the Warning threshold (16+ files).
+
+## Feature Module Summary
+
+| Feature | Files | components/ | lib/ | Tests | Barrel |
+|---------|-------|-------------|------|-------|--------|
+| auth | 5 | — | — | 0 | pages only |
+| csv-upload | 9 | 5 | 2 | 0 | page + lib |
+| dashboard | 2 | — | — | 0 | page only |
+| driver | 8 | 5 | 1 | 0 | page only |
+| payroll | 15 | 5 | 7+1 test | 1 | page + 8 exports |
+| shift | 8 | 4 | 2 | 0 | page + lib |
+| user | 5 | 2 | 1 | 0 | page + lib |
+| vehicle | 5 | 3 | — | 0 | page + lib |
+
+All 8 features follow the documented pattern: `{Name}Page.tsx` + optional `components/` + optional `lib/` + `index.ts`.
 
 ## Recommended Refactorings
 
-| # | Action | From | To | Impact |
-|---|--------|------|----|--------|
-| 1 | move | `lib/use-shift-checkout.ts` | `features/shifts/lib/use-shift-checkout.ts` | Colocates shift-specific hook with its feature |
-| 2 | rename | `features/drivers/` | `features/driver/` | Singular feature folder convention |
-| 3 | rename | `features/shifts/` | `features/shift/` | Singular feature folder convention |
-| 4 | rename | `features/users/` | `features/user/` | Singular feature folder convention |
-| 5 | rename | `features/vehicles/` | `features/vehicle/` | Singular feature folder convention |
-| 6 | split | `lib/supabase/mutations.ts` | `lib/supabase/mutations/{driver,shift,vehicle,user,payroll}.ts` | Prevents god file growth |
+### Completed (This Audit)
 
-### Deferred (act when `lib/` exceeds 15 files)
+| # | Action | What | Status |
+|---|--------|------|--------|
+| 1 | formalize | Added `shared/package.json` + `shared/README.md` documenting the cross-boundary contract | Done |
+| 2 | replace | Overwrote `FOLDER-AUDIT.md` with this report | Done |
 
-| # | Action | From | To | Impact |
-|---|--------|------|----|--------|
-| 7 | move | `lib/use-*.ts` (5 files) | `lib/hooks/use-*.ts` | Separates hooks from utilities in `lib/` |
-| 8 | move | `lib/{format,date-utils,mappers,validators}.ts` | `lib/utils/{...}` | Separates pure utils from infrastructure |
+### Deferred (Act When Threshold Hit)
+
+| # | Trigger | Action | From | To | Impact |
+|---|---------|--------|------|----|--------|
+| 3 | `mutations.ts` > 400 LOC | split | `lib/supabase/mutations.ts` | `lib/supabase/mutations/{driver,shift,vehicle,user,payroll,trip}.ts` + barrel | Prevents god file |
+| 4 | `lib/` root > 15 files | move | `lib/use-*.ts` (4 hooks) | `lib/hooks/use-*.ts` | Separates hooks from utils |
+| 5 | `lib/` root > 15 files | move | `lib/{format,date-utils,mappers,validators}.ts` | `lib/utils/` | Separates pure utils from infra |
+| 6 | `payroll/lib/` > 10 files | split | `features/payroll/lib/` | `features/payroll/lib/{calculation/,export/,hooks/}` | Prevents payroll lib/ clutter |
 
 ## Reference Structure
-
-Ideal layout for this project's detected architecture (React SPA + Vite, feature-based):
 
 ```
 src/
 ├── app/
-│   ├── App.tsx               ← Router + route definitions
-│   ├── main.tsx              ← Entry point
-│   └── providers/
-│       ├── app-reducer.ts
-│       └── ToastProvider.tsx
+│   ├── App.tsx               # Router + guards
+│   ├── main.tsx              # Entry point
+│   └── providers/            # AppProvider, ToastProvider, reducer
 ├── components/
-│   ├── layout/
-│   │   └── AppLayout.tsx
-│   └── ui/                   ← Shared UI primitives only
-│       ├── Modal.tsx
-│       ├── StatusBadge.tsx
-│       └── ...
-├── features/
-│   ├── auth/                 ← Singular naming
-│   │   ├── LoginPage.tsx
-│   │   ├── AcceptInvitePage.tsx
-│   │   └── index.ts
-│   ├── csv-upload/
-│   │   ├── CsvUploadPage.tsx
-│   │   ├── components/
-│   │   ├── lib/
-│   │   └── index.ts
-│   ├── dashboard/
-│   │   ├── DashboardPage.tsx
-│   │   └── index.ts
-│   ├── driver/               ← Singular (currently: drivers/)
-│   │   ├── DriversPage.tsx
-│   │   ├── components/
-│   │   ├── lib/
-│   │   └── index.ts
-│   ├── payroll/
-│   │   ├── PayrollPage.tsx
-│   │   ├── components/
-│   │   ├── lib/
-│   │   │   ├── __tests__/
-│   │   │   └── ...
-│   │   └── index.ts
-│   ├── shift/                ← Singular (currently: shifts/)
-│   │   ├── ShiftsPage.tsx
-│   │   ├── components/
-│   │   ├── lib/
-│   │   │   └── use-shift-checkout.ts  ← moved from src/lib/
-│   │   └── index.ts
-│   ├── user/                 ← Singular (currently: users/)
-│   │   ├── UsersPage.tsx
-│   │   ├── components/
-│   │   ├── lib/
-│   │   └── index.ts
-│   └── vehicle/              ← Singular (currently: vehicles/)
-│       ├── VehiclesPage.tsx
-│       ├── components/
-│       └── index.ts
+│   ├── layout/               # AppLayout, Sidebar
+│   └── ui/                   # 12 shared primitives
+├── features/                 # 8 feature modules (singular names)
+│   ├── auth/                 # 4 pages + barrel
+│   ├── csv-upload/           # page + components/ + lib/ + barrel
+│   ├── dashboard/            # page + barrel
+│   ├── driver/               # page + components/ + lib/ + barrel
+│   ├── payroll/              # page + components/ + lib/ + __tests__/ + barrel
+│   ├── shift/                # page + components/ + lib/ + barrel
+│   ├── user/                 # page + components/ + lib/ + barrel
+│   └── vehicle/              # page + components/ + barrel
 ├── lib/
-│   ├── actions/              ← Domain action files + barrel
-│   ├── supabase/             ← Client, queries, mutations
-│   ├── config.ts
-│   ├── action-context.ts
-│   ├── format.ts
-│   ├── date-utils.ts
-│   ├── mappers.ts
-│   ├── validators.ts
-│   ├── use-center-filter.tsx
-│   ├── use-focus-trap.ts
-│   ├── use-idle-logout.ts
-│   └── use-pagination.ts
+│   ├── actions/              # 8 domain action files + barrel
+│   ├── supabase/             # client, types, mutations, queries/
+│   ├── config.ts             # Environment config
+│   ├── action-context.ts     # ActionContext type
+│   ├── format.ts             # Formatting utils
+│   ├── date-utils.ts         # Date/time helpers
+│   ├── mappers.ts            # DB snake_case <-> app camelCase
+│   ├── status-map.ts         # Spanish status enums
+│   ├── validators.ts         # Form validation
+│   ├── use-center-filter.tsx # Center filter context + hook
+│   ├── use-focus-trap.ts     # Keyboard navigation
+│   ├── use-idle-logout.ts    # Auto-logout timer
+│   └── use-pagination.ts     # Pagination state
 ├── data/
-│   ├── constants.ts
-│   ├── dev-seed.ts
-│   ├── dev-seed-shifts.ts
-│   ├── dev-seed-payroll.ts
-│   └── demo-csv-templates.ts
+│   ├── constants.ts          # CENTERS, business constants
+│   ├── dev-seed.ts           # Mock data (drivers, vehicles, users)
+│   ├── dev-seed-shifts.ts    # Mock shifts
+│   ├── dev-seed-payroll.ts   # Mock payroll
+│   └── demo-csv-templates.ts # CSV upload templates
 ├── types/
-│   └── shared.ts
-└── index.css
+│   ├── shared.ts             # All domain types (AppState, Action, Driver, Shift, etc.)
+│   └── index.ts              # Barrel re-export
+└── index.css                 # Global Tailwind styles
 ```
-
-## Recommended Tooling
-
-| Tool | Purpose | Setup |
-|------|---------|-------|
-| Knip | Detect unused files, exports, and dependencies | `npx knip` — zero-config for Vite projects |
-| `eslint-plugin-unicorn` | Enforce `kebab-case` filenames via `unicorn/filename-case` | Add rule to `eslint.config.js` |
 
 ## Strengths
 
-- **Consistent feature module pattern.** All 8 features follow the same `Page + components/ + lib/ + index.ts` structure. A new contributor can predict where any file lives without searching.
-- **Clean naming conventions.** 96% of .tsx files are PascalCase, 100% of .ts files are kebab-case or single-word. Zero camelCase drift.
-- **No god folders.** The largest directory has 12 files — well below the Warning threshold. No signs of folder bloat.
-- **Proper barrel exports.** Feature `index.ts` files serve as clean public API boundaries. No barrel file abuse in application code.
-- **Clear data flow architecture.** The `actions/ → supabase/queries|mutations → dispatch` pipeline is enforced by convention and documented in CLAUDE.md. The separation prevents ad-hoc Supabase calls from components.
+- **Previous audit recommendations acted on.** 5 of 6 refactorings executed (folder renames + hook relocation). Shows healthy codebase hygiene.
+- **Consistent feature module pattern.** All 8 features follow `Page + components/ + lib/ + index.ts`. A new contributor can predict file locations without searching.
+- **Clean naming conventions.** 98% PascalCase for .tsx, 100% kebab/lowercase for .ts, 100% kebab/lowercase for directories. Zero camelCase drift. Zero duplicate filenames.
+- **No god folders.** Largest directory has 12 files — well below Warning threshold. No single directory dominates.
+- **Clear data flow architecture.** `Page → action*() → supabase/ → dispatch` pipeline is enforced by convention and documented. The service layer boundary is respected.
+- **Barrel exports at feature boundaries.** Feature `index.ts` files serve as clean public APIs. No barrel abuse within features.
