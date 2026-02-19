@@ -3,10 +3,13 @@
   "outputDirectory": ".",
   "redirects": [
     { "source": "/app/:path*", "destination": "/fleet-intelligence/:path*", "statusCode": 301 },
+    { "source": "/site/:path(dashboard|battery|collections|fleetmap|onboarding|roadmap)/", "destination": "/demos/:path/", "statusCode": 301 },
+    { "source": "/site/:path(dashboard|battery|collections|fleetmap|onboarding|roadmap)", "destination": "/demos/:path/", "statusCode": 301 },
     { "source": "/site/:path(dashboard|battery|collections|fleetmap|onboarding|roadmap)/:rest*", "destination": "/demos/:path/:rest*", "statusCode": 301 }
   ],
   "rewrites": [
     { "source": "/", "destination": "/site/index.html" },
+    { "source": "/demos/:proto(dashboard|battery|collections|fleetmap|onboarding|roadmap)/", "destination": "/site/:proto/index.html" },
     { "source": "/demos/:path*", "destination": "/site/:path*" },
     { "source": "/fleet-intelligence/assets/:path*", "destination": "/fleet-intelligence/dist/assets/:path*" },
     { "source": "/fleet-intelligence/favicon.svg", "destination": "/fleet-intelligence/dist/favicon.svg" },
