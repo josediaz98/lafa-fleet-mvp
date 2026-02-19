@@ -9,7 +9,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// --- Redirects (from vercel.json) ---
+// --- Redirects ---
 
 // /app/* → /fleet-intelligence/*
 app.get('/app/*', (req, res) => {
@@ -32,7 +32,7 @@ protos.forEach((proto) => {
   });
 });
 
-// --- Rewrites (from vercel.json) ---
+// --- Rewrites ---
 
 // Landing page
 app.get('/', (_req, res) => {

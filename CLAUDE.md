@@ -34,10 +34,11 @@ VITE_SUPABASE_ANON_KEY=your-anon-key
 
 Optional — app falls back to mock data when not configured.
 
-## Deployment (Vercel)
+## Deployment (Railway)
 
-Single Vercel project. Root `vercel.json` routes `/` → `site/index.html`, `/fleet-intelligence/*` → Fleet Intelligence SPA.
-Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --base=/fleet-intelligence/`
+Express server (`server.js`) on Railway with Railpack builder. Config in `railway.toml`.
+Build: `npm install && npm run build` → Start: `npm run start`
+Public URL: `https://lafa-production.up.railway.app/`
 
 ## Directory Layout
 
@@ -71,5 +72,5 @@ Build: `cd fleet-intelligence && npm install && npx tsc -b && npx vite build --b
 
 ## Tooling
 
-No linter, no CI pipeline, no git hooks. Vercel auto-deploys from `main`.
+No linter, no CI pipeline, no git hooks. Railway auto-deploys from `main`.
 Payroll logic has unit tests — run `npm run test` in `fleet-intelligence/` after modifying payroll code.
