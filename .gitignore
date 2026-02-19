@@ -4,6 +4,7 @@
 !.claude/settings.json
 !.claude/commands/
 !.claude/hooks/
+!.claude/skills/
 
 # Dependencies
 node_modules/
