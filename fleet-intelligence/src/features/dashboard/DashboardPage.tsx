@@ -99,6 +99,14 @@ export default function DashboardPage() {
 
   const kpiCards = [
     {
+      label: 'Facturación semana',
+      subtitle: weekLabel,
+      value: formatMXN(weekBilling),
+      icon: DollarSign,
+      color: 'text-status-alert',
+      bg: 'bg-status-alert/15',
+    },
+    {
       label: 'Meta cumplida',
       subtitle: latestClosedWeek.label,
       value: latestClosedWeek.total > 0
@@ -128,14 +136,6 @@ export default function DashboardPage() {
       icon: AlertTriangle,
       color: 'text-status-danger',
       bg: 'bg-status-danger/15',
-    },
-    {
-      label: 'Facturación semana',
-      subtitle: weekLabel,
-      value: formatMXN(weekBilling),
-      icon: DollarSign,
-      color: 'text-status-alert',
-      bg: 'bg-status-alert/15',
     },
   ];
 
