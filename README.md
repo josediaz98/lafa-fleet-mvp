@@ -1,207 +1,177 @@
-# LAFA: Investment Thesis
+# Fleet Intelligence MVP
 
-Evaluation of the **AI Product Engineer (Internal Tools)** role at LAFA (Latin America Future Automobile) -- an early-stage Mexican startup leasing Chinese EVs to gig drivers in Mexico City.
+Jose Diaz's response to the LAFA technical challenge (Feb 2026).
 
-**Status:** First interview with Levi Garcia (Head of Product) completed Feb 6, 2026. Second interview with JJ (CEO) pending.
-
-**Framing:** This folder is organized as a **VC investment thesis** -- the same mental framework an investor would use to evaluate whether to deploy capital. In Jose's case, the investment is his career.
-
-### What's in this repo
-
-| Folder | What it is |
-|--------|------------|
-| [`fleet-intelligence/`](fleet-intelligence/) | **Technical challenge** — Fleet Intelligence MVP (React + TypeScript + Vite + Supabase). Payroll, shift dispatch, driver management, vehicle tracking, CSV import. |
-| [`site/`](site/) | **Bonus prototypes** — Marketing landing page + 6 interactive demos (dashboard, battery monitoring, collections, fleet map, onboarding, roadmap). Static HTML/JS, no build step. |
-| [`content/`](content/) | Research & strategy — 8-chapter VC thesis, competitive analysis, product roadmap, hiring docs. |
+A functional fleet management system for LAFA's EV fleet operations in Mexico City — covering payroll, shift dispatch, driver/vehicle management, and CSV data import. Built with React, TypeScript, Vite, and Supabase.
 
 ---
 
-## Prerequisites
-
-- [Node.js](https://nodejs.org/) >= 20
-
-## Quick Start
-
-```bash
-npm install
-cd fleet-intelligence && npm install && cd ..
-
-npm run dev
-# → http://localhost:5173/fleet-intelligence/
-```
-
-### Demo Access
+## Live Demo
 
 | | |
 |---|---|
+| **URL** | [lafa-production.up.railway.app](https://lafa-production.up.railway.app/) |
 | **Email** | `admin@lafa-mx.com` |
 | **Password** | `admin123` |
 | **Role** | Admin (full access) |
 
-This is a shared demo account with pre-loaded data: 30 drivers, 18 vehicles, active shifts, and payroll history. Use it to explore the app immediately.
+Pre-loaded data: 30 drivers, 18 vehicles, 3 weeks of payroll history, active shifts.
 
-To test the full experience (inviting users, role-based permissions), create a personal account from **Settings → Invite User** using your `@lafa-mx.com` email.
+### Self-Onboard (try the invite flow)
 
-### Full stack (Express + marketing site + fleet app)
+1. Log in as admin
+2. Go to **Usuarios** (sidebar)
+3. Click **Invitar Usuario**
+4. Enter your email and select a role
+5. Check your inbox for the invite email
+6. Set your password and explore with your own account
+
+---
+
+## The Challenge
+
+Build a functional MVP for fleet unit assignment and payroll calculation. Requirements:
+
+- **Two roles:** Admin (full access) + Supervisor (center-scoped)
+- **Weekly payroll:** base salary, productivity bonus, overtime calculation
+- **DiDi CSV import** for trip data
+- **Design for scale:** 150 vehicles today, 2,000 by end of 2026
+
+---
+
+## What I Built
+
+### Core Features (challenge requirements)
+
+| Requirement | Implementation |
+|---|---|
+| Role-based access | Admin + Supervisor roles with center scoping, RLS at database level |
+| Weekly payroll | Full payroll engine — base salary, productivity bonus, overtime, deductions |
+| DiDi CSV import | Upload with validation, preview, duplicate detection |
+| Unit assignment | Vehicle ↔ driver assignment via shift dispatch (check-in / check-out) |
+
+### Beyond the Brief
+
+| Feature | Detail |
+|---|---|
+| Payroll edge cases | 8 scenarios handled: partial weeks, mid-week hires, overlapping shifts, retroactive corrections, etc. |
+| Auto-close cron | Server-side job closes payroll periods every Sunday at 20:00 CDMX time |
+| Shift dispatch | Real-time check-in/check-out with vehicle assignment and status tracking |
+| Driver management | Full CRUD, status tracking, document management |
+| Vehicle management | Fleet registry with status, assignment history, maintenance flags |
+| User invite flow | Email-based invitations with custom Supabase templates |
+| Dashboard | KPI overview — active shifts, fleet utilization, weekly revenue |
+| Shared business logic | Payroll rules extracted to `shared/` — used by both client and server |
+| Mock data fallback | App works without Supabase connection (for local development / review) |
+
+### Bonus: Marketing Site + Prototypes
+
+Six interactive prototypes showing the product vision beyond the MVP:
+
+| Prototype | What it shows |
+|---|---|
+| [Dashboard](https://lafa-production.up.railway.app/demos/dashboard/) | Fleet KPIs, revenue trends, utilization charts |
+| [Battery Monitoring](https://lafa-production.up.railway.app/demos/battery/) | SOH tracking, degradation alerts, charge cycles |
+| [Collections](https://lafa-production.up.railway.app/demos/collections/) | Payment tracking, escalation workflows |
+| [Fleet Map](https://lafa-production.up.railway.app/demos/fleetmap/) | Real-time vehicle locations (Leaflet.js) |
+| [Onboarding](https://lafa-production.up.railway.app/demos/onboarding/) | Driver application flow |
+| [Roadmap](https://lafa-production.up.railway.app/demos/roadmap/) | AI project timeline visualization |
+
+Landing page: [lafa-production.up.railway.app](https://lafa-production.up.railway.app/)
+
+---
+
+## Architecture
+
+| Layer | Stack |
+|---|---|
+| Frontend | React 18 + TypeScript + Vite 6 + Tailwind CSS |
+| Backend | Supabase (Postgres + Auth + RLS + Edge Functions) |
+| Server | Express 4 (API proxy, static serving, payroll cron) |
+| Deployment | Railway (auto-deploy from main, Railpack builder) |
+
+**Patterns:**
+- Feature modules (`src/features/`) — each feature owns its components, services, and types
+- Service layer — business logic separated from UI components
+- Shared rules (`shared/`) — payroll calculation used by both React app and Express cron
+- Row-Level Security — Supabase RLS enforces center-scoped access for Supervisors
+
+---
+
+## Local Development
+
+### Quick Start
 
 ```bash
-npm run build
-npm run start   # http://localhost:3000
+git clone https://github.com/josediaz98/lafa-fleet-mvp.git
+cd lafa-fleet-mvp
+npm install && cd fleet-intelligence && npm install && cd ..
 ```
 
-Serves landing page at `/`, prototypes at `/demos/*`, fleet app at `/fleet-intelligence/`.
+### Fleet Intelligence (React app only)
+
+```bash
+cd fleet-intelligence
+npm run dev        # → http://localhost:5173
+```
+
+Works without Supabase — falls back to mock data automatically.
+
+### Full Stack (Express + marketing site + fleet app)
+
+```bash
+npm run build      # builds fleet-intelligence
+npm run start      # → http://localhost:3000
+```
+
+Serves: landing page at `/`, prototypes at `/demos/*`, fleet app at `/fleet-intelligence/`.
+
+### Environment Variables (optional)
+
+```bash
+# Root .env — for Express server + Supabase API proxy
+PORT=3000
+SUPABASE_URL=your-supabase-url
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# fleet-intelligence/.env.local — for React app
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-anon-key
+```
+
+Not required for local development — the app falls back to mock data.
+
+### Tests
+
+```bash
+cd fleet-intelligence
+npm run test       # vitest — payroll logic
+```
 
 ---
 
-## Investment Thesis
+## Directory Map
 
-The core evaluation, structured in 8 chapters:
-
-| # | File | Question It Answers |
-|---|------|---------------------|
-| 01 | [The Problem](content/thesis/01-problem.md) | What problem does LAFA solve, and why hasn't it been solved before? |
-| 02 | [Market](content/thesis/02-market.md) | How big is the opportunity? TAM / SAM / SOM |
-| 03 | [Solution](content/thesis/03-solution.md) | What does LAFA build? Two products: DaE + LTO |
-| 04 | [Business Model](content/thesis/04-business-model.md) | How does it make money, and can it make enough? Unit economics |
-| 05 | [Traction](content/thesis/05-traction.md) | Is there evidence of product-market fit? 150 vehicles, DiDi, milestones |
-| 06 | [Competition](content/thesis/06-competition.md) | Who else is solving this, and why would LAFA win? |
-| 07 | [Team](content/thesis/07-team.md) | Can this team build a $100M company? |
-| 08 | [Risks](content/thesis/08-risks.md) | What has to go right? Deal-breakers vs manageable risks |
-
----
-
-## Supporting Analysis
-
-Deep-dives with detailed evidence backing the thesis. See [content/analysis/README.md](content/analysis/README.md) for full navigation.
-
-### analysis/fleet/ -- The vehicle as a physical asset
-- [Tariff Analysis](content/analysis/fleet/tariff-analysis.md) -- 50% tariff by OEM (JAC/GAC/Geely), CKD cost, unit economics scenarios
-- [Charging Economics](content/analysis/fleet/charging-economics.md) -- CFE rates, Level 2 vs DC, depot charging, CMS comparison, OCPP, charging standards
-- [Battery Degradation](content/analysis/fleet/battery-degradation.md) -- LFP in CDMX climate, SOH projections, analytics platforms (ACCURE/TWAICE/AVILOO), OEM data access
-- [Fleet Technology](content/analysis/fleet/fleet-technology.md) -- Telematics hardware, fleet management software, emerging tech (Ravin AI, V2G, digital twins)
-- [Route Optimization](content/analysis/fleet/route-optimization.md) -- HERE vs Google Routes API, OR-Tools/Vroom, SoC-aware EV dispatch
-- [Predictive Maintenance](content/analysis/fleet/predictive-maintenance.md) -- EV vs ICE savings, Stratio/Uptake/Pitstop, cost breakdown, OEM parts, technician cert
-
-### analysis/fintech/ -- The financial layer
-- [Credit Scoring](content/analysis/fintech/credit-scoring.md) -- MetaMap, Circulo de Credito, Belvo, Palenca/Bankuish/Truora, payment rails, warm-start strategy
-- [Repossession & Collections](content/analysis/fintech/repossession-collections.md) -- Financial leasing, GPS/kill switch, escalation tree, default economics, lease accounting, cybersecurity
-- [Insurance & Risk](content/analysis/fintech/insurance-risk.md) -- EV insurance premiums, Mexico insurers, BDEO claims tech, CMT crash detection, Ravin AI
-
-### analysis/market/ -- External context
-- [Competitive Landscape](content/analysis/market/competitive-landscape.md) -- VEMO ($500M+), OCN ($100M+), BYD, DiDi, Kovi/Moove, Splend, playbook + platform integrations
-- [EV Market LatAm](content/analysis/market/ev-market-latam.md) -- Mexico EV market, Chinese OEMs, charging infrastructure, regulation, LatAm benchmarks
-- [Gig Driver Economics](content/analysis/market/gig-driver-economics.md) -- Market size (658K workers), EV vs ICE economics, regulatory incentives
-- [Biz Model Research](content/analysis/market/biz-model-research.md) -- DaE and LTO in LatAm, full landscape, regulation by country, global benchmarks
+```
+├── fleet-intelligence/      ← React MVP (the main deliverable)
+│   ├── src/
+│   │   ├── features/        ← auth, payroll, shift, driver, vehicle, csv-upload, dashboard, user
+│   │   ├── components/      ← shared UI components
+│   │   ├── lib/             ← Supabase client, utilities
+│   │   ├── types/           ← TypeScript interfaces
+│   │   └── data/            ← Mock data (offline fallback)
+│   └── db/                  ← Supabase SQL migrations + email templates
+├── site/                    ← Marketing landing page + 6 prototypes
+│   ├── index.html           ← Landing page
+│   ├── core/                ← Shared styles, i18n, Tailwind config
+│   └── {dashboard,battery,collections,fleetmap,onboarding,roadmap}/
+├── server/                  ← Payroll auto-close cron (Sunday 20:00 CDMX)
+├── shared/                  ← Payroll rules (used by client + server)
+├── server.js                ← Express entry point
+├── railway.toml             ← Railway deployment config
+└── .env.example             ← Environment variable template
+```
 
 ---
 
-## Team
-
-Individual profiles of the LAFA team:
-- [JJ (CEO)](content/team/jj.md) -- Jianan Jiang
-- [Levi (Head of Product)](content/team/levi.md) -- Levi Garcia
-- [Daniel Briones (Sales & CX Dir.)](content/team/daniel-briones.md)
-- [Diego Gonzales (Sales Sup.)](content/team/diego-gonzales.md)
-- [Marsha Escudero (Ops Dir.)](content/team/marsha-escudero.md)
-- [David Ulloa](content/team/david-ulloa.md)
-
----
-
-## Strategy
-
-Jose's strategic contribution -- what he would build. See [content/strategy/README.md](content/strategy/README.md) for how the files connect.
-- [AI Roadmap](content/strategy/ai-roadmap.md) -- 9-month roadmap: 16 projects across 3 tracks (Foundation, DaE, LTO). ~50 weeks, MXN $3.6-9.1M/year
-- [Product Ecosystem](content/strategy/product-ecosystem.md) -- Full map: 5 user types, 67 products/touchpoints (53 in roadmap, 14 gaps), 3 horizons
-- [Data Infrastructure](content/strategy/data-infrastructure.md) -- 3-phase analytics stack (Metabase to Kafka to Looker), cost scaling $300-$8K/mo, ML use cases by ROI
-- [Tech Stack Scaling](content/strategy/tech-stack-scaling.md) -- Build vs buy matrix, recommended stacks at 500/2K/10K vehicles, data network effects, technology flywheel
-
----
-
-## Hiring
-
-Hiring process. See [content/hiring/README.md](content/hiring/README.md) for timeline, job description, and Jose's CV.
-- [Interview with Levi](content/hiring/interviews/interview-levi-2026-02-06.md) -- Full transcript, Feb 6, 2026
-- [Interview Levi Feedback](content/hiring/interviews/interview-levi-feedback.md) -- Post-interview feedback and lessons
-- [JJ Interview Prep](content/hiring/interviews/jj-interview-prep.md) -- 14 questions + roadmap summary + talking points
-
----
-
-## Vemo Benchmark
-
-Competitive intelligence on VEMO -- LAFA's most direct competitor. See [content/vemo-benchmark/README.md](content/vemo-benchmark/README.md) for source index and quick comparison.
-- [Company Profile](content/vemo-benchmark/01-company-profile.md) -- Consolidated profile: 4 verticals, scale, OEMs, capital ($150M+), operations, scorecard
-- [Impulso Financing](content/vemo-benchmark/02-impulso-financing.md) -- LTO benchmark: non-traditional credit, ecosystem bundling, driver economics
-- [Charging Infrastructure](content/vemo-benchmark/03-charging-infrastructure.md) -- 500 to 1,000 chargers, standards (NACS/CCS1/GB/T), BMW/BYD/Siemens partnerships
-- [Fleet Safety](content/vemo-benchmark/04-fleet-safety.md) -- Emergency protocols, battery fire response, C2 ops, QHSE, AXA insurance
-- [Battery Lifecycle](content/vemo-benchmark/05-battery-lifecycle.md) -- SOH, degradation, lifecycle emissions, second-life (Batex model)
-- [Founder Frameworks](content/vemo-benchmark/06-founder-frameworks.md) -- Roberto Rocha's strategic mental models: vertical integration, step-function growth, trust transfer
-- [Source Transcript](content/vemo-benchmark/07-source-transcript.md) -- Vemo Talks #1 transcript (energy transition panel, Spanish)
-
----
-
-## Marketing Site
-
-Interactive landing page and 6 prototype demos: [site/index.html](site/index.html)
-
-Static HTML/JS + Tailwind CDN (no build step). Prototypes:
-- [Dashboard](site/dashboard/) -- Fleet KPIs, revenue, utilization
-- [Battery](site/battery/) -- SOH monitoring, degradation alerts
-- [Collections](site/collections/) -- Payment tracking, escalation workflows
-- [Fleet Map](site/fleetmap/) -- Real-time vehicle locations (Leaflet.js)
-- [Onboarding](site/onboarding/) -- Driver application flow
-- [Roadmap](site/roadmap/) -- AI project timeline visualization
-
----
-
-## Fleet Intelligence MVP
-
-Live React + TypeScript + Vite app for fleet operations: [fleet-intelligence/](fleet-intelligence/)
-
-**Live URL:** [lafa-production.up.railway.app](https://lafa-production.up.railway.app/) — log in with `admin@lafa-mx.com` / `admin123`
-
-Core features: payroll processing, shift dispatch, driver management, vehicle tracking, CSV data import. Built as the [technical challenge](content/hiring/README.md) for Jose's interview process. Uses Supabase for persistence (falls back to mock data).
-
----
-
-## Reference
-
-Brand assets:
-- [LAFA Brand](content/reference/brand.md) -- Visual identity, messaging, site architecture
-
----
-
-## Data Ownership (MECE)
-
-Each data point lives in exactly one file:
-
-| Topic | Owner | Others reference via |
-|-------|-------|----------------------|
-| Problem statement + Why Now | content/thesis/01-problem | -- |
-| TAM/SAM/SOM + market sizing | content/thesis/02-market | gig-driver-economics, biz-model-research feed data |
-| Product description (DaE + LTO) | content/thesis/03-solution | -- |
-| Integrated unit economics (P&L) | content/thesis/04-business-model | tariff-analysis, charging-economics, repossession own numbers |
-| Traction, milestones, OEMs, ops | content/thesis/05-traction | -- |
-| Competitive analysis + moats | content/thesis/06-competition | competitive-landscape owns detail |
-| Team assessment + founder-market fit | content/thesis/07-team | team/ owns individual profiles |
-| Risk matrix + deal-breakers | content/thesis/08-risks | -- |
-| Charging economics (CFE, depot, CMS, OCPP) | content/analysis/fleet/charging-economics | -- |
-| OEM profiles + tariff modeling | content/analysis/fleet/tariff-analysis | -- |
-| Battery degradation + analytics platforms | content/analysis/fleet/battery-degradation | -- |
-| Fleet technology (telematics, FMS, emerging) | content/analysis/fleet/fleet-technology | -- |
-| Route optimization + EV dispatch | content/analysis/fleet/route-optimization | -- |
-| Predictive maintenance + EV servicing | content/analysis/fleet/predictive-maintenance | -- |
-| Credit scoring + alt platforms + payment rails | content/analysis/fintech/credit-scoring | -- |
-| Repossession + collections + lease accounting + cybersecurity | content/analysis/fintech/repossession-collections | -- |
-| Insurance + risk + claims tech | content/analysis/fintech/insurance-risk | -- |
-| Competitor deep-dives + platform integrations | content/analysis/market/competitive-landscape | -- |
-| EV market data + regulatory | content/analysis/market/ev-market-latam | -- |
-| Gig driver market + economics | content/analysis/market/gig-driver-economics | -- |
-| LatAm biz model landscape | content/analysis/market/biz-model-research | -- |
-| AI roadmap (16 projects) | content/strategy/ai-roadmap | -- |
-| Product ecosystem (5 users, 67 items) | content/strategy/product-ecosystem | -- |
-| Data infrastructure (3-phase stack, ML priorities) | content/strategy/data-infrastructure | -- |
-| Tech stack scaling (build vs buy, flywheel) | content/strategy/tech-stack-scaling | -- |
-
----
-
-*Last updated: February 19, 2026*
+*Built by Jose Diaz — February 2026*
