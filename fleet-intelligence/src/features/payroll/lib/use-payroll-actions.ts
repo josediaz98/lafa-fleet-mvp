@@ -4,7 +4,7 @@ import { useActionContext } from '@/lib/action-context';
 import { calculateWeeklyPay } from '@/features/payroll/lib/payroll';
 import { exportPayrollCsv } from '@/features/payroll/lib/payroll-export';
 import { buildShiftSummaries } from '@/lib/date-utils';
-import { actionClosePayroll, actionRerunPayroll } from '@/lib/actions';
+import { actionClosePayroll, actionRerunPayroll } from './payroll-actions';
 import type { Driver, Trip, Shift, PayrollRecord } from '@/types';
 
 interface UsePayrollActionsInput {

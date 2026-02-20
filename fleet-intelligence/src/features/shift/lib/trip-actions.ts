@@ -1,7 +1,7 @@
 import type { ActionContext } from '@/lib/action-context';
 import type { Trip } from '@/types';
 import { persistTrips } from '@/lib/supabase/mutations';
-import { withOptimistic } from './with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionImportTrips(
   trips: Trip[],

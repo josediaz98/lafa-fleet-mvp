@@ -83,17 +83,17 @@ export default function UploadHistoryTable({
           <thead>
             <tr className="border-b border-lafa-border">
               {[
-                'Archivo',
-                'Subido por',
-                'Fecha',
-                'Registros',
-                'Validos',
-                'Errores',
-                'Estado',
-              ].map((h) => (
+                { h: 'Archivo', cls: '' },
+                { h: 'Subido por', cls: 'hidden sm:table-cell' },
+                { h: 'Fecha', cls: '' },
+                { h: 'Registros', cls: 'hidden sm:table-cell' },
+                { h: 'Validos', cls: 'hidden sm:table-cell' },
+                { h: 'Errores', cls: 'hidden sm:table-cell' },
+                { h: 'Estado', cls: '' },
+              ].map(({ h, cls }) => (
                 <th
                   key={h}
-                  className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider"
+                  className={`text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider ${cls}`}
                 >
                   {h}
                 </th>
@@ -160,19 +160,19 @@ export default function UploadHistoryTable({
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Archivo
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
                 Subido por
               </th>
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Fecha
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
                 Registros
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
                 Validos
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
                 Errores
               </th>
               <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
@@ -194,7 +194,7 @@ export default function UploadHistoryTable({
                 >
                   {r.filename}
                 </td>
-                <td className="px-4 py-3 text-lafa-text-secondary">
+                <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
                   {r.uploadedBy}
                 </td>
                 <td
@@ -203,16 +203,16 @@ export default function UploadHistoryTable({
                 >
                   {timeAgo(r.uploadedAt)}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-primary">
+                <td className="px-4 py-3 text-right text-lafa-text-primary hidden sm:table-cell">
                   {r.recordCount}
                 </td>
                 <td
-                  className={`px-4 py-3 text-right ${r.validCount > 0 ? 'text-status-success' : 'text-lafa-text-secondary'}`}
+                  className={`px-4 py-3 text-right hidden sm:table-cell ${r.validCount > 0 ? 'text-status-success' : 'text-lafa-text-secondary'}`}
                 >
                   {r.validCount}
                 </td>
                 <td
-                  className={`px-4 py-3 text-right ${r.errorCount > 0 ? 'text-status-danger' : 'text-lafa-text-secondary'}`}
+                  className={`px-4 py-3 text-right hidden sm:table-cell ${r.errorCount > 0 ? 'text-status-danger' : 'text-lafa-text-secondary'}`}
                 >
                   {r.errorCount}
                 </td>

@@ -1,4 +1,4 @@
-import { Upload, CheckCircle } from 'lucide-react';
+import { Upload, CheckCircle, Clock } from 'lucide-react';
 import EmptyState from '@/components/ui/EmptyState';
 import PayrollSummaryCards from './PayrollSummaryCards';
 import PayrollTable from './PayrollTable';
@@ -14,6 +14,7 @@ interface WeekSummary {
 
 interface PayrollDraftViewProps {
   week: { label: string };
+  isAdmin: boolean;
   isCurrentWeekClosed: boolean;
   hasTrips: boolean;
   displayData: PayrollRecord[];
@@ -30,6 +31,7 @@ interface PayrollDraftViewProps {
 
 export default function PayrollDraftView({
   week,
+  isAdmin,
   isCurrentWeekClosed,
   hasTrips,
   displayData,
@@ -61,11 +63,17 @@ export default function PayrollDraftView({
   }
 
   if (!hasTrips) {
-    return (
+    return isAdmin ? (
       <EmptyState
         icon={Upload}
         title="Sin datos de viajes"
         description="Importa viajes desde Carga CSV para ver el cálculo de nómina en vivo."
+      />
+    ) : (
+      <EmptyState
+        icon={Clock}
+        title="Sin datos de nómina"
+        description="Aún no se han cargado viajes para esta semana."
       />
     );
   }

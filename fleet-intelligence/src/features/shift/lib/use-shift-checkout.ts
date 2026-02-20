@@ -3,7 +3,7 @@ import { useAppState } from '@/app/providers/AppProvider';
 import { useConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useActionContext } from '@/lib/action-context';
 import { shiftHours } from '@/lib/date-utils';
-import { actionCheckOut } from '@/lib/actions';
+import { actionCheckOut } from './shift-actions';
 
 export function useShiftCheckOut() {
   const { shifts } = useAppState();

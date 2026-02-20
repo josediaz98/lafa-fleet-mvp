@@ -10,7 +10,7 @@ import {
   actionVehicleStatus,
   actionAddVehicle,
   actionUpdateVehicle,
-} from '@/lib/actions';
+} from './lib/vehicle-actions';
 import { STATUS_LABELS } from '@/lib/status-map';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import SlidePanel from '@/components/ui/SlidePanel';

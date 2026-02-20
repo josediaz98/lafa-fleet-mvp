@@ -11,7 +11,7 @@ import {
   actionAddUser,
   actionUpdateUser,
   actionDeactivateUser,
-} from '@/lib/actions';
+} from './lib/user-actions';
 import { validateUserEdit, type UserFormData } from '@/lib/validators';
 import { useUserFilters } from './lib/use-user-filters';
 import StatusBadge from '@/components/ui/StatusBadge';

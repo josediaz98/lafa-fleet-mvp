@@ -10,7 +10,7 @@ import {
   removeFromDriversMap,
   updateDriverStatusInMap,
 } from '@/lib/mappers';
-import { withOptimistic } from './with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionAddDriver(driver: Driver, ctx: ActionContext) {
   await withOptimistic(ctx, {

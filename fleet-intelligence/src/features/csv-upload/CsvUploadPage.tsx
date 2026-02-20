@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Trip } from '@/types';
 import { useActionContext } from '@/lib/action-context';
-import { actionImportTrips } from '@/lib/actions';
+import { actionImportTrips } from '@/features/shift/lib/trip-actions';
 import { useFileParser } from './lib/use-file-parser';
 import UploadStep from './components/UploadStep';
 import PreviewStep from './components/PreviewStep';

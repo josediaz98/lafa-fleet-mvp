@@ -6,7 +6,7 @@ import {
   persistDeactivateUser,
 } from '@/lib/supabase/mutations';
 import { addToProfilesMap } from '@/lib/mappers';
-import { withOptimistic } from './with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionAddUser(
   user: User,

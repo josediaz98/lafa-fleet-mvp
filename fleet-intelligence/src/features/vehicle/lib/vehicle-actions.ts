@@ -10,7 +10,7 @@ import {
   removeFromVehiclesMap,
   updateVehicleStatusInMap,
 } from '@/lib/mappers';
-import { withOptimistic } from './with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionVehicleStatus(
   vehicleId: string,

@@ -4,7 +4,7 @@ import {
   persistClosePayroll,
   persistRerunPayroll,
 } from '@/lib/supabase/mutations';
-import { withOptimistic } from './with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionClosePayroll(
   records: PayrollRecord[],

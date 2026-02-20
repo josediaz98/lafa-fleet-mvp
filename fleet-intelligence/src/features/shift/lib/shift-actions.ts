@@ -7,7 +7,7 @@ import {
   persistDeleteShift,
 } from '@/lib/supabase/mutations';
 import { updateVehicleStatusInMap } from '@/lib/mappers';
-import { withOptimistic } from '@/lib/actions/with-optimistic';
+import { withOptimistic } from '@/lib/with-optimistic';
 
 export async function actionCheckIn(
   shift: Shift,

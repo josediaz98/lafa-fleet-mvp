@@ -6,7 +6,7 @@ import { CENTERS } from '@/data/constants';
 import { useActionContext } from '@/lib/action-context';
 import { useShiftCheckOut } from './lib/use-shift-checkout';
 import type { Shift } from '@/types';
-import { actionCheckIn } from '@/lib/actions';
+import { actionCheckIn } from './lib/shift-actions';
 import { useShiftFilters } from './lib/use-shift-filters';
 import CenterFilterDropdown from '@/components/ui/CenterFilterDropdown';
 import EmptyState from '@/components/ui/EmptyState';
@@ -44,6 +44,7 @@ export default function ShiftsPage() {
     const driver = drivers.find((d) => d.id === driverId);
     const vehicle = vehicles.find((v) => v.id === vehicleId);
     if (!driver || !vehicle) return;
+    if (driver.centerId !== vehicle.centerId) return;
 
     const center = CENTERS.find((c) => c.id === driver.centerId);
     const newShift: Shift = {
