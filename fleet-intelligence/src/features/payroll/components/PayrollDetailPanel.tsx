@@ -14,7 +14,7 @@ export default function PayrollDetailPanel({
 }: PayrollDetailPanelProps) {
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <p className="text-xs text-lafa-text-secondary">Centro</p>
           <p className="text-sm font-medium text-lafa-text-primary">

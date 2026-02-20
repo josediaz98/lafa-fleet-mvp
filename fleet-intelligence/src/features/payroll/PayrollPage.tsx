@@ -93,6 +93,7 @@ export default function PayrollPage() {
       {tab === 'actual' ? (
         <PayrollDraftView
           week={week}
+          isAdmin={isAdmin}
           isCurrentWeekClosed={isCurrentWeekClosed}
           hasTrips={trips.length > 0}
           displayData={displayData}

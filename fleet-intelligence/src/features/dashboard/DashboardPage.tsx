@@ -7,6 +7,7 @@ import {
   DollarSign,
   Users,
   ArrowRight,
+  Target,
 } from 'lucide-react';
 import { useAppState } from '@/app/providers/AppProvider';
 import { useCenterFilter } from '@/lib/use-center-filter';
@@ -19,7 +20,7 @@ import { ShiftCard } from '@/features/shift';
 import EmptyState from '@/components/ui/EmptyState';
 
 export default function DashboardPage() {
-  const { shifts, vehicles, trips, drivers, hydrated } = useAppState();
+  const { shifts, vehicles, trips, drivers, closedPayroll, hydrated } = useAppState();
   const { filterByCenter } = useCenterFilter();
   const { handleCheckOut: handleCloseShift } = useShiftCheckOut();
   const navigate = useNavigate();
@@ -47,6 +48,23 @@ export default function DashboardPage() {
     (d) => d.status === 'activo',
   ).length;
   const driversInShift = enTurno.length;
+
+  // Meta cumplida — last closed payroll week
+  const latestClosedWeek = useMemo(() => {
+    const closed = filterByCenter(
+      closedPayroll.filter((p) => p.status === 'cerrado'),
+    );
+    if (closed.length === 0) return { met: 0, total: 0, pct: 0, label: '' };
+    const latest = closed.reduce((a, b) => (a.weekStart > b.weekStart ? a : b));
+    const weekRecords = closed.filter((p) => p.weekStart === latest.weekStart);
+    const met = weekRecords.filter((p) => p.goalMet).length;
+    return {
+      met,
+      total: weekRecords.length,
+      pct: weekRecords.length > 0 ? Math.round((met / weekRecords.length) * 100) : 0,
+      label: latest.weekLabel ?? '',
+    };
+  }, [closedPayroll, filterByCenter]);
 
   const alertShifts = filteredShifts.filter(
     (s) =>
@@ -81,11 +99,14 @@ export default function DashboardPage() {
 
   const kpiCards = [
     {
-      label: 'Turnos activos',
-      value: String(enTurno.length),
-      icon: Clock,
-      color: 'text-status-active',
-      bg: 'bg-status-active/15',
+      label: 'Meta cumplida',
+      subtitle: latestClosedWeek.label,
+      value: latestClosedWeek.total > 0
+        ? `${latestClosedWeek.pct}%`
+        : '—',
+      icon: Target,
+      color: 'text-status-success',
+      bg: 'bg-status-success/15',
     },
     {
       label: 'Conductores en turno',
