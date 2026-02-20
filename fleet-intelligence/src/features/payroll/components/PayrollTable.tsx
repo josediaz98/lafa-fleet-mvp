@@ -87,7 +87,40 @@ export default function PayrollTable({
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile card list */}
+      <div className="sm:hidden">
+        {sorted.length === 0 ? (
+          <div className="px-4 py-8">
+            <EmptyState icon={Receipt} title={'Sin registros de nómina'} />
+          </div>
+        ) : (
+          <div className="space-y-2 p-2">
+            {paginatedRows.map(row => (
+              <div key={row.id} onClick={() => onSelectRow(row)}
+                   className="bg-lafa-surface border border-lafa-border rounded-lg p-3 cursor-pointer active:bg-lafa-accent/10">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-lafa-text-primary whitespace-nowrap">{row.driverName}</span>
+                  <span className="text-sm font-semibold text-lafa-text-primary">{formatMXN(row.totalPay)}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-xs text-lafa-text-secondary">
+                    {row.hoursWorked}h/{row.hoursThreshold}h · {formatMXN(row.totalBilled)}/{formatMXN(row.revenueThreshold)}
+                  </span>
+                  {tab === 'actual' ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-alert/15 text-status-alert">Borrador</span>
+                  ) : row.status === 'cerrado' ? (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">Cerrado</span>
+                  ) : (
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-danger/15 text-status-danger">Superseded</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-lafa-surface">
             <tr className="border-b border-lafa-border">
@@ -240,7 +273,7 @@ export default function PayrollTable({
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <span className="text-xs text-lafa-text-secondary">
           {rangeStart}–{rangeEnd} de {data.length} conductor
           {data.length !== 1 ? 'es' : ''}

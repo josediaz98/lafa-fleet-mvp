@@ -215,7 +215,25 @@ export default function DriversPage() {
       </div>
 
       <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
+        {/* Mobile card list */}
+        <div className="sm:hidden space-y-2 p-2">
+          {paginatedDrivers.map(driver => (
+            <div key={driver.id} onClick={() => setSelectedDriver(driver)}
+                 className="bg-lafa-surface border border-lafa-border rounded-lg p-3 cursor-pointer active:bg-lafa-accent/10">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium text-lafa-text-primary">{driver.fullName}</span>
+                <StatusBadge status={driver.status} />
+              </div>
+              <div className="flex items-center gap-2 mt-1 text-xs text-lafa-text-secondary">
+                <span>{getCenterName(driver.centerId)}</span>
+                <span>·</span>
+                <StatusBadge status={driver.defaultShift} />
+              </div>
+            </div>
+          ))}
+        </div>
+        {/* Desktop table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-lafa-border">
@@ -271,7 +289,7 @@ export default function DriversPage() {
             </tbody>
           </table>
         </div>
-        <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+        <div className="px-4 py-2.5 border-t border-lafa-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
           <span className="text-xs text-lafa-text-secondary">
             {rangeStart}–{rangeEnd} de {filtered.length} conductores
           </span>

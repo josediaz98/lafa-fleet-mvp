@@ -16,7 +16,7 @@ export default function PaginationControls({
       <button
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage <= 1}
-        className="p-1 rounded text-lafa-text-secondary hover:text-lafa-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-lafa-text-secondary hover:text-lafa-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
         aria-label="Página anterior"
       >
         <ChevronLeft size={14} />
@@ -27,7 +27,7 @@ export default function PaginationControls({
       <button
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage >= totalPages}
-        className="p-1 rounded text-lafa-text-secondary hover:text-lafa-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
+        className="min-w-[44px] min-h-[44px] flex items-center justify-center rounded text-lafa-text-secondary hover:text-lafa-text-primary disabled:opacity-30 disabled:cursor-not-allowed transition-colors duration-150"
         aria-label="Página siguiente"
       >
         <ChevronRight size={14} />

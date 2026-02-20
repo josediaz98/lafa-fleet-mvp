@@ -153,7 +153,24 @@ export default function UploadHistoryTable({
         <History size={16} className="text-lafa-text-secondary" />
         <h2 className="text-sm font-semibold text-lafa-text-primary">Historial de cargas</h2>
       </div>
-      <div className="overflow-x-auto">
+      {/* Mobile card list */}
+      <div className="sm:hidden space-y-2 p-2">
+        {paginatedItems.map(r => (
+          <div key={r.id}
+               className="bg-lafa-surface border border-lafa-border rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-lafa-text-primary truncate mr-2">{r.filename}</span>
+              <StatusBadge status={r.status} />
+            </div>
+            <div className="flex items-center justify-between mt-1 text-xs text-lafa-text-secondary">
+              <span>{timeAgo(r.uploadedAt)}</span>
+              <span>{r.recordCount} registros</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="sticky top-0 bg-lafa-surface z-10">
             <tr className="border-b border-lafa-border">
@@ -224,7 +241,7 @@ export default function UploadHistoryTable({
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <span className="text-xs text-lafa-text-secondary">
           {rangeStart}–{rangeEnd} de {records.length} cargas
         </span>

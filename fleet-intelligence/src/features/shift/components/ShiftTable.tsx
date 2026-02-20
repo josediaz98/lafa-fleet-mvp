@@ -36,7 +36,26 @@ export default function ShiftTable({
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile card list */}
+      <div className="sm:hidden space-y-2 p-2">
+        {paginatedItems.map(shift => (
+          <div key={shift.id}
+               className="bg-lafa-surface border border-lafa-border rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-lafa-text-primary">{shift.driverName}</span>
+              <span className="text-xs font-mono text-lafa-text-secondary">{shift.plate}</span>
+            </div>
+            <div className="flex items-center justify-between mt-1 text-xs text-lafa-text-secondary">
+              <span>{formatTime(shift.checkIn)} → {shift.checkOut ? formatTime(shift.checkOut) : '—'}</span>
+              <span className="font-medium text-status-success">
+                {shift.hoursWorked !== undefined ? `${shift.hoursWorked}h` : '—'}
+              </span>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
@@ -97,7 +116,7 @@ export default function ShiftTable({
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <span className="text-xs text-lafa-text-secondary">
           {rangeStart}–{rangeEnd} de {shifts.length} turno
           {shifts.length !== 1 ? 's' : ''}

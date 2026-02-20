@@ -30,7 +30,25 @@ export default function VehicleTable({
 
   return (
     <div className="bg-lafa-surface border border-lafa-border rounded-xl overflow-hidden">
-      <div className="overflow-x-auto">
+      {/* Mobile card list */}
+      <div className="sm:hidden space-y-2 p-2">
+        {paginatedItems.map(vehicle => (
+          <div key={vehicle.id} onClick={() => onSelect(vehicle)}
+               className="bg-lafa-surface border border-lafa-border rounded-lg p-3 cursor-pointer active:bg-lafa-accent/10">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium font-mono text-lafa-text-primary">{vehicle.plate}</span>
+              <StatusBadge status={vehicle.status} />
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-xs text-lafa-text-secondary">
+              <span>{vehicle.model}</span>
+              <span>·</span>
+              <span>{vehicle.oem}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Desktop table */}
+      <div className="hidden sm:block overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-lafa-border">
@@ -80,7 +98,7 @@ export default function VehicleTable({
           </tbody>
         </table>
       </div>
-      <div className="px-4 py-2.5 border-t border-lafa-border flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-lafa-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
         <span className="text-xs text-lafa-text-secondary">
           {rangeStart}–{rangeEnd} de {vehicles.length}
           {vehicles.length !== totalCount ? ` (${totalCount} total)` : ''}{' '}
