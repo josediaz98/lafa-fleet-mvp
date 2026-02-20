@@ -189,7 +189,7 @@ export default function ShiftCheckInModal({
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || driverHasActiveShift || !!centerMismatch}
+            disabled={isSubmitting || driverHasActiveShift}
             className="px-4 py-2 text-sm font-medium text-white bg-lafa-accent hover:bg-lafa-accent-hover rounded transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Registrando...' : 'Registrar check-in'}

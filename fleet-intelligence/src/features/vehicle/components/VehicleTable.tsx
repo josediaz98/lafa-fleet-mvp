@@ -40,10 +40,10 @@ export default function VehicleTable({
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Modelo
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 OEM
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Centro
               </th>
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
@@ -66,10 +66,10 @@ export default function VehicleTable({
                 <td className="px-4 py-3 text-lafa-text-primary">
                   {vehicle.model}
                 </td>
-                <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                <td className="px-4 py-3 text-lafa-text-secondary">
                   {vehicle.oem}
                 </td>
-                <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                <td className="px-4 py-3 text-lafa-text-secondary">
                   {getCenterName(vehicle.centerId)}
                 </td>
                 <td className="px-4 py-3">

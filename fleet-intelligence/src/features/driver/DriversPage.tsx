@@ -180,7 +180,7 @@ export default function DriversPage() {
             className="w-full pl-9 pr-3 py-2.5 bg-lafa-surface border border-lafa-border rounded text-sm text-lafa-text-primary placeholder-lafa-text-secondary/50 focus:outline-none focus:border-lafa-accent"
           />
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex items-center gap-2">
           <div className="flex items-center gap-1 bg-lafa-surface border border-lafa-border rounded p-0.5">
             {STATUS_FILTERS.map((f) => (
               <button
@@ -222,16 +222,16 @@ export default function DriversPage() {
                 <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                   Nombre completo
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                   DiDi ID
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                   Centro
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                   Turno default
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+                <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                   Fecha ingreso
                 </th>
                 <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
@@ -251,16 +251,16 @@ export default function DriversPage() {
                   <td className="px-4 py-3 text-lafa-text-primary font-medium">
                     {driver.fullName}
                   </td>
-                  <td className="px-4 py-3 text-lafa-text-secondary font-mono hidden sm:table-cell">
+                  <td className="px-4 py-3 text-lafa-text-secondary font-mono">
                     {driver.didiDriverId}
                   </td>
-                  <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                  <td className="px-4 py-3 text-lafa-text-secondary">
                     {getCenterName(driver.centerId)}
                   </td>
-                  <td className="px-4 py-3 hidden sm:table-cell">
+                  <td className="px-4 py-3">
                     <StatusBadge status={driver.defaultShift} />
                   </td>
-                  <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                  <td className="px-4 py-3 text-lafa-text-secondary">
                     {driver.startDate}
                   </td>
                   <td className="px-4 py-3">

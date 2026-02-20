@@ -44,7 +44,6 @@ export default function ShiftsPage() {
     const driver = drivers.find((d) => d.id === driverId);
     const vehicle = vehicles.find((v) => v.id === vehicleId);
     if (!driver || !vehicle) return;
-    if (driver.centerId !== vehicle.centerId) return;
 
     const center = CENTERS.find((c) => c.id === driver.centerId);
     const newShift: Shift = {

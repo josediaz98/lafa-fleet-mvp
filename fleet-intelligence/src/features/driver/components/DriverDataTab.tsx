@@ -118,7 +118,7 @@ export default function DriverDataTab({
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-2 gap-4 mb-6">
         <div>
           <p className="text-xs text-lafa-text-secondary">Nombre completo</p>
           <p className="text-sm font-medium text-lafa-text-primary">

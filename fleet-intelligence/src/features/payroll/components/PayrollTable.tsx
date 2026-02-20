@@ -16,18 +16,16 @@ function SortHeader({
   sortKey,
   sortAsc,
   onSort,
-  className,
 }: {
   label: string;
   field: SortKey;
   sortKey: SortKey;
   sortAsc: boolean;
   onSort: (key: SortKey) => void;
-  className?: string;
 }) {
   return (
     <th
-      className={`text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap ${className ?? ''}`}
+      className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider cursor-pointer hover:text-lafa-text-primary select-none whitespace-nowrap"
       onClick={() => onSort(field)}
     >
       {label} {sortKey === field ? (sortAsc ? '↑' : '↓') : ''}
@@ -92,28 +90,28 @@ export default function PayrollTable({
           <thead className="bg-lafa-surface">
             <tr className="border-b border-lafa-border">
               <SortHeader label="Conductor" field="driverName" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden md:table-cell">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Centro
               </th>
-              <SortHeader label="Horas" field="hoursWorked" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} className="hidden sm:table-cell" />
-              <SortHeader label={'Facturación'} field="totalBilled" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} className="hidden sm:table-cell" />
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden md:table-cell">
+              <SortHeader label="Horas" field="hoursWorked" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <SortHeader label={'Facturación'} field="totalBilled" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Meta
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Base
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Bono
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Overtime
               </th>
-              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">
+              <th className="text-right px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Apoyo
               </th>
               <SortHeader label="Pago total" field="totalPay" sortKey={sortKey} sortAsc={sortAsc} onSort={handleSort} />
-              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap hidden lg:table-cell">
+              <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
                 Flags
               </th>
               <th className="text-center px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider whitespace-nowrap">
@@ -143,11 +141,11 @@ export default function PayrollTable({
                 <td className="px-4 py-3 text-lafa-text-primary font-medium whitespace-nowrap">
                   {row.driverName}
                 </td>
-                <td className="px-4 py-3 text-lafa-text-secondary hidden md:table-cell">
+                <td className="px-4 py-3 text-lafa-text-secondary">
                   {row.center}
                 </td>
                 <td
-                  className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell"
+                  className="px-4 py-3 text-lafa-text-secondary"
                   title={`Meta: ${row.hoursThreshold}h`}
                 >
                   {row.hoursWorked}h
@@ -156,7 +154,7 @@ export default function PayrollTable({
                   </span>
                 </td>
                 <td
-                  className="px-4 py-3 text-lafa-text-primary whitespace-nowrap hidden sm:table-cell"
+                  className="px-4 py-3 text-lafa-text-primary whitespace-nowrap"
                   title={`Meta: ${formatMXN(row.revenueThreshold)}`}
                 >
                   {formatMXN(row.totalBilled)}
@@ -164,7 +162,7 @@ export default function PayrollTable({
                     /{formatMXN(row.revenueThreshold)}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-center hidden md:table-cell">
+                <td className="px-4 py-3 text-center">
                   {row.goalMet ? (
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-status-success/15 text-status-success">
                       {'\u00a0Sí\u00a0'}
@@ -175,22 +173,22 @@ export default function PayrollTable({
                     </span>
                   )}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap hidden lg:table-cell">
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
                   {formatMXN(row.baseSalary)}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap hidden lg:table-cell">
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
                   {formatMXN(row.productivityBonus)}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap hidden lg:table-cell">
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
                   {formatMXN(row.overtimePay)}
                 </td>
-                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap hidden lg:table-cell">
+                <td className="px-4 py-3 text-right text-lafa-text-secondary whitespace-nowrap">
                   {row.goalMet ? '—' : formatMXN(SUPPORT_AMOUNT)}
                 </td>
                 <td className="px-4 py-3 text-right font-semibold text-lafa-text-primary whitespace-nowrap">
                   {formatMXN(row.totalPay)}
                 </td>
-                <td className="px-4 py-3 hidden lg:table-cell">
+                <td className="px-4 py-3">
                   {(() => {
                     const flags = getPayrollFlags(
                       row,

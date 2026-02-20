@@ -37,7 +37,7 @@ export default function ConfirmStep({ rows, onReset }: ConfirmStepProps) {
           ? ` ${errorCount} registro${errorCount !== 1 ? 's' : ''} con error descartado${errorCount !== 1 ? 's' : ''}.`
           : ''}
       </div>
-      <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4 mb-6 grid grid-cols-1 sm:grid-cols-3 gap-6 text-center">
+      <div className="bg-lafa-surface border border-lafa-border rounded-xl p-4 mb-6 grid grid-cols-3 gap-6 text-center">
         <div>
           <p className="text-xs text-lafa-text-secondary">Viajes</p>
           <p className="text-lg font-bold text-lafa-text-primary">

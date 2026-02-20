@@ -33,13 +33,13 @@ export default function UserTable({
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Nombre
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Email
               </th>
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Rol
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider hidden sm:table-cell">
+              <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
                 Centro asignado
               </th>
               <th className="text-left px-4 py-3 text-xs font-medium text-lafa-text-secondary uppercase tracking-wider">
@@ -72,13 +72,13 @@ export default function UserTable({
                       )}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                  <td className="px-4 py-3 text-lafa-text-secondary">
                     {user.email}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={user.role} />
                   </td>
-                  <td className="px-4 py-3 text-lafa-text-secondary hidden sm:table-cell">
+                  <td className="px-4 py-3 text-lafa-text-secondary">
                     {getCenterName(user.centerId)}
                   </td>
                   <td className="px-4 py-3">

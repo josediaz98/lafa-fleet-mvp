@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Clock,
   Car,
-  AlertTriangle,
   DollarSign,
   Users,
   ArrowRight,
@@ -130,13 +129,6 @@ export default function DashboardPage() {
       color: 'text-status-success',
       bg: 'bg-status-success/15',
     },
-    {
-      label: 'Alertas',
-      value: String(alertShifts.length),
-      icon: AlertTriangle,
-      color: 'text-status-danger',
-      bg: 'bg-status-danger/15',
-    },
   ];
 
   if (!hydrated) {
@@ -146,8 +138,8 @@ export default function DashboardPage() {
           <div className="h-8 w-40 bg-lafa-surface rounded-lg animate-pulse" />
           <div className="h-9 w-48 bg-lafa-surface rounded-lg animate-pulse" />
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-          {Array.from({ length: 5 }).map((_, i) => (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
               className="bg-lafa-surface border border-lafa-border rounded-xl p-5 animate-pulse"
@@ -188,7 +180,7 @@ export default function DashboardPage() {
         <CenterFilterDropdown variant="pills" />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         {kpiCards.map(({ label, subtitle, value, icon: Icon, color, bg }) => (
           <div
             key={label}
